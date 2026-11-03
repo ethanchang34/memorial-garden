@@ -1,6 +1,6 @@
 # Memorial Garden — Design Doc
 
-> Working name. Rename freely. Status: **Draft v2** (2026-11-03, open questions resolved)
+> Working name. Rename freely. Status: **Draft v3** (2026-11-03, feature round 2)
 
 ## 1. Overview
 
@@ -16,12 +16,13 @@ An online cemetery where anyone can create a memorial for someone who has died, 
 
 ### Tenets
 When tradeoffs conflict, these come first.
-1. **Grief is free.** Expressing love and remembrance never costs money; paid items are optional gestures.
+1. **Grief is free, and we never exploit it.** Expressing love and remembrance never costs money; paid items are optional gestures. **Firm rules:** no loot boxes or random rewards, no ads, and no guilt-driven messaging (e.g. never "Grandma's stone is getting dirty" emails or "only 2 left!" pressure).
 2. **Every screen size gets a first-class experience.** Phones, tablets, laptops, and large monitors, in portrait or landscape, and browser windows of any width. No layout is an afterthought, and no feature exists only on desktop (see §7.1).
 3. **Calm and cozy over clever.** Warm, soft, and welcoming (see §7.0). No dark patterns and no pressure to buy.
 4. **Accessible by default.** Keyboard, screen-reader, and reduced-motion support ship with every feature, not afterward.
 5. **Cheap and portable.** Stay on free plans until revenue pays for upgrades, and keep providers swappable.
 6. **Use proven libraries; don't reinvent them.** Use well-maintained open-source libraries and asset packs for UI components, animation, audio, icons, and forms instead of building them from scratch. Spend our own effort on what makes the site unique: the grave scene, notes stack, decorations, and weathering. See §7.2 for the approved list and the rules for adding to it.
+7. **One memorial, one garden.** Each memorial is its own page and its own garden scene with a single gravestone. Gravestones are never shown side by side in a shared scene. Browsing and search show cards that lead to each garden.
 
 ### Non-goals (v1)
 - Native mobile apps.
@@ -56,6 +57,15 @@ When tradeoffs conflict, these come first.
 | Voice memo downloads | **The memo's author and the memorial owner** can download. Everyone else can only play. |
 | Coin balance UI | **Always visible in the header** when signed in. Clicking it opens the pack picker. |
 | Private memorials | **After launch.** The `memorials.visibility` column ships in v1 (always `public`). |
+| Page model | **One memorial = one page = one garden scene with one gravestone** (Tenet 7). |
+| Revenue additions | **Premium stone styles/scenes** bought with coins (~1,000–1,500), by the owner or caretakers, permanent for that memorial. **v1.** |
+| Rejected revenue ideas | Printed books, QR plaques, charity decorations, coin gifting (could be revisited later). |
+| Memory prompts | Gentle writing prompts in the note composer. **v1.** |
+| Cultural traditions | Tradition-specific decorations and stone motifs. **v1** (initial set in §6.12). |
+| Family caretakers | Can do everything except delete the memorial or manage caretakers. If the owner leaves, the longest-serving caretaker becomes owner. **After launch.** |
+| Anniversary reminders | Any signed-in visitor can **follow** a memorial and opt in to birthday and anniversary emails (off by default). **After launch.** The email provider is undecided. |
+| Pet memorials | Same site, with a `kind` field (person or pet) and a separate "Pets" browse section, plus pet stones and decorations. **After launch.** |
+| Guardrails | Firm: no loot boxes, ads, or guilt emails. Not adopted: dollar amounts shown next to coin prices, 24h mistake refunds, self-set spending limits (the confirmation dialog is the safeguard). |
 
 ---
 
@@ -143,10 +153,26 @@ profiles            (id = auth.users.id, display_name, avatar_url, is_admin bool
 
 memorials           (id, owner_id → profiles NULL ON DELETE SET NULL, slug unique, full_name,
                      born_on date, died_on date, epitaph text, bio text, cover_photo_key,
-                     stone_style text, theme text, last_cleaned_at,
+                     kind: person|pet (v1: person), stone_style_id → stone_styles,
+                     scene text, tradition text?, theme text, last_cleaned_at,
                      visibility: public|private (v1: always public),
                      status: active|hidden|removed, created_at)
                      -- owner_id NULL = orphaned; still visible, owner-only actions are disabled
+
+stone_styles        (id, key unique, name, is_premium bool, price_coins int?, kind: person|pet|any,
+                     tradition text?, slot_template jsonb, art_asset text, is_active bool)
+                     -- slot_template: [{position_key, slot_kind, x%, y%}] (see §6.3)
+
+memorial_unlocks ⚑  (id, memorial_id, stone_style_id, purchaser_id, ledger_entry_id, created_at,
+                     unique(memorial_id, stone_style_id))   -- permanent once bought
+
+memory_prompts      (id, text, kind: person|pet|any, tradition text?, is_active bool)
+
+-- After launch (tables designed now, created when the feature ships):
+memorial_caretakers (memorial_id, user_id, added_by, added_at, primary key(memorial_id, user_id))
+caretaker_invites   (id, memorial_id, token_hash, created_by, expires_at, accepted_by?, accepted_at?)
+memorial_follows    (user_id, memorial_id, remind_birthday bool, remind_anniversary bool, created_at,
+                     primary key(user_id, memorial_id))
 
 memorial_photos     (id, memorial_id, uploader_id, storage_key, caption, sort_order, created_at)
 
@@ -158,7 +184,8 @@ notes               (id, memorial_id, author_id, body text (≤ 2000 chars), pap
 voice_memos         (id, memorial_id, author_id, storage_key, duration_ms int,
                      is_paid bool, coins_spent int, status, created_at)
 
-decoration_types    (id, key unique, name, slot_kind: pot|candle|incense|light|wreath,
+decoration_types    (id, key unique, name, slot_kind: pot|candle|incense|light|wreath|stone|offering,
+                     tradition text?, kind: person|pet|any,
                      price_coins int, lifetime_hours int, art_asset text, is_active bool)
                      -- data-driven: adding a decoration = inserting a row + art
 
@@ -179,7 +206,7 @@ daily_rewards ⚑     (user_id, reward_on date, ledger_entry_id, primary key(use
 coin_ledger ⚑       (id, user_id, delta int (+/-), reason: purchase|daily_visit|decoration|
                      voice_memo|refund|chargeback|admin_adjust, ref_type, ref_id,
                      idempotency_key unique, created_at)
-                     -- reason also includes: decoration_renewal
+                     -- reason also includes: decoration_renewal, stone_unlock
                      -- APPEND-ONLY. Balance = SUM(delta). Never UPDATE/DELETE.
 
 coin_packs          (id, name, coins int, price_cents int, stripe_price_id, is_active)
@@ -223,11 +250,12 @@ A `coin_balances` view (`SELECT user_id, SUM(delta)`) can be turned into a cache
 | String lights / lantern | 100 | 7 days |
 | Flower pot + flowers | 200 | 14 days |
 | Renew a decoration (giver only, before it fades) | 75% of price, rounded up (incense 23, candle 38, lights 75, flowers 150) | resets to full lifetime |
+| Premium stone style / scene (owner or caretaker) | 1,000–1,500 | permanent for that memorial |
 | Extra voice memo (beyond 3) | 50 | — |
 | Extended memo (60s → 3 min) | +100 | — |
 
 ### Integrity rules
-1. All spending goes through Postgres functions (`place_decoration`, `renew_decoration`, `create_paid_voice_memo`) that run in **one transaction**: lock the user's ledger rows (`pg_advisory_xact_lock(hash(user_id))`), check the balance, insert a negative ledger row, insert the decoration. The client never writes the ledger.
+1. All spending goes through Postgres functions (`place_decoration`, `renew_decoration`, `unlock_stone_style`, `create_paid_voice_memo`) that run in **one transaction**: lock the user's ledger rows (`pg_advisory_xact_lock(hash(user_id))`), check the balance, insert a negative ledger row, insert the decoration. The client never writes the ledger.
 2. Purchases are credited **only from the Stripe webhook** (`checkout.session.completed`) after the signature is verified. `idempotency_key = stripe_session_id`, so a webhook delivered twice can't credit coins twice.
 3. Refunds and chargebacks add a negative `refund`/`chargeback` row. Balances can go negative, and spending is blocked until the balance is positive again.
 4. Terms of service: coins have **no cash value**, can't be transferred, and are non-refundable except where the law requires.
@@ -240,6 +268,8 @@ A Stripe Checkout one-time payment with preset amounts ($3/$5/$10/custom, minimu
 ## 6. Feature specs
 
 ### 6.1 Memorial page (`/m/:slug`)
+**Each memorial is its own garden** (Tenet 7): one page, one scene, one gravestone. The scene, the stone style, and its decoration slots all belong to that single memorial. Browse and search pages (`/`, `/browse`, later `/pets`) show memorial **cards** (stone thumbnail, name, dates), never a shared multi-grave scene.
+
 Layout, top to bottom:
 1. **The grave scene:** the gravestone (name, dates, epitaph) with decoration slots arranged around it, and the weathering overlay on the stone.
 2. **Life:** cover photo, bio, photo gallery, timeline.
@@ -306,6 +336,38 @@ Layout, top to bottom:
 - A brief "+1" animation plays when the daily visit coin is granted.
 
 ---
+
+### 6.10 Premium stone styles & scenes (v1)
+- v1 ships **1 free classic stone** plus **2–3 premium** stone/scene combinations (e.g. marble under a willow, slate by the sea, a mossy woodland stone). Each is a `stone_styles` row with its own slot template.
+- In memorial settings, the owner (and caretakers, after launch) can preview any style live on their own garden before buying. `unlock_stone_style()` charges the coins once and the unlock is permanent. Switching back and forth between unlocked styles is free.
+- Changing the stone style changes the slot layout. Active decorations move to the matching slot kind in the new layout. Any that don't fit stay "on the ground" until they expire, so nothing is lost.
+
+### 6.11 Memory prompts (v1)
+- The note composer shows a rotating, dismissible prompt ("Share a favorite meal you had together", "What would you tell them today?"). Clicking "Use this" pre-fills a gentle opening line.
+- Prompts come from `memory_prompts`, filtered by memorial `kind` and `tradition`. About 30 ship at launch. They're never shown in a way that implies you *should* write.
+
+### 6.12 Cultural & religious traditions (v1)
+- The owner can optionally set a **tradition** on the memorial. It adds tradition-specific decorations and stone motifs to the options, but never restricts anything.
+- Initial set (each is just `decoration_types`/`stone_styles` rows plus art):
+
+  | Tradition | Additions |
+  |---|---|
+  | Jewish | Visitation stones (free gesture, small slot kind `stone`), Star of David motif, yahrzeit candle |
+  | Christian | Cross motif, rosary, lilies, votive candle |
+  | Muslim | Crescent motif, simple green myrtle/rosewater offering (no images on the stone) |
+  | Buddhist | Incense, lotus, offering bowl |
+  | Hindu | Diya lamp, marigold garland |
+  | Día de los Muertos | Marigolds (cempasúchil), papel picado, ofrenda items, sugar skull |
+  | Chinese ancestral | Incense, fruit offering, joss paper motif (no burning animation by default) |
+  | Secular/none | Default set |
+- **Review every tradition's items with people from that tradition before launch** to avoid getting them wrong or causing offense (see §12).
+- Small, symbolic items that are culturally core (e.g. Jewish visitation stones) are **free**, per Tenet 1.
+
+### 6.13 After launch (designed now, built later)
+- **Family caretakers:** the owner sends an invite link (single-use, expires in 7 days). Caretakers can edit the bio, photos, and timeline, hide content, and change or unlock stone styles. They can't delete the memorial or manage caretakers. If the owner deletes their account, the longest-serving caretaker becomes the owner automatically, and the memorial is orphaned only if no caretakers exist.
+- **Follow + anniversary reminders:** a "Follow" button on the memorial. Each follower can opt in separately to birthday and death-anniversary emails, which are off by default. Reminder text is gentle ("Today would have been Rosa's 90th birthday") and contains a link, never a sales pitch or coin offer (Tenet 1). Email goes through an `EmailProvider` adapter; the provider is undecided (Resend vs. Amazon SES).
+- **Pet memorials:** `kind = pet`, a separate `/pets` browse section, pet stones (paw prints, wooden marker) and pet decorations (toy ball, food bowl, favorite blanket), with pet-specific memory prompts.
+
 
 ## 7. Visual design
 
@@ -456,7 +518,9 @@ Back up the database yourself: a weekly `pg_dump` from a GitHub Action to R2 (th
 
 ## 10. Extensibility hooks
 - **Decorations:** a row in `decoration_types` plus an art asset.
-- **Stone styles and themes:** JSON slot templates plus CSS variables.
+- **Stone styles and scenes:** a `stone_styles` row with a JSON slot template plus art. Premium ones set `is_premium` and `price_coins`.
+- **Traditions:** add a `tradition` value and tag new `decoration_types`, `stone_styles`, and `memory_prompts` with it.
+- **Memorial kinds:** `memorials.kind` (person, pet) filters stones, decorations, and prompts.
 - **Seasonal items:** `decoration_types.is_active` plus optional `available_from` and `available_until` dates.
 - **New paid features:** add a `coin_ledger.reason` value and one SQL function.
 - **Notifications** (later): an `events` table, which email and push notifications can read from.
@@ -476,4 +540,7 @@ Back up the database yourself: a weekly `pg_dump` from a GitHub Action to R2 (th
 All of the original questions were resolved on 2026-11-03 (see §2). Remaining items, none of which block M0–M3:
 1. Pick and register a domain (check availability for `memorialgarden.*` or alternatives).
 2. Where the art comes from: draw it, commission it, or license it (gravestones, decorations, grime textures).
-3. Whether renewing a decoration should ever be limited (e.g. a maximum number of renewals in a row) so other visitors get a chance at popular slots.
+3. Choose an email provider for anniversary reminders (Resend's free plan vs. Amazon SES); needed only after launch.
+4. Find reviewers from each tradition in §6.12 before launch, and adjust items based on their feedback.
+5. Premium stone/scene designs and exact prices (1,000–1,500 coins).
+6. Whether renewing a decoration should ever be limited (e.g. a maximum number of renewals in a row) so other visitors get a chance at popular slots.

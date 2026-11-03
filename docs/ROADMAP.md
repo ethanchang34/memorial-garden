@@ -17,10 +17,11 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Responsive foundation: breakpoints, container queries, `hover`/`pointer` media utilities, Playwright mobile + desktop projects
 
 ## M1 — Memorials (no money)
-- [ ] `memorials` (incl. nullable `owner_id`, `visibility`), `memorial_photos`, `timeline_events` tables + RLS
-- [ ] Create-memorial wizard; memorial page with gravestone render
+- [ ] `memorials` (incl. nullable `owner_id`, `visibility`, `kind`, `tradition`), `stone_styles`, `memorial_photos`, `timeline_events` tables + RLS
+- [ ] Create-memorial wizard (incl. optional tradition); memorial page = one garden scene with one gravestone
+- [ ] Free classic stone style + slot template
 - [ ] R2 photo upload through signed URLs (API route)
-- [ ] Browse + search by name
+- [ ] Browse + search by name (memorial cards linking to each garden)
 - [ ] Link-preview (OG tags) function for `/m/:slug`
 
 ## M2 — Notes
@@ -28,6 +29,7 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Filing-cabinet note stack: hover lift, date tooltip, All/Mine toggle, "mine" tabs
 - [ ] Owner hide/unhide; report button
 - [ ] Turnstile on submit
+- [ ] Memory prompts in the note composer (`memory_prompts`, ~30 seeded)
 
 ## M3 — Weathering & cleaning
 - [ ] `last_cleaned_at`, `cleanings`, `clean_memorial()` function
@@ -39,6 +41,8 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Stripe Checkout for packs + webhook (test mode) with idempotency
 - [ ] Slot hover/glow, confirm dialog, fill animations, expiry fade
 - [ ] Coin balance always in header; pack picker + recent transactions
+- [ ] Premium stone styles: `memorial_unlocks`, `unlock_stone_style()`, live preview, 2–3 premium styles
+- [ ] Cultural decorations + stone motifs (DESIGN §6.12); free visitation stones
 
 ## M5 — Voice memos
 - [ ] Recorder UI (MediaRecorder), 60s cap, preview
@@ -54,10 +58,14 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Weekly DB backup Action
 - [ ] Domain + Stripe live mode
 - [ ] Accessibility pass (keyboard, contrast, reduced motion)
+- [ ] Tradition review with people from each tradition (DESIGN §6.12)
 - [ ] Responsive pass on real devices (iOS Safari, Android Chrome) + all test viewports in DESIGN §7.1
 
 ## Later
-- Private/invite-only memorials (`visibility` column already exists), co-owners, ownership transfer
+- Family caretakers + invite links + automatic owner handoff (DESIGN §6.13)
+- Follow + anniversary/birthday reminder emails (pick an email provider)
+- Pet memorials + `/pets` section
+- Private/invite-only memorials (`visibility` column already exists), ownership transfer
 - Evening (dark) theme, seasonal decorations
 - Email notifications ("Someone left flowers for Grandma")
 - Speech-to-text captions for voice memos
