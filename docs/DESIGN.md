@@ -1,6 +1,6 @@
 # Memorial Garden — Design Doc
 
-> Working name. Rename freely. Status: **Draft v1** (2026-11-03)
+> Working name. Rename freely. Status: **Draft v2** (2026-11-03, open questions resolved)
 
 ## 1. Overview
 
@@ -38,6 +38,15 @@ An online cemetery where anyone can create a memorial for someone who has died, 
 | Payments | **Stripe**, selling coin packs (no single-coin purchases). |
 | Hosting | Cloudflare Pages (static site) + Supabase + Cloudflare R2 + a small amount of server code. |
 | Portability | Provider code is isolated in `src/adapters/`. |
+| Name | **Memorial Garden** (working name is final for now). Domain TBD. |
+| Weathering speed | Moss is **visible after about 1 week** uncleaned and reaches **maximum grime at about 60 days**. |
+| Decoration renewal | The giver can **renew before it fades at 75% of the price**. This resets the timer to the full lifetime and keeps the slot. |
+| Owner perks | **None.** Owners pay the same as everyone else. |
+| Orphaned memorials | If the owner deletes their account, the memorial **stays up without an owner**, and an admin can reassign it to a family member who asks. |
+| Decoration prices | Initial values in §5 are accepted. They're stored in the database, so they can be tuned after launch. |
+| Voice memo downloads | **The memo's author and the memorial owner** can download. Everyone else can only play. |
+| Coin balance UI | **Always visible in the header** when signed in. Clicking it opens the pack picker. |
+| Private memorials | **After launch.** The `memorials.visibility` column ships in v1 (always `public`). |
 
 ---
 
@@ -122,9 +131,12 @@ All IDs are `uuid`, all timestamps are `timestamptz`. ⚑ = written only by SECU
 ```sql
 profiles            (id = auth.users.id, display_name, avatar_url, is_admin bool, created_at)
 
-memorials           (id, owner_id → profiles, slug unique, full_name, born_on date, died_on date,
-                     epitaph text, bio text, cover_photo_key, stone_style text, theme text,
-                     last_cleaned_at, status: active|hidden|removed, created_at)
+memorials           (id, owner_id → profiles NULL ON DELETE SET NULL, slug unique, full_name,
+                     born_on date, died_on date, epitaph text, bio text, cover_photo_key,
+                     stone_style text, theme text, last_cleaned_at,
+                     visibility: public|private (v1: always public),
+                     status: active|hidden|removed, created_at)
+                     -- owner_id NULL = orphaned; still visible, owner-only actions are disabled
 
 memorial_photos     (id, memorial_id, uploader_id, storage_key, caption, sort_order, created_at)
 
@@ -144,8 +156,10 @@ memorial_slots      (id, memorial_id, slot_kind, position_key text)   -- e.g. 'l
                      -- created from the stone_style's layout template when the memorial is created
 
 decorations ⚑       (id, slot_id, decoration_type_id, giver_id, message text?,
-                     placed_at, expires_at, ledger_entry_id)
+                     placed_at, expires_at, renewed_count int default 0, last_renewed_at,
+                     ledger_entry_id)
                      -- a slot is occupied iff it has a decoration with expires_at > now()
+                     -- renewal updates expires_at/renewed_count; each renewal has its own ledger row
 
 cleanings ⚑         (id, memorial_id, user_id, cleaned_on date, created_at,
                      unique(memorial_id, user_id, cleaned_on))
@@ -155,6 +169,7 @@ daily_rewards ⚑     (user_id, reward_on date, ledger_entry_id, primary key(use
 coin_ledger ⚑       (id, user_id, delta int (+/-), reason: purchase|daily_visit|decoration|
                      voice_memo|refund|chargeback|admin_adjust, ref_type, ref_id,
                      idempotency_key unique, created_at)
+                     -- reason also includes: decoration_renewal
                      -- APPEND-ONLY. Balance = SUM(delta). Never UPDATE/DELETE.
 
 coin_packs          (id, name, coins int, price_cents int, stripe_price_id, is_active)
@@ -197,11 +212,12 @@ A `coin_balances` view (`SELECT user_id, SUM(delta)`) can be turned into a cache
 | Candle | 50 | 3 days |
 | String lights / lantern | 100 | 7 days |
 | Flower pot + flowers | 200 | 14 days |
+| Renew a decoration (giver only, before it fades) | 75% of price, rounded up (incense 23, candle 38, lights 75, flowers 150) | resets to full lifetime |
 | Extra voice memo (beyond 3) | 50 | — |
 | Extended memo (60s → 3 min) | +100 | — |
 
 ### Integrity rules
-1. All spending goes through Postgres functions (`place_decoration`, `create_paid_voice_memo`) that run in **one transaction**: lock the user's ledger rows (`pg_advisory_xact_lock(hash(user_id))`), check the balance, insert a negative ledger row, insert the decoration. The client never writes the ledger.
+1. All spending goes through Postgres functions (`place_decoration`, `renew_decoration`, `create_paid_voice_memo`) that run in **one transaction**: lock the user's ledger rows (`pg_advisory_xact_lock(hash(user_id))`), check the balance, insert a negative ledger row, insert the decoration. The client never writes the ledger.
 2. Purchases are credited **only from the Stripe webhook** (`checkout.session.completed`) after the signature is verified. `idempotency_key = stripe_session_id`, so a webhook delivered twice can't credit coins twice.
 3. Refunds and chargebacks add a negative `refund`/`chargeback` row. Balances can go negative, and spending is blocked until the balance is positive again.
 4. Terms of service: coins have **no cash value**, can't be transferred, and are non-refundable except where the law requires.
@@ -234,12 +250,16 @@ Layout, top to bottom:
 - **Hover/focus:** a soft glow ring and the label "Place flowers · 200 coins".
 - **Click:** a confirmation dialog shows the item preview, the price, the balance before and after, "Lasts 14 days", and an optional short message. On confirm, `place_decoration()` runs and the fill animation plays (flowers bloom, the candle lights).
 - Filled slot hover: "Flowers from Alex · Nov 3 · fades in 9 days".
+- **Renewal:** when the giver hovers their own decoration, they see "Renew · 150 coins". Confirming calls `renew_decoration()`, which sets `expires_at = now() + lifetime` (a reset, not added on top) and charges 75% of the price, rounded up. Only the giver can renew, and only while the decoration hasn't expired yet. Once it fades, anyone can claim the slot.
 - If the balance is too low, the dialog shows a "Get coins" button that opens the pack picker.
 - When a decoration expires it fades out (handled visually on the client; the server is the source of truth through `expires_at`).
 - Slot layouts come from `stone_style` templates (JSON: `[{position_key, slot_kind, x, y}]`), so a new stone style means a new template.
 
 ### 6.4 Weathering & cleaning
-- `grime_level = min(CAP, (now - last_cleaned_at) / RATE)`, with CAP = 0.6 and RATE = 1 level per 30 days. Both are config values. It's computed on the fly, so no cron job is needed.
+- `grime_level = min(1, days_since_clean / FULL_DAYS)`, with `FULL_DAYS = 60`, eased with `level^0.8` so early growth shows up sooner. It's computed on the fly, so no cron job is needed.
+  - Rendered opacity = `grime_level × MAX_OPACITY` (`MAX_OPACITY = 0.6`, so the name and dates stay readable).
+  - Targets: faint moss is noticeable by **about day 7** (level ≈ 0.18), heavy by about day 30, and maxed by day 60.
+  - Every value is a config constant in `core/weathering.ts`.
 - Drawn as layered moss, dirt, and lichen textures (SVG/PNG with alpha) over the stone, with opacity scaling with the level. A seeded random pattern per memorial keeps each stone's look consistent.
 - **Clean:** click the stone, confirm "Clean the stone?", and a wipe animation plays. `clean_memorial()` sets `last_cleaned_at = now()` and inserts into `cleanings`. Each user can clean a given memorial once per day. Free.
 - Optional later: a "Recently tended by Alex, Sam, and 3 others" line.
@@ -248,6 +268,7 @@ Layout, top to bottom:
 - Recorded in the browser with MediaRecorder (Opus/WebM, falling back to AAC/MP4 on Safari). Live timer, hard stop at the limit, preview before posting.
 - Flow: the client asks the API for an upload URL → the API checks the user's quota (and charges coins through a function if paid) and returns a **signed R2 PUT URL** limited to the content type and a maximum size (about 1.5MB per 60s, 5MB per 3 min) → the client uploads → the client confirms → the row is set to visible.
 - Playback uses short-lived signed GET URLs, so hidden or removed memos stop being playable.
+- **Downloads:** only the memo's author and the memorial owner see a Download button. The API issues a signed GET URL with `Content-Disposition: attachment` only after checking the requester's role. Everyone else streams through the player with no download link. (A determined person can still record their screen; the terms of service forbid reusing other people's recordings.)
 - Quota: free memos per (user, memorial) = 3.
 - Later: run speech-to-text for moderation and accessibility captions.
 
@@ -256,6 +277,7 @@ Layout, top to bottom:
 - Wizard: name and dates → epitaph → stone style → photo/bio (optional) → publish.
 - Creating a memorial also creates its `memorial_slots` from the stone template.
 - Ownership transfer and co-owners come later.
+- **Orphaned memorials:** when an owner deletes their account, `owner_id` becomes NULL. The memorial stays public, and visitors can still write notes, decorate, and clean. Owner moderation passes to admins. An "Is this your family member? Request ownership" link sends a request to the admin queue (`reports` with `reason = ownership_request`), and an admin can reassign `owner_id`.
 
 ### 6.7 Moderation
 - Owner: hide or unhide any note, memo, or photo on their memorial.
@@ -267,6 +289,11 @@ Layout, top to bottom:
 ### 6.8 Auth
 - Google OAuth through Supabase. The first sign-in creates a `profiles` row (trigger).
 - Browsing is anonymous. Signing in is required to create, write notes, record memos, decorate, clean, claim the daily coin, buy coins, or report.
+
+### 6.9 Coin balance UI
+- When signed in, the header always shows a small gold coin icon with the balance (e.g. `◉ 1,240`).
+- Clicking it opens the pack picker (500 / 1,000 / 2,000) and shows recent transactions read from the ledger.
+- A brief "+1" animation plays when the daily visit coin is granted.
 
 ---
 
@@ -341,12 +368,8 @@ Back up the database yourself: a weekly `pg_dump` from a GitHub Action to R2 (th
 ---
 
 ## 12. Open questions
-1. Final name and domain.
-2. Final decoration list, prices, and lifetimes (initial values are in §5).
-3. Weathering CAP and RATE: does visible moss appear after weeks or months?
-4. Can a decorator see their decoration's remaining lifetime and renew it early?
-5. Should memorial owners get any free decorations (e.g. one candle a month)?
-6. Private and invite-only memorials: when?
-7. Can visitors download voice memos, or only play them?
-8. What happens to a memorial whose owner deletes their account (transfer, keep as orphaned, delete)?
-9. Do we show the coin balance in the header always, or only on hover?
+
+All of the original questions were resolved on 2026-11-03 (see §2). Remaining items, none of which block M0–M3:
+1. Pick and register a domain (check availability for `memorialgarden.*` or alternatives).
+2. Where the art comes from: draw it, commission it, or license it (gravestones, decorations, grime textures).
+3. Whether renewing a decoration should ever be limited (e.g. a maximum number of renewals in a row) so other visitors get a chance at popular slots.
