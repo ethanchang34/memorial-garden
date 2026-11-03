@@ -36,7 +36,7 @@ When tradeoffs conflict, these come first.
 
 | Topic | Decision |
 |---|---|
-| Daily coin | Visiting any memorial **earns** 1 coin, once per user per day (UTC). |
+| Daily coin | Visiting any memorial **earns** 1 coin, once per user per day. The day resets at the **user's local midnight** (see §5). |
 | Donations | Go to **the site** (a Stripe Checkout tip jar). No donations to families in v1. |
 | Weathering | Purely cosmetic. **Anyone can clean for free**, once per user per memorial per day. |
 | Moderation | Notes and memos are **public immediately**. The owner can hide them, anyone can report, and reports go to an admin queue. |
@@ -65,7 +65,26 @@ When tradeoffs conflict, these come first.
 | Family caretakers | Can do everything except delete the memorial or manage caretakers. If the owner leaves, the longest-serving caretaker becomes owner. **After launch.** |
 | Anniversary reminders | Any signed-in visitor can **follow** a memorial and opt in to birthday and anniversary emails (off by default). **After launch.** The email provider is undecided. |
 | Pet memorials | Same site, with a `kind` field (person or pet) and a separate "Pets" browse section, plus pet stones and decorations. **After launch.** |
-| Guardrails | Firm: no loot boxes, ads, or guilt emails. Not adopted: dollar amounts shown next to coin prices, 24h mistake refunds, self-set spending limits (the confirmation dialog is the safeguard). |
+| Business structure | **Sole proprietor at launch.** Form an LLC when revenue passes about **$200/month**, or earlier if liability protection is wanted. |
+| Regions | **Worldwide, USD prices.** Privacy follows GDPR principles from day one. Turn on Stripe Tax when foreign or out-of-state sales become noticeable. |
+| Analytics | **Cloudflare Web Analytics** (free, cookieless, so no cookie banner). Consider PostHog later for funnels. |
+| Upload moderation | **CSAM scanning + user reports + owner moderation.** Automatic image and text filters are added only after the first real abuse problem. |
+| Guardrails | Firm: no loot boxes, ads, or guilt emails. Not adopted: dollar amounts shown next to coin prices, 24h undo for decoration purchases, self-set spending limits (the confirmation dialog is the safeguard). |
+| Coin pack refunds | Refundable **within 14 days if no coins from that pack have been spent**. Published in the terms of service and refund policy. |
+| Search indexing | **All public memorials are indexed** by search engines; there's no opt-out. Private memorials (after launch) are never indexed. Takedown requests can still remove a memorial (§6.7). |
+| Display names | **Editable display name**, defaulting to Google first name + last initial ("Alex C."). The full Google name is never shown publicly. |
+| Note edits | Authors can **edit and delete their own notes anytime**. Edited notes show an "edited · date" label. |
+| Dates | **Flexible precision:** full date, month + year, year only, or circa. Birth date optional, death year required. |
+| Language | **English at launch, translation-ready** (all interface text in i18next files). |
+| Launch | **Public launch** as soon as M6 is done (no private beta). |
+| Home page | **Hero scene + "Create a memorial" / "Find someone"**, then cards for recently tended and new memorials (§6.15). |
+| Duplicate memorials | **Warn and suggest existing matches** during creation. Creating a separate one is still allowed (§6.6). |
+| Owner alerts | **In-app notification bell** in v1. Email digests come later, once an email service exists (§6.16). |
+| Ambience | **Time-of-day lighting in v1**; ambient sound after launch. |
+| Growth | **Built-in sharing + SEO (with helpful guides) + communities** (§13). Partnerships later, maybe. |
+| Support | **Contact form** on the site, saved to the database and forwarded to the project inbox (§6.17). |
+| Admin tools (v1) | Report queue, **user lookup + actions, payments view, catalog editor, stats dashboard**, all behind Cloudflare Access (§6.18). |
+| Admin audit log | **Yes:** every admin action goes into the append-only `admin_actions` table. |
 
 ---
 
@@ -92,6 +111,7 @@ When tradeoffs conflict, these come first.
 | Layer | Choice | Why |
 |---|---|---|
 | Frontend | React 19, Vite, TypeScript, Tailwind CSS, React Router, TanStack Query | Static output, free hosting, suits a highly interactive UI |
+| Translations | i18next + react-i18next | All interface text in `locales/en/*.json` from day one; dates and numbers formatted with `Intl` |
 | Animation | Motion (Framer Motion) + Rive | UI motion (note lift, dialogs) + interactive illustrated animations (see §7.2) |
 | UI components | shadcn/ui (Radix primitives + Tailwind) | Accessible dialogs, sheets, tooltips, and tabs that we style ourselves |
 | DB / Auth | Supabase (Postgres, RLS, Auth) | Free tier, plain Postgres underneath |
@@ -149,10 +169,17 @@ Rules:
 All IDs are `uuid`, all timestamps are `timestamptz`. ⚑ = written only by SECURITY DEFINER functions or the server, never directly by clients.
 
 ```sql
-profiles            (id = auth.users.id, display_name, avatar_url, is_admin bool, created_at)
+profiles            (id = auth.users.id, display_name (default: Google first name + last initial,
+                     editable, 2–40 chars), avatar_url, time_zone text (IANA, e.g. 'America/Chicago'),
+                     time_zone_changed_at, locale text default 'en', is_admin bool,
+                     status: active|suspended|banned, created_at)
 
 memorials           (id, owner_id → profiles NULL ON DELETE SET NULL, slug unique, full_name,
-                     born_on date, died_on date, epitaph text, bio text, cover_photo_key,
+                     born_date date?, born_precision: day|month|year|circa?,
+                     died_date date, died_precision: day|month|year|circa,
+                     -- stored as the first day of the known range (e.g. 1890-01-01 + 'year');
+                     -- shown as "March 4, 1932" / "March 1932" / "1932" / "c. 1890"
+                     epitaph text, bio text, cover_photo_key,
                      kind: person|pet (v1: person), stone_style_id → stone_styles,
                      scene text, tradition text?, theme text, last_cleaned_at,
                      visibility: public|private (v1: always public),
@@ -201,7 +228,7 @@ decorations ⚑       (id, slot_id, decoration_type_id, giver_id, message text?,
 cleanings ⚑         (id, memorial_id, user_id, cleaned_on date, created_at,
                      unique(memorial_id, user_id, cleaned_on))
 
-daily_rewards ⚑     (user_id, reward_on date, ledger_entry_id, primary key(user_id, reward_on))
+daily_rewards ⚑     (user_id, reward_on date  -- the user's LOCAL date, ledger_entry_id, primary key(user_id, reward_on))
 
 coin_ledger ⚑       (id, user_id, delta int (+/-), reason: purchase|daily_visit|decoration|
                      voice_memo|refund|chargeback|admin_adjust, ref_type, ref_id,
@@ -213,6 +240,20 @@ coin_packs          (id, name, coins int, price_cents int, stripe_price_id, is_a
 
 payments ⚑          (id, user_id?, kind: coin_pack|donation, stripe_session_id unique,
                      stripe_payment_intent, amount_cents, currency, status, coin_pack_id?, created_at)
+
+memorial_visits ⚑   (user_id, memorial_id, last_visited_at, primary key(user_id, memorial_id))
+                     -- private to the user; powers "Your gardens" and "Recently tended" ranking
+
+notifications ⚑     (id, recipient_id, memorial_id, type: note|decoration|voice_memo|cleaning,
+                     actor_id, ref_id, read_at?, created_at)
+                     -- created by triggers/functions; recipients = owner (+ caretakers later);
+                     -- never notify for your own actions; similar events collapse in the UI
+
+support_requests    (id, user_id?, email, category: account|billing|memorial|bug|other,
+                     subject, body, memorial_id?, status: open|replied|closed, created_at)
+
+admin_actions ⚑     (id, admin_id, action text, target_type, target_id, reason text,
+                     before jsonb?, after jsonb?, created_at)   -- APPEND-ONLY audit log
 
 reports             (id, reporter_id, target_type: memorial|note|voice_memo|photo, target_id,
                      reason, details, status: open|actioned|dismissed, resolved_by, created_at)
@@ -240,7 +281,9 @@ A `coin_balances` view (`SELECT user_id, SUM(delta)`) can be turned into a cache
 | 2,000 coins | $17.00 | $0.79 | $16.21 |
 
 ### Earning
-- **Daily visit:** 1 coin per user per UTC day, granted by `claim_daily_reward()` when a signed-in user opens any memorial page. Idempotent through the `daily_rewards` primary key.
+- **Daily visit:** 1 coin per user per **local day**, granted by `claim_daily_reward()` when a signed-in user opens any memorial page. Idempotent through the `daily_rewards` primary key.
+  - "Today" = `(now() AT TIME ZONE profiles.time_zone)::date`, computed **on the server** from the stored time zone (the client never sends a date).
+  - `time_zone` is set from the browser on first sign-in. If the browser later reports a different zone, it's updated **at most once every 7 days** (`time_zone_changed_at`), so people can't jump time zones to claim extra coins.
 
 ### Spending (initial prices; tunable in `decoration_types`)
 | Item | Coins | Lifetime |
@@ -283,6 +326,8 @@ Layout, top to bottom:
 - **Mine vs. everyone's:** a segmented toggle `All | Mine`. In `All` view, your notes get a colored tab on the card's edge (like a file-folder tab) plus a "You" label, and other people's notes have neutral tabs.
 - A mini timeline scrubber on the side jumps to a month or year.
 - Paper styles (`paper_style`): lined, plain, kraft, and more later. Free.
+- **Edit and delete:** authors can edit or delete their own notes at any time. Edited notes show a small "edited · Nov 5" label, and only the latest version is stored. Deleting removes the note for good. The owner can still hide notes (§6.7).
+- Notes show the author's **display name** (§6.8), never their full Google name.
 - Accessibility: the cards form a keyboard-navigable list, the hover effects also trigger on focus, and `prefers-reduced-motion` turns off the lift animation.
 
 ### 6.3 Decoration slots
@@ -315,6 +360,8 @@ Layout, top to bottom:
 ### 6.6 Memorial creation
 - Requires sign-in. Limit 5 memorials per account (configurable; admins can raise it).
 - Wizard: name and dates → epitaph → stone style → photo/bio (optional) → publish.
+- **Duplicate check:** after the name and dates step, the wizard searches for likely matches (similar name using Postgres `pg_trgm`, plus overlapping dates). If any are found, it shows them: "Is this the person you're remembering? Rosa Martinez, 1932–2024." Links let the user visit that memorial (and, once caretakers ship, "Ask to help care for this memorial"). The user can still choose "No, create a new memorial."
+- **Dates:** each date has a precision picker (exact date / month + year / year only / circa). The birth date is optional; at least the death year is required. The stone engraves whatever precision is given (e.g. "c. 1890 – 1952").
 - Creating a memorial also creates its `memorial_slots` from the stone template.
 - Ownership transfer and co-owners come later.
 - **Orphaned memorials:** when an owner deletes their account, `owner_id` becomes NULL. The memorial stays public, and visitors can still write notes, decorate, and clean. Owner moderation passes to admins. An "Is this your family member? Request ownership" link sends a request to the admin queue (`reports` with `reason = ownership_request`), and an admin can reassign `owner_id`.
@@ -324,10 +371,12 @@ Layout, top to bottom:
 - Anyone signed in: report a memorial or any content (with Turnstile).
 - Admin queue (`/admin`, `is_admin` only): review reports, remove content, suspend users.
 - Rate limits: notes 10/hour per user, reports 20/day, memorial creation 3/day.
+- **New-account limits** (first 24 hours after sign-up): at most 1 memorial, no voice memos, and at most 5 notes. This slows down throwaway spam accounts without bothering real users.
 - The terms of service forbid memorials for living people and harassment, and a takedown request form covers both.
 
 ### 6.8 Auth
-- Google OAuth through Supabase. The first sign-in creates a `profiles` row (trigger).
+- Google OAuth through Supabase. The first sign-in creates a `profiles` row (trigger) with the default display name "First L." and the browser's time zone.
+- **Display name:** shown on notes, memos, and decorations ("Flowers from Alex C."). It can be changed in settings and is moderated like other content. The full Google name and email are never shown publicly.
 - Browsing is anonymous. Signing in is required to create, write notes, record memos, decorate, clean, claim the daily coin, buy coins, or report.
 
 ### 6.9 Coin balance UI
@@ -369,6 +418,57 @@ Layout, top to bottom:
 - **Pet memorials:** `kind = pet`, a separate `/pets` browse section, pet stones (paw prints, wooden marker) and pet decorations (toy ball, food bowl, favorite blanket), with pet-specific memory prompts.
 
 
+### 6.14 Search & sharing (SEO)
+All public memorials are indexed (§2), and search is the main free source of new visitors.
+- The **link-preview Worker** (§3) also serves search-engine-friendly HTML for `/m/:slug`:
+  - Title: "In loving memory of Rosa Martinez (1932–2024) · Memorial Garden"
+  - Description: the epitaph or start of the bio
+  - Open Graph image: an auto-generated picture of the stone (rendered by the Worker or prebuilt)
+  - `schema.org` structured data (`Person` with `birthDate`/`deathDate`)
+- `sitemap.xml` of all public memorials, generated by a Worker on request and cached for a day. Also a `robots.txt`.
+- Clean, permanent URLs: `/m/rosa-martinez-1932`. A slug never changes once published; renames add a redirect.
+- Hidden, removed, and (later) private memorials return `noindex` and are left out of the sitemap.
+
+### 6.15 Home page (`/`)
+1. **Hero:** an illustrated garden scene using the current time-of-day lighting, a one-line welcome ("A quiet place to remember the people we love"), and two buttons: **Create a memorial** and **Find someone** (a search box that expands inline).
+2. **Recently tended:** cards for memorials with recent visits, notes, or decorations. Only memorials with activity in the last 7 days are shown, ranked by activity with some randomness so the same few memorials don't always appear at the top.
+3. **New gardens:** recently created memorials.
+4. **How it works:** three short illustrated steps (Create · Visit & write · Tend & decorate).
+5. Footer: About, Donate, Terms, Privacy, DMCA, Contact.
+- Signed-in users also get a **"Your gardens"** row (memorials they own or have visited) above "Recently tended".
+- Cards never show coin prices or sales pitches (Tenet 1).
+
+### 6.16 Owner notifications (in-app)
+- A bell icon in the header with an unread count, for memorial owners (and caretakers later).
+- Events: new note, decoration placed, voice memo posted, stone cleaned (cleanings are grouped into one alert per day).
+- Wording is gentle: "Alex C. left flowers for Rosa · 2h". Clicking an alert opens the memorial at that item.
+- Similar events are grouped ("3 people lit candles for Rosa today"). Read state is stored in `notifications.read_at`. Alerts older than 90 days are deleted.
+- Supabase Realtime can push alerts live; polling every 60 seconds is the fallback.
+- **Later:** an optional weekly email digest through the `EmailProvider` adapter (opt-in, with an unsubscribe link, following CAN-SPAM).
+
+### 6.17 Sharing, guides & support
+**Sharing (the main growth loop):**
+- After publishing a memorial, a gentle screen says "Share Rosa's garden with family and friends," with buttons for Copy link, Text (SMS), WhatsApp, Email, and Facebook. On phones, the native share sheet (`navigator.share`) is used.
+- The memorial page has a Share button. Shared links show the stone preview image and name (§6.14).
+- After someone leaves a note, a small, dismissible "Invite others to leave a note" link. Never a pop-up and never repeated.
+
+**Guides (`/guides/*`):** a handful of static, genuinely helpful articles written in Markdown/MDX, built at compile time and indexed: "How to write a eulogy", "Ways to remember a loved one on their birthday", "How to talk to children about loss", "Remembering a pet". Each ends with a soft "Create a memorial" link.
+
+**Support (contact form, `/contact`):**
+- Fields: email (pre-filled if signed in), category, subject, message, and an optional memorial link. Protected by Turnstile and limited to 3 per hour per IP or user.
+- The form posts to the API, which saves a `support_requests` row and forwards a copy to the project inbox using **Cloudflare Email Workers** (`send_email` binding to a verified address, free). Replies are sent from the project Gmail.
+- A short **Help/FAQ page** next to the form answers the common questions first: coins and refunds, how to delete content, how to report a memorial, ownership requests.
+- Target: reply within 2 business days.
+
+### 6.18 Admin tools (`/admin`, behind Cloudflare Access + `is_admin`)
+- **Reports queue:** open reports, a preview of the reported content, and actions (dismiss, hide, remove, suspend author), each requiring a reason.
+- **User lookup:** search by display name, email, or ID. Shows the user's memorials, notes, memos, decorations, coin balance, and ledger history. Actions: suspend/unsuspend, ban (removes their content), and **coin adjustment** (positive or negative with a required reason, written as an `admin_adjust` ledger row).
+- **Payments:** recent purchases, refunds, and disputes from `payments`, with links to the Stripe dashboard. A **Refund** action calls Stripe and also adds a matching negative ledger row for the pack's unspent coins (within the 14-day, unspent policy).
+- **Catalog editor:** forms for `decoration_types`, `stone_styles` (including uploading slot-template JSON and art), `coin_packs` (display only; prices change in Stripe), and `memory_prompts`. Changes take effect without a redeploy.
+- **Support inbox:** `support_requests` list with status, linked to the user and memorial.
+- **Stats dashboard:** daily and weekly sign-ups, new memorials, notes, voice memos, coins sold vs. spent, revenue (net of Stripe fees), and **usage against free-plan limits** (DB size vs. 500MB, R2 storage vs. 10GB, Worker requests vs. 100k/day). Computed with SQL views and a nightly materialized refresh.
+- **Audit log:** every action above writes an `admin_actions` row (who, what, target, reason, before/after). The table is append-only, and nobody can edit or delete rows, including admins.
+
 ## 7. Visual design
 
 ### 7.0 Art direction: "cozy memorial garden"
@@ -378,10 +478,10 @@ Layout, top to bottom:
 - **Illustration style:** soft hand-painted or storybook look, with gentle gradients, slightly rounded shapes, subtle paper or watercolor textures, and soft shadows. No hard outlines, no pixel art, no photorealism.
 - **Scene:** each grave sits in a small garden vignette (grass, a little path, a tree branch or hedge at the edge), not a stone floating on a blank page.
 - **Ambient life (subtle, optional):** grass swaying slightly, a few fireflies at dusk, a petal drifting down, candle flames flickering. All of it can be turned off and respects `prefers-reduced-motion`.
-- **Time of day (later):** the scene's light follows the visitor's local time (morning, golden hour, evening with candlelight). This pairs naturally with the planned "evening" theme.
+- **Time of day (v1):** the scene's light follows the visitor's local time. There are four looks: morning (cool, soft), day (bright), golden hour (warm), and evening (dusk blue, with candles and lights glowing more strongly). Each is a set of color layers and a gradient over the same art, with no separate artwork, and the light changes smoothly over about 30 minutes. Visitors can pin a look in settings.
 - **Interface:** rounded corners (12–16px), soft shadows, paper-textured note cards, and friendly rounded type. The interface feels like stationery and wood, not a dashboard.
 - **Motion:** slow, soft springs, small "settle" effects (a flower pot sinks gently into place, a note card rustles when it lifts). Never flashy or bouncy.
-- **Sound (optional, off by default):** soft birdsong or wind, plus gentle sound effects for placing decorations and cleaning.
+- **Sound (after launch; optional, off by default):** soft birdsong or wind, plus gentle sound effects for placing decorations and cleaning.
 - **Avoid:** pixelation, neon colors, harsh black, gamified pressure (streak counters, "only 2 left!"), cartoonish exaggeration.
 
 A warm, light, neutral palette, like soft morning sun on old stone and moss.
@@ -477,16 +577,93 @@ A warm, light, neutral palette, like soft morning sun on old stone and moss.
 
 ---
 
-## 8. Security & privacy
+## 8. Security, privacy & compliance
 
-- **RLS on every table.** Clients get the anon key only, and the service-role key lives only in the API's environment.
-- Coin, decoration, cleaning, and daily-reward writes happen **only** through SECURITY DEFINER functions with fixed `search_path`, input validation, and per-user locks.
-- Stripe webhooks: verify the signature, process each event once (idempotency), and never trust amounts sent by the client.
-- Uploads: signed URLs with size and content-type limits, randomized object keys, and photos re-encoded or with EXIF stripped (removes GPS data).
-- Turnstile on note, memo, and report submissions and on memorial creation.
-- Privacy: a privacy policy, account deletion (removes the profile and the user's content; ledger rows are kept anonymized for accounting), and memorial deletion by the owner.
-- Age: 13+ in the terms (COPPA).
-- Sales tax: research whether the states you sell into tax digital goods; Stripe Tax (+0.5%) can handle it once needed.
+> Not legal advice. Before turning on Stripe live mode, do a one-hour review with a lawyer covering the terms of service, privacy policy, and coin terms.
+
+### 8.1 Application security
+- **RLS on every table**, with tests (§11). Clients get the anon key only. The service-role key lives only in server secrets (`wrangler secret`), never in the browser bundle or the repo.
+- Coin, decoration, cleaning, unlock, and daily-reward writes happen **only** through SECURITY DEFINER functions with a fixed `search_path`, input validation, and per-user locks.
+- Run **Supabase's security advisor** (database linter) before every release, and fix all errors and warnings.
+- **Stripe:** use hosted Checkout only, so card data never touches our servers. This keeps PCI scope minimal (the simplest self-assessment form, SAQ A). Verify webhook signatures, process each event only once, and never trust amounts sent by the client. Stripe Radar (basic fraud screening) is on by default.
+- **Uploads:** signed URLs with size and content-type limits, randomized object keys, and photos re-encoded with EXIF data stripped (removes GPS location).
+- **Input:** validate everything with Zod on the server. Notes are rendered as plain text (never as raw HTML), and any rich formatting is a strict allowlisted subset.
+- **Turnstile** on note, memo, and report submissions and on memorial creation.
+
+### 8.2 Edge & platform protection (Cloudflare, free plan)
+- **WAF free managed rules** turned on for the domain.
+- **Rate limiting:** a rule on `/api/*`, plus per-user limits in the database (§6.7).
+- **Security headers** through the Pages `_headers` file:
+  - `Content-Security-Policy` (scripts from self + allowed CDNs only; `frame-ancestors 'none'`)
+  - `Strict-Transport-Security`
+  - `X-Content-Type-Options: nosniff`
+  - `Referrer-Policy: strict-origin-when-cross-origin`
+  - `Permissions-Policy` (microphone allowed only on our own origin, for voice memos)
+- **Always use HTTPS**, with TLS 1.2 as the minimum.
+- Bot Fight Mode turned on.
+
+### 8.3 Code & supply chain
+- **Dependabot** for vulnerable-dependency alerts and update PRs.
+- **gitleaks** for secret scanning, run as a pre-commit hook and in CI. (GitHub's own secret scanning isn't free on private personal repos.)
+- **Semgrep** (free open-source rules) in CI for common security bugs.
+- `pnpm audit` in CI. Fail the build on high or critical issues in production dependencies.
+- The lockfile is committed, and new libraries follow §7.2's rules.
+
+### 8.4 Accounts & access
+- Sign-in uses Google only, so users get Google's two-factor protection.
+- **Admin pages** (`/admin/*` and `/api/admin/*`) sit behind **Cloudflare Access** (Zero Trust, free for up to 50 users). Cloudflare requires its own login (allowlisted email + one-time code or Google) before the request reaches the app, and the app still checks `is_admin` on the server. Two locks, not one.
+- **Admin accounts:** the admin's Google account uses a passkey or hardware security key. Admin status is the `is_admin` flag, set by hand in the database, never through the interface.
+- Two-factor authentication on Cloudflare, Supabase, Stripe, GitHub, and the domain registrar (see SETUP.md). Only the owner has access to production secrets.
+
+### 8.5 Monitoring & incident response
+- **Sentry** (free plan) for error reports from the web app and server code. Personal data is removed from reports before they're sent.
+- **Cloudflare Web Analytics** for traffic (no cookies).
+- Alerts: Stripe webhook failures, Sentry error spikes, Cloudflare billing over $5, and Supabase nearing free-plan limits.
+- **Incident plan** (`docs/INCIDENT.md`, written in M6):
+  1. Contain: rotate keys and disable the affected feature with a flag.
+  2. Assess what data was exposed.
+  3. Fix the problem and restore from backup if needed.
+  4. Notify affected users where the law requires (GDPR requires notice within 72 hours if EU users' personal data is at risk).
+  5. Write a short postmortem.
+
+### 8.6 Content safety & moderation
+- **CSAM:** turn on **Cloudflare's CSAM Scanning Tool** (free) for the domain before launch. US law (18 U.S.C. §2258A) requires reporting known CSAM to **NCMEC**. Have a written procedure: preserve the evidence, report it, remove the content, and ban the account.
+  - The tool scans content served through Cloudflare's cache, so **public memorial photos are served from an R2 custom domain proxied by Cloudflare** (e.g. `media.<domain>`), not from raw R2 URLs. Voice memos stay private, with signed URLs.
+- User reports, owner moderation, and the admin queue (§6.7).
+- **Later, after the first real abuse problem:** an automatic image filter (nudity/violence) and a text filter that flags notes for review rather than blocking them.
+
+### 8.7 Privacy (GDPR-style for everyone)
+- **No tracking cookies.** Only essential storage (the sign-in session) is used, so no cookie banner is needed.
+- **Privacy policy** listing what we collect (Google profile name, email, and avatar; content you post; payment records through Stripe), why, which services process it (Supabase, Cloudflare, Stripe, Sentry, and the email provider later), and how long it's kept.
+- **Your rights:** request a copy of your data by email (handled by hand at first, since there is no self-serve export in v1), delete your account (deletion rules below), and an email address for privacy requests, answered within 30 days.
+- **Account deletion:** removes the profile and the user's notes and memos. Ledger and payment rows are kept with personal details removed, for accounting and tax. Memorials pass to caretakers or are orphaned (§6.6).
+- Data about deceased people isn't covered by GDPR, but **living people's data is** (visitors' names, voices, and anything written about living relatives), so treat it carefully.
+- **Ages 13+ only** (COPPA), stated in the terms and asked during sign-up.
+
+### 8.8 Legal & business
+- **Business:** sole proprietor at launch. Form an LLC (in your home state) when revenue passes about $200/month, and get an EIN so Stripe doesn't need your SSN.
+- **Employer policy:** check your employer's outside-activities and conflict-of-interest policy before launching or earning money. Build only on personal devices and accounts.
+- **Terms of service:** use a template generator (e.g. Termly or GetTerms), then have a lawyer review it. It must cover:
+  - Users must be 13 or older.
+  - Coins have no cash value, can't be transferred, and are non-refundable except where the law requires. We can change coin prices.
+  - A refund policy (Stripe requires one): coin packs can be refunded within 14 days if no coins from the pack have been spent.
+  - No memorials of living people. No harassment, hate, or impersonation.
+  - Users keep ownership of what they post and give us a license to display it. We can remove content.
+  - Voice memos and photos must be the user's own or used with permission.
+- **DMCA:** register a **designated agent** with the US Copyright Office (about $6, renewed every 3 years) and publish a DMCA/takedown page. This gives safe-harbor protection for user uploads.
+- **Section 230** generally protects us from liability for what users post in the US. Responding quickly to reports still matters.
+- **Email law (CAN-SPAM)**, once reminders ship: an unsubscribe link in every email and a **physical postal address** (use a PO box or virtual mailbox, not your home address).
+- **Taxes:** report the income (Schedule C as a sole proprietor). Stripe sends a 1099-K. US states and the EU may require sales tax/VAT on digital goods; turn on Stripe Tax when foreign or out-of-state sales are noticeable, and check with a tax professional at the first tax season with revenue.
+- **Accessibility:** meeting WCAG 2.2 AA (§7) also reduces the risk of ADA lawsuits.
+
+### 8.9 Upgrade triggers (decide once, then don't re-decide)
+| Trigger | Action |
+|---|---|
+| Revenue > ~$200/month | Form an LLC, get an EIN, switch Stripe to the business |
+| Noticeable sales from outside your state or country | Turn on Stripe Tax |
+| First real abuse incident | Add the automatic image/text filter |
+| Need for conversion funnels | Add PostHog (and a consent banner for EU visitors) |
+| Revenue > ~$30/month | Upgrade to Supabase Pro (daily backups) |
 
 ---
 
@@ -503,7 +680,7 @@ A warm, light, neutral palette, like soft morning sun on old stone and moss.
 
 **Upgrade triggers:** DB over 400MB or a need for daily backups → Supabase Pro ($25/mo). Worker CPU/bundle limits hit → Workers Paid ($5/mo). *Check current pricing pages before launch; these numbers change.*
 
-Back up the database yourself: a weekly `pg_dump` from a GitHub Action to R2 (the free plan has no point-in-time recovery).
+Back up the database yourself: a weekly `pg_dump` from a GitHub Action to R2 (the free plan has no point-in-time recovery). Keep 8 weekly copies. **Practice a restore once a quarter** into a scratch Supabase project, using the steps in `docs/INCIDENT.md`. A backup you've never restored might not work.
 
 ### Cost strategy: upgrade, don't migrate
 - **Target:** about $12/year (the domain) until the site has traction.
@@ -529,6 +706,7 @@ Back up the database yourself: a weekly `pg_dump` from a GitHub Action to R2 (th
 
 ## 11. Testing strategy
 - Unit tests (Vitest): weathering math, expiry, price display, quota logic in `core/`.
+- Security in CI: gitleaks, Semgrep, `pnpm audit` (§8.3).
 - DB tests: RLS policies (anon, user, owner, admin), the coin functions (insufficient balance, concurrent spends, duplicate webhook).
 - E2E (Playwright): create a memorial → write a note → buy coins (Stripe test mode) → place flowers → clean.
 - CI: GitHub Actions runs lint, typecheck, unit tests, and DB tests (Supabase CLI local stack).
@@ -544,3 +722,12 @@ All of the original questions were resolved on 2026-11-03 (see §2). Remaining i
 4. Find reviewers from each tradition in §6.12 before launch, and adjust items based on their feedback.
 5. Premium stone/scene designs and exact prices (1,000–1,500 coins).
 6. Whether renewing a decoration should ever be limited (e.g. a maximum number of renewals in a row) so other visitors get a chance at popular slots.
+
+---
+
+## 13. Growth & launch plan
+1. **Before launch:** write 4–6 guides (§6.17), and check that memorial pages, the sitemap, and preview images look right using Google's Rich Results Test and a link-preview checker.
+2. **Launch day:** create real memorials for your own loved ones (or pets) and share them with family. These become the first real gardens and show what the site can do.
+3. **Communities:** share thoughtfully in grief-support, genealogy, and pet-loss communities (e.g. relevant subreddits and Facebook groups). **Read each community's rules on self-promotion first**, lead with something genuinely helpful, and never spam. One good post beats twenty bad ones.
+4. **Measure:** Cloudflare Web Analytics referrers + the admin stats dashboard. Watch: memorials created per week, average visitors per memorial (the sharing loop), and visitors coming from search.
+5. **Later, maybe:** partnerships with funeral homes, pet cremation services, and hospices.

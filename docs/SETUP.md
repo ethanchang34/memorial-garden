@@ -50,6 +50,17 @@ Create each account when its milestone starts; there's no need to sign up for ev
 - [ ] (M6) **Activate live mode**: legal name, address, SSN (or EIN if you form an LLC), and a bank account for payouts. Statement descriptor: `MEMORIALGARDEN`. Then repeat the products and webhook in live mode.
 - [ ] (M6) Decide on sales tax (Stripe Tax, +0.5%) based on where buyers are.
 
+### Launch-time accounts & registrations (M6)
+- [ ] **Sentry** (free): create a project for web + api, and save the DSN (`VITE_SENTRY_DSN`, `SENTRY_DSN`). Can be done as early as M0.
+- [ ] **Cloudflare → Caching → Configuration → CSAM Scanning Tool:** turn it on and enter the notification email. Requires the domain to be on Cloudflare.
+- [ ] **Cloudflare → Web Analytics:** add the site.
+- [ ] **Cloudflare → Email → Email Routing:** turn it on for the domain, verify the project Gmail as a destination, and route `support@<domain>` to it. The contact form's Worker uses the `send_email` binding to this verified address.
+- [ ] **Cloudflare Zero Trust → Access:** create an application for `/admin/*` and `/api/admin/*`, with a policy allowing only your admin email (free plan, up to 50 users).
+- [ ] **US Copyright Office DMCA Designated Agent Directory:** register (about $6), and set a reminder to renew every 3 years.
+- [ ] **PO box or virtual mailbox:** needed only when reminder emails ship (CAN-SPAM requires a postal address).
+- [ ] **Terms of service and privacy policy generator** (Termly, GetTerms, or similar).
+- [ ] *(When revenue > ~$200/month)* LLC through your state's website + EIN from the IRS (free at irs.gov).
+
 ## 2. Local tools (on your personal computer)
 - [ ] **Git** and the **GitHub CLI** (`gh auth login`)
 - [ ] **Node.js 22 LTS** (through `nvm` or `fnm`)
@@ -83,5 +94,7 @@ Never commit real values. M0 will add `.env.example` files with these names.
 | `TURNSTILE_SECRET_KEY` | api | **yes** |
 | `STRIPE_SECRET_KEY` | api | **yes** |
 | `STRIPE_WEBHOOK_SECRET` | api | **yes** |
+| `VITE_SENTRY_DSN` | web | no |
+| `SENTRY_DSN` | api | no |
 
 In production, set these as encrypted environment variables in the Cloudflare Pages/Workers settings. Use `wrangler secret put` for the secrets.
