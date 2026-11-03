@@ -12,6 +12,8 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Cloudflare Pages connected to the GitHub repo (auto-deploy on push to `main`)
 - [ ] GitHub Actions CI: lint, typecheck, test
 - [ ] Design tokens (palette, fonts) in Tailwind config
+- [ ] Install shadcn/ui + Motion + Lucide + Sonner; restyle the base components to the cozy look (DESIGN §7.0)
+- [ ] Create `docs/ASSETS.md` (asset source + license log); pick a first art pack or style
 - [ ] Responsive foundation: breakpoints, container queries, `hover`/`pointer` media utilities, Playwright mobile + desktop projects
 
 ## M1 — Memorials (no money)

@@ -18,9 +18,10 @@ An online cemetery where anyone can create a memorial for someone who has died, 
 When tradeoffs conflict, these come first.
 1. **Grief is free.** Expressing love and remembrance never costs money; paid items are optional gestures.
 2. **Every screen size gets a first-class experience.** Phones, tablets, laptops, and large monitors, in portrait or landscape, and browser windows of any width. No layout is an afterthought, and no feature exists only on desktop (see §7.1).
-3. **Calm over clever.** Soft motion, quiet colors, no dark patterns or pressure to buy.
+3. **Calm and cozy over clever.** Warm, soft, and welcoming (see §7.0). No dark patterns and no pressure to buy.
 4. **Accessible by default.** Keyboard, screen-reader, and reduced-motion support ship with every feature, not afterward.
 5. **Cheap and portable.** Stay on free plans until revenue pays for upgrades, and keep providers swappable.
+6. **Use proven libraries; don't reinvent them.** Use well-maintained open-source libraries and asset packs for UI components, animation, audio, icons, and forms instead of building them from scratch. Spend our own effort on what makes the site unique: the grave scene, notes stack, decorations, and weathering. See §7.2 for the approved list and the rules for adding to it.
 
 ### Non-goals (v1)
 - Native mobile apps.
@@ -81,7 +82,8 @@ When tradeoffs conflict, these come first.
 | Layer | Choice | Why |
 |---|---|---|
 | Frontend | React 19, Vite, TypeScript, Tailwind CSS, React Router, TanStack Query | Static output, free hosting, suits a highly interactive UI |
-| Animation | Framer Motion | Note lift on hover, decoration fills |
+| Animation | Motion (Framer Motion) + Rive | UI motion (note lift, dialogs) + interactive illustrated animations (see §7.2) |
+| UI components | shadcn/ui (Radix primitives + Tailwind) | Accessible dialogs, sheets, tooltips, and tabs that we style ourselves |
 | DB / Auth | Supabase (Postgres, RLS, Auth) | Free tier, plain Postgres underneath |
 | Server code | Hono (TypeScript) on Cloudflare Workers / Pages Functions | Runs unchanged on Workers, Deno, Node, Bun, Lambda |
 | Storage | Cloudflare R2 | Free up to 10GB, no download fees, S3-compatible |
@@ -307,7 +309,20 @@ Layout, top to bottom:
 
 ## 7. Visual design
 
-A light, neutral palette that feels like a quiet garden on an overcast morning.
+### 7.0 Art direction: "cozy memorial garden"
+**The feeling:** a quiet country churchyard at golden hour, somewhere you'd *want* to linger. Warm, soft, hand-made, and comforting rather than somber. Mood reference: the cozy, lived-in warmth of farming and life-sim games, **but painterly and smooth, never pixelated**, and in our own original style.
+
+**What that means in practice:**
+- **Illustration style:** soft hand-painted or storybook look, with gentle gradients, slightly rounded shapes, subtle paper or watercolor textures, and soft shadows. No hard outlines, no pixel art, no photorealism.
+- **Scene:** each grave sits in a small garden vignette (grass, a little path, a tree branch or hedge at the edge), not a stone floating on a blank page.
+- **Ambient life (subtle, optional):** grass swaying slightly, a few fireflies at dusk, a petal drifting down, candle flames flickering. All of it can be turned off and respects `prefers-reduced-motion`.
+- **Time of day (later):** the scene's light follows the visitor's local time (morning, golden hour, evening with candlelight). This pairs naturally with the planned "evening" theme.
+- **Interface:** rounded corners (12–16px), soft shadows, paper-textured note cards, and friendly rounded type. The interface feels like stationery and wood, not a dashboard.
+- **Motion:** slow, soft springs, small "settle" effects (a flower pot sinks gently into place, a note card rustles when it lifts). Never flashy or bouncy.
+- **Sound (optional, off by default):** soft birdsong or wind, plus gentle sound effects for placing decorations and cleaning.
+- **Avoid:** pixelation, neon colors, harsh black, gamified pressure (streak counters, "only 2 left!"), cartoonish exaggeration.
+
+A warm, light, neutral palette, like soft morning sun on old stone and moss.
 
 | Token | Hex | Use |
 |---|---|---|
@@ -320,9 +335,11 @@ A light, neutral palette that feels like a quiet garden on an overcast morning.
 | `sage` | `#8FA58A` | primary accent, "mine" tabs |
 | `gold` | `#C8A96A` | coins, candlelight |
 | `rose` | `#C98F8F` | flowers, sparing use |
+| `moss` | `#7E9461` | grass, moss accents |
+| `wood` | `#A47C5B` | frames, signposts, warm details |
+| `sky` | `#DCE6E8` | scene backdrop (morning) |
 
-- Fonts: a serif for names and epitaphs (e.g. *Cormorant Garamond*), a sans-serif for the interface (e.g. *Inter*).
-- Motion: slow, soft springs, never bouncy. `prefers-reduced-motion` is respected everywhere.
+- Fonts: a soft, warm serif for names and epitaphs (e.g. *Fraunces*, set to its "soft" style), and a rounded, friendly sans-serif for the interface (e.g. *Nunito*). Both are free on Google Fonts and self-hosted through Fontsource. A handwriting font is optional for notes (e.g. *Caveat*).
 - Accessibility target: WCAG 2.2 AA. Check text contrast on `bg` (the `muted` color must pass).
 - Dark mode: later (an "evening" theme with candlelight).
 
@@ -359,6 +376,42 @@ A light, neutral palette that feels like a quiet garden on an overcast morning.
 - **The voice recorder** works on mobile Safari and Chrome, including the microphone-permission flow.
 
 **Testing:** every UI change is checked at **360×800, 390×844 (iPhone), 768×1024, 1280×800, and 1920×1080**, plus one landscape phone size (844×390). Playwright end-to-end tests run on both a mobile viewport (touch) and a desktop viewport. Before launch, test on real iOS Safari and Android Chrome devices.
+
+### 7.2 Libraries & assets (Tenet 6)
+
+**Approved starting set** (all free and open source, MIT or similar):
+
+| Need | Library | Notes |
+|---|---|---|
+| Accessible UI primitives | **shadcn/ui** (built on **Radix UI**) | Copies component code into the repo, so we fully restyle it to the cozy look |
+| Bottom sheets (mobile) | **Vaul** | Pairs with shadcn's Drawer |
+| UI animation | **Motion** (Framer Motion) | Note lift, dialog transitions, slot fills |
+| Illustrated, interactive animations | **Rive** (`@rive-app/react-canvas`) | Candle flicker, flowers blooming, cleaning wipe. Files are small, and animations can react to hover and clicks. The free editor tier is enough |
+| Simple vector animations | **Lottie** (`lottie-react`) | Alternative to Rive. Large marketplace of ready-made animations at LottieFiles |
+| Ambient particles | **tsParticles** (slim build) | Fireflies, drifting petals. Keep particle counts low on mobile |
+| Icons | **Lucide** | Clean, rounded, consistent |
+| Toasts | **Sonner** | "Flowers placed 🌸" |
+| Forms + validation | **React Hook Form** + **Zod** | Zod schemas shared with the API |
+| Data fetching | **TanStack Query** | Caching, optimistic updates |
+| Voice memo waveform | **wavesurfer.js** | Pretty waveform player |
+| Photo gallery / carousel | **Embla Carousel** | Light, touch-friendly |
+| Fonts | **Fontsource** | Self-hosted Google Fonts, so we don't call Google from the browser |
+| Sound | **Howler.js** | Optional ambient audio and sound effects |
+
+**Art assets** (the biggest factor in the "cozy" look):
+- **Option A (recommended start): licensed asset packs.** Painterly or cozy environment and prop packs from itch.io, Creative Market, or Envato, plus free textures (paper, watercolor) from sites like Poly Haven or Unsplash. **Check every license for commercial web use, and record it in `docs/ASSETS.md`.**
+- **Option B: commission an illustrator** for a consistent signature style (stones, decorations, scene backgrounds). Do this once the site has traction.
+- **Option C: AI-assisted art**, edited by hand for consistency. Check the tool's terms for commercial use, and be aware that AI-generated images may not be protected by copyright.
+- Prefer **SVG** for stones and props (scales well at every screen size, per Tenet 2) and **WebP/AVIF** for painted backgrounds.
+
+**Rules for adding a library:**
+1. It's actively maintained (a release within the last year) and widely used.
+2. It has a permissive license (MIT, Apache-2.0, BSD, ISC). No GPL in the frontend bundle.
+3. It meets our accessibility and responsive tenets, or we can wrap it so it does.
+4. Its bundle-size impact is reasonable. Check bundlephobia and prefer tree-shakeable libraries. Load heavy ones lazily (Rive, wavesurfer, and tsParticles only load on memorial pages).
+5. It isn't added for something trivial (if a utility is under about 20 lines of our own code, write it).
+6. Pin versions through the lockfile, and let Renovate or Dependabot open update PRs.
+7. Add it to the table above in the same PR.
 
 ---
 

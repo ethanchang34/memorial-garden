@@ -9,4 +9,5 @@ Context for AI coding sessions on this repo.
 - Every new table gets RLS policies and tests in the same change.
 - Secrets go in `.env.local` (gitignored) and never in code.
 - Every UI change must work well from 320px phones to large desktop windows (DESIGN §7.1): mobile-first, touch equivalents for every hover, 44px touch targets, no horizontal scroll. Verify at the listed test viewports.
+- Prefer the approved libraries in DESIGN §7.2 over hand-rolled components or animations. Follow the "rules for adding a library" there, and match the cozy art direction in §7.0.
 - Respect `prefers-reduced-motion`, and keep everything keyboard-accessible.
