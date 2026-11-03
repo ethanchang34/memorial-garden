@@ -2,6 +2,8 @@
 
 Each milestone is shippable on its own. Check items off as you go.
 
+**Before each milestone, complete its prerequisites in [SETUP.md](SETUP.md)** (accounts, keys, local tools).
+
 ## M0 — Project setup
 - [ ] pnpm monorepo: `apps/web` (Vite + React + TS + Tailwind), `apps/api` (Hono), `packages/shared`
 - [ ] ESLint + Prettier + TypeScript strict
