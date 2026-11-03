@@ -36,7 +36,7 @@ An online cemetery where anyone can create a memorial for someone who has died, 
 | Sign-in | **Google only** (through Supabase Auth). |
 | Voice memos | **3 free** memos per user per memorial, up to **60s** each. Extra memos, or memos up to **3 min**, cost coins. |
 | Payments | **Stripe**, selling coin packs (no single-coin purchases). |
-| Hosting | Cloudflare Pages (static site) + Supabase + Cloudflare R2 + a small amount of server code. |
+| Hosting | **Cloudflare Pages** (static site) + Supabase + Cloudflare R2 + a small amount of Hono server code. Vercel rejected (see §9). |
 | Portability | Provider code is isolated in `src/adapters/`. |
 | Name | **Memorial Garden** (working name is final for now). Domain TBD. |
 | Weathering speed | Moss is **visible after about 1 week** uncleaned and reaches **maximum grime at about 60 days**. |
@@ -347,6 +347,15 @@ A light, neutral palette that feels like a quiet garden on an overcast morning.
 **Upgrade triggers:** DB over 400MB or a need for daily backups → Supabase Pro ($25/mo). Worker CPU/bundle limits hit → Workers Paid ($5/mo). *Check current pricing pages before launch; these numbers change.*
 
 Back up the database yourself: a weekly `pg_dump` from a GitHub Action to R2 (the free plan has no point-in-time recovery).
+
+### Cost strategy: upgrade, don't migrate
+- **Target:** about $12/year (the domain) until the site has traction.
+- When a free limit is reached, **upgrade that provider in place**. Upgrading changes no code and moves no data.
+- Upgrade Supabase to Pro only once coin sales reliably exceed about $30/month.
+- **Billing safety:** set a $5 billing alert in Cloudflare (R2 needs a card on file) and keep Supabase's spend cap on.
+- Free-plan caveat: Supabase pauses projects after 7 days with no activity. Unpausing is one click.
+- **Hosting decision (2026-11-03): Cloudflare Pages.** Vercel was rejected because its free Hobby plan doesn't allow commercial use (coins and donations count), so it would cost $20/month from launch. The site is static files plus Hono server code, so moving to another host would take about an hour if ever needed.
+- Migration effort if a provider ever has to be replaced: site, server code, and storage take hours. The database is a Postgres export/import plus security rules, about a weekend. Logins are the hardest because user accounts must move too.
 
 ---
 
