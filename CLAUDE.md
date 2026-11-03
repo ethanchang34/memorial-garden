@@ -8,4 +8,5 @@ Context for AI coding sessions on this repo.
 - The coin ledger is append-only. Never write balance logic on the client, and never UPDATE/DELETE `coin_ledger`.
 - Every new table gets RLS policies and tests in the same change.
 - Secrets go in `.env.local` (gitignored) and never in code.
+- Every UI change must work well from 320px phones to large desktop windows (DESIGN §7.1): mobile-first, touch equivalents for every hover, 44px touch targets, no horizontal scroll. Verify at the listed test viewports.
 - Respect `prefers-reduced-motion`, and keep everything keyboard-accessible.

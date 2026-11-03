@@ -12,6 +12,7 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Cloudflare Pages connected to the GitHub repo (auto-deploy on push to `main`)
 - [ ] GitHub Actions CI: lint, typecheck, test
 - [ ] Design tokens (palette, fonts) in Tailwind config
+- [ ] Responsive foundation: breakpoints, container queries, `hover`/`pointer` media utilities, Playwright mobile + desktop projects
 
 ## M1 — Memorials (no money)
 - [ ] `memorials` (incl. nullable `owner_id`, `visibility`), `memorial_photos`, `timeline_events` tables + RLS
@@ -51,6 +52,7 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Weekly DB backup Action
 - [ ] Domain + Stripe live mode
 - [ ] Accessibility pass (keyboard, contrast, reduced motion)
+- [ ] Responsive pass on real devices (iOS Safari, Android Chrome) + all test viewports in DESIGN §7.1
 
 ## Later
 - Private/invite-only memorials (`visibility` column already exists), co-owners, ownership transfer

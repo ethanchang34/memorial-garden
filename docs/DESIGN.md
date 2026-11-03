@@ -7,12 +7,20 @@
 An online cemetery where anyone can create a memorial for someone who has died, and visitors can leave notes and voice memos and place decorations (flowers, candles, incense, lights) at the gravestone. Visitors keep the stone clean of the moss and grime that slowly builds up on it. The site is free to use. Revenue comes from **coins**, an in-site currency that buys decorations and extra voice memos, and from **donations** to the site.
 
 ### Goals
-- A calm, beautiful, light and neutral interface that works well on phones.
+- A calm, beautiful, light and neutral interface that feels great at every screen size.
 - Grieving is always free: creating memorials, writing notes, visiting, and cleaning cost nothing.
 - Paid items are optional *gestures*, never pressure.
 - Easy to extend: new decoration types, themes, and features without rewrites.
 - Portable: changing hosting providers means swapping adapters, not rewriting the app.
 - About $1/month to run at launch (just the domain).
+
+### Tenets
+When tradeoffs conflict, these come first.
+1. **Grief is free.** Expressing love and remembrance never costs money; paid items are optional gestures.
+2. **Every screen size gets a first-class experience.** Phones, tablets, laptops, and large monitors, in portrait or landscape, and browser windows of any width. No layout is an afterthought, and no feature exists only on desktop (see §7.1).
+3. **Calm over clever.** Soft motion, quiet colors, no dark patterns or pressure to buy.
+4. **Accessible by default.** Keyboard, screen-reader, and reduced-motion support ship with every feature, not afterward.
+5. **Cheap and portable.** Stay on free plans until revenue pays for upgrades, and keep providers swappable.
 
 ### Non-goals (v1)
 - Native mobile apps.
@@ -317,6 +325,40 @@ A light, neutral palette that feels like a quiet garden on an overcast morning.
 - Motion: slow, soft springs, never bouncy. `prefers-reduced-motion` is respected everywhere.
 - Accessibility target: WCAG 2.2 AA. Check text contrast on `bg` (the `muted` color must pass).
 - Dark mode: later (an "evening" theme with candlelight).
+
+### 7.1 Responsive design (Tenet 2)
+**Approach:** design mobile-first, then enhance for larger screens. Layouts respond to the space available, not to the device type.
+
+| Width | Tailwind | Layout |
+|---|---|---|
+| 320–639px | base | Single column. The grave scene fills the width; notes, memos, and life story are stacked sections with sticky section tabs. Header collapses to logo + coin balance + menu. |
+| 640–1023px | `sm`/`md` | Grave scene larger; notes shown as a 2-column stack; gallery as a 3-column grid. |
+| 1024–1279px | `lg` | Two columns: grave scene stays fixed (sticky) on the left, scrollable notes, memos, and life story on the right. |
+| ≥1280px | `xl`/`2xl` | Same as `lg` with a max content width (~1280px) and generous margins, so it never stretches edge to edge on ultrawide monitors. |
+
+**Rules:**
+- **Minimum supported width is 320px.** No horizontal scrolling at any width from 320px to 2560px or more.
+- **The grave scene is an SVG with a fixed `viewBox`**, so it scales cleanly. Decoration slots are positioned as percentages of the scene, never in fixed pixels.
+- **Use container queries** (`@container`) for components like note cards, slots, and dialogs, so a component adapts to its own container, not just the window.
+- **Fluid type and spacing:** `clamp()` for headings and the name engraved on the stone.
+- **Every hover interaction has a touch equivalent:**
+
+  | Interaction | Mouse | Touch | Keyboard |
+  |---|---|---|---|
+  | Note lift + date | Hover | Tap selects (lifts and shows the date); tap again opens it | Focus lifts, Enter opens |
+  | Decoration slot | Hover glow + label | Tap shows the glow + label sheet; button confirms | Focus + Enter |
+  | Filled slot info | Hover tooltip | Tap shows a bottom sheet | Focus shows the tooltip |
+  | Clean stone | Click | Tap | Enter |
+
+  Detect with `@media (hover: hover) and (pointer: fine)`, not with screen width.
+- **Touch targets are at least 44×44px**, including small decoration slots (expand the hit area invisibly if needed).
+- **Dialogs:** a centered modal on `md` and up, a bottom sheet on small screens.
+- **Respect safe areas** (`env(safe-area-inset-*)`) on phones with notches and home indicators. Use `dvh` units, not `vh`, so mobile browser toolbars don't cut off content.
+- **Landscape phones** (short height): the grave scene height is capped so the note stack stays reachable.
+- **Images** use `srcset`/`sizes` with responsive variants so phones don't download desktop-sized photos.
+- **The voice recorder** works on mobile Safari and Chrome, including the microphone-permission flow.
+
+**Testing:** every UI change is checked at **360×800, 390×844 (iPhone), 768×1024, 1280×800, and 1920×1080**, plus one landscape phone size (844×390). Playwright end-to-end tests run on both a mobile viewport (touch) and a desktop viewport. Before launch, test on real iOS Safari and Android Chrome devices.
 
 ---
 
