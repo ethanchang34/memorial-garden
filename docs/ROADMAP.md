@@ -5,15 +5,15 @@ Each milestone is shippable on its own. Check items off as you go.
 **Before each milestone, complete its prerequisites in [SETUP.md](SETUP.md)** (accounts, keys, local tools).
 
 ## M0 — Project setup
-- [ ] pnpm monorepo: `apps/web` (Vite + React + TS + Tailwind), `apps/api` (Hono), `packages/shared`
-- [ ] ESLint + Prettier + TypeScript strict
+- [x] pnpm monorepo: `apps/web` (Vite + React + TS + Tailwind), `apps/api` (Hono), `packages/shared`
+- [x] ESLint + Prettier + TypeScript strict
 - [ ] Supabase project (free) + local Supabase CLI; first migration (`profiles`)
 - [ ] Google OAuth configured in Supabase + Google Cloud console
 - [ ] Cloudflare Pages connected to the GitHub repo (auto-deploy on push to `main`)
 - [ ] GitHub Actions CI: lint, typecheck, test, gitleaks, Semgrep, `pnpm audit`
 - [ ] Dependabot + gitleaks pre-commit hook
 - [ ] Security headers (`_headers` file) + Sentry (free)
-- [ ] Design tokens (palette, fonts) in Tailwind config
+- [x] Design tokens (palette, fonts) in the Tailwind theme
 - [ ] i18next setup: all interface text in `locales/en`, `Intl` date formatting
 - [ ] Install shadcn/ui + Motion + Lucide + Sonner; restyle the base components to the cozy look (DESIGN §7.0)
 - [ ] Create `docs/ASSETS.md` (asset source + license log); pick a first art pack or style

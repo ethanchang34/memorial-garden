@@ -1,0 +1,16 @@
+{
+  "brand": {
+    "name": "Memorial Garden"
+  },
+  "home": {
+    "eyebrow": "A quiet place to remember",
+    "heading": "A garden for the people we carry with us.",
+    "description": "Create a lasting place to remember someone you love. Visit, share a story, or simply sit for a moment.",
+    "createAction": "Create a memorial",
+    "findAction": "Find someone",
+    "comingSoon": "Your garden is taking shape"
+  },
+  "accessibility": {
+    "skipToContent": "Skip to content"
+  }
+}

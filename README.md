@@ -7,7 +7,13 @@ An online cemetery where visitors leave notes and voice memos, place flowers and
 - **Setup & accounts:** [docs/SETUP.md](docs/SETUP.md)
 
 ## Stack
+
 React + Vite + TypeScript + Tailwind · Supabase (Postgres, Auth) · Hono server functions · Cloudflare Pages + R2 · Stripe
 
 ## Status
-Design phase. No code yet. Do the M0 prerequisites in SETUP.md, then start Roadmap **M0**.
+
+M0 implementation is underway. The local monorepo foundation is being built first; Supabase, Google OAuth, Cloudflare, and GitHub account configuration still need to be completed from [SETUP.md](docs/SETUP.md).
+
+## Local development
+
+Use Node.js 22 and pnpm, then run `pnpm install` and `pnpm dev` from the repository root. Copy `apps/web/.env.example` to `apps/web/.env.local` when configuring local services.
