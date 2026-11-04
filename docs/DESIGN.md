@@ -23,6 +23,7 @@ When tradeoffs conflict, these come first.
 5. **Cheap and portable.** Stay on free plans until revenue pays for upgrades, and keep providers swappable.
 6. **Use proven libraries; don't reinvent them.** Use well-maintained open-source libraries and asset packs for UI components, animation, audio, icons, and forms instead of building them from scratch. Spend our own effort on what makes the site unique: the grave scene, notes stack, decorations, and weathering. See §7.2 for the approved list and the rules for adding to it.
 7. **One memorial, one garden.** Each memorial is its own page and its own garden scene with a single gravestone. Gravestones are never shown side by side in a shared scene. Browsing and search show cards that lead to each garden.
+8. **Keep the architecture pointed inward.** Business rules belong in the domain and application layers and must not depend on UI frameworks, databases, payment providers, storage, or hosting. Delivery and infrastructure code depends on inner policies through explicit ports. Follow the dependency rules in §3.1; add boundaries where they protect real business rules, not ceremony.
 
 ### Non-goals (v1)
 - Native mobile apps.
@@ -121,8 +122,21 @@ When tradeoffs conflict, these come first.
 | Bot protection | Cloudflare Turnstile | Free CAPTCHA on note/memo/report submissions |
 | Testing | Vitest (unit), Playwright (e2e), pgTAP or SQL tests (RLS + functions) | |
 
+### 3.1 Clean Architecture boundaries (Tenet 8)
+
+Dependencies point inward, toward policy:
+
+1. **Domain** contains business concepts and deterministic policy. It imports no framework, provider SDK, database client, or transport code.
+2. **Application** contains use cases that coordinate domain rules. It depends on domain code and ports (interfaces), never on concrete providers.
+3. **Adapters** implement ports for Supabase, Stripe, R2, Cloudflare, and other external systems. Provider SDK imports stay here; framework imports stay at delivery boundaries.
+4. **Delivery** (React UI, Hono routes, webhooks, scheduled handlers) translates input into use-case calls and maps results to the appropriate response. It does not own business rules.
+
+Keep these as logical boundaries within the planned `apps/web`, `apps/api`, and `packages/shared` layout; do not add packages or layers solely to match a diagram. Shared domain rules and schemas live in `packages/shared` when both apps need them. Data access that needs secrets or privileged writes stays server-side. Client code may use Supabase Auth and authorized database access through RLS, but feature components must not contain business policy or coin-balance logic. Database constraints and functions may enforce invariants that require atomic transactions or database security; treat them as persistence-boundary enforcement and cover them with database tests.
+
+Test domain rules without infrastructure, application use cases against fake ports, and adapters at their integration boundaries. When a provider or framework changes, changes should be concentrated in its adapter and delivery wiring.
+
 ### Portability (adapters)
-App code imports only from `src/core/` and from the interfaces below. Each provider gets one adapter file.
+Application code depends on domain code and the interfaces below, not on provider implementations. Each provider gets an adapter that implements the relevant port.
 
 ```ts
 // src/adapters/types.ts
