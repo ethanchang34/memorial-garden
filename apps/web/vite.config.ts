@@ -4,6 +4,5 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  resolve: { alias: { '@': new URL('./src', import.meta.url).pathname } },
-  server: { host: '0.0.0.0' },
+  resolve: { tsconfigPaths: true },
 });
