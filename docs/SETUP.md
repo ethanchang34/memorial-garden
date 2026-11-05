@@ -72,12 +72,12 @@ Create each account when its milestone starts; there's no need to sign up for ev
 - [ ] **Git** and the **GitHub CLI** (`gh auth login`)
 - [ ] **Node.js 22 LTS** (through `nvm` or `fnm`)
 - [ ] **pnpm**: `corepack enable && corepack prepare pnpm@11.25.0 --activate`
-- [ ] **Docker Desktop**, which the Supabase CLI needs to run a local database
-- [ ] **Supabase CLI**: `brew install supabase/tap/supabase` (macOS) or see the Supabase docs
+- [ ] **Docker Desktop**, which the Supabase CLI needs to run a local database. Then in **Settings → Docker Engine**, add `"ip": "127.0.0.1"` to the JSON and apply. The local Supabase stack uses well-known default passwords, and this keeps its ports reachable only from your own computer instead of your whole Wi-Fi network.
+- [ ] **Supabase CLI**: installed per project through pnpm (`pnpm db:start`, `pnpm db:test`, `pnpm db:stop`); no separate install needed
 - [ ] **Gitleaks**: `brew install gitleaks` (used by CI; M0 will enable the repository hook)
 - [ ] **Wrangler** (Cloudflare CLI): installed per project through pnpm, then `pnpm wrangler login`
 - [ ] **Stripe CLI** (M4): `brew install stripe/stripe-cli/stripe`, then `stripe login`
-- [ ] **Claude Code**, opened in the repo folder
+- [ ] **A coding agent** (Codex, Claude Code, ...) opened in the repo folder. Both read the rules in `AGENTS.md`.
 
 Then clone the repo:
 

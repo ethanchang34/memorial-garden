@@ -5,21 +5,26 @@ Each milestone is shippable on its own. Check items off as you go.
 **Before each milestone, complete its prerequisites in [SETUP.md](SETUP.md)** (accounts, keys, local tools).
 
 ## M0 — Project setup
+
 - [x] pnpm monorepo: `apps/web` (Vite + React + TS + Tailwind), `apps/api` (Hono), `packages/shared`
 - [x] ESLint + Prettier + TypeScript strict
-- [ ] Supabase project (free) + local Supabase CLI; first migration (`profiles`)
+- [x] Local Supabase CLI (`pnpm db:start`); first migration (`profiles`) with RLS + pgTAP tests
+- [ ] Hosted Supabase project (free); apply migrations with `supabase db push`
 - [ ] Google OAuth configured in Supabase + Google Cloud console
 - [ ] Cloudflare Pages connected to the GitHub repo (auto-deploy on push to `main`)
-- [ ] GitHub Actions CI: lint, typecheck, test, gitleaks, Semgrep, `pnpm audit`
-- [ ] Dependabot + gitleaks pre-commit hook
-- [ ] Security headers (`_headers` file) + Sentry (free)
+- [x] GitHub Actions CI: format, lint, typecheck, build, unit + DB tests, gitleaks, Semgrep, `pnpm audit`
+- [x] Dependabot
+- [ ] gitleaks pre-commit hook; GitHub secret scanning + push protection turned on
+- [x] Security headers (`_headers` file); Sentry wired in web + api (no-op until a DSN is set)
+- [ ] Sentry project created and DSNs set
 - [x] Design tokens (palette, fonts) in the Tailwind theme
-- [ ] i18next setup: all interface text in `locales/en`, `Intl` date formatting
+- [ ] i18next setup: all interface text in `locales/en` (done), `Intl` date formatting (todo)
 - [ ] Install shadcn/ui + Motion + Lucide + Sonner; restyle the base components to the cozy look (DESIGN §7.0)
-- [ ] Create `docs/ASSETS.md` (asset source + license log); pick a first art pack or style
+- [ ] Create `docs/ASSETS.md` (done) (asset source + license log); pick a first art pack or style
 - [ ] Responsive foundation: breakpoints, container queries, `hover`/`pointer` media utilities, Playwright mobile + desktop projects
 
 ## M1 — Memorials (no money)
+
 - [ ] `memorials` (incl. nullable `owner_id`, `visibility`, `kind`, `tradition`), `stone_styles`, `memorial_photos`, `timeline_events` tables + RLS
 - [ ] Create-memorial wizard (incl. optional tradition, flexible-precision dates, duplicate-match warning with `pg_trgm`); memorial page = one garden scene with one gravestone
 - [ ] Free classic stone style + slot template
@@ -29,9 +34,10 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Home page: hero, Find someone, Recently tended, New gardens, How it works, Your gardens
 - [ ] Time-of-day lighting (4 looks, smooth transitions, setting to pin a look)
 - [ ] Link-preview + SEO Worker for `/m/:slug` (title, description, OG image, structured data), `sitemap.xml`, `robots.txt`
-- [ ] Profiles: editable display name (default "First L."), time zone
+- [ ] Profiles: editable display name (default "First L."); send the browser time zone to `set_time_zone()` after sign-in
 
 ## M2 — Notes
+
 - [ ] `notes` table + RLS + rate limit; author edit ("edited" label) + delete
 - [ ] Filing-cabinet note stack: hover lift, date tooltip, All/Mine toggle, "mine" tabs
 - [ ] Owner hide/unhide; report button
@@ -41,10 +47,12 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Memory prompts in the note composer (`memory_prompts`, ~30 seeded)
 
 ## M3 — Weathering & cleaning
+
 - [ ] `last_cleaned_at`, `cleanings`, `clean_memorial()` function
 - [ ] Grime overlay textures + seeded pattern + wipe animation (visible ~day 7, max ~day 60)
 
 ## M4 — Coins & decorations
+
 - [ ] `coin_ledger`, `coin_packs`, `payments`, `daily_rewards`, `decoration_types`, `memorial_slots`, `decorations`
 - [ ] `claim_daily_reward()` (user's local day, time-zone change limited to once every 7 days), `place_decoration()`, `renew_decoration()` (75%, giver only) with locking + tests
 - [ ] Stripe Checkout for packs + webhook (test mode) with idempotency
@@ -54,12 +62,14 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Cultural decorations + stone motifs (DESIGN §6.12); free visitation stones
 
 ## M5 — Voice memos
+
 - [ ] Recorder UI (MediaRecorder), 60s cap, preview
 - [ ] Quota (3 free) + paid extra/extended through coins
 - [ ] Signed R2 upload/playback; owner hide
 - [ ] Download button for memo author + memorial owner only
 
 ## M6 — Donations, moderation, launch prep
+
 - [ ] Donation checkout
 - [ ] Admin (behind Cloudflare Access): report queue (incl. ownership requests), user lookup + suspend/ban/coin adjust, payments + refunds, catalog editor, support inbox, stats dashboard
 - [ ] `admin_actions` audit log (append-only) for every admin action
@@ -81,6 +91,7 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Responsive pass on real devices (iOS Safari, Android Chrome) + all test viewports in DESIGN §7.1
 
 ## Later
+
 - Family caretakers + invite links + automatic owner handoff (DESIGN §6.13)
 - Follow + anniversary/birthday reminder emails (pick an email provider)
 - Pet memorials + `/pets` section
