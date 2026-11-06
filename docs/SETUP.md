@@ -4,7 +4,7 @@ Create each account when its milestone starts; there's no need to sign up for ev
 
 ## 0. Before anything
 
-- [ ] **Dedicated project email** (e.g. a new Gmail). Use it for every account below so the business stays separate from your personal inbox and can be handed off or sold cleanly later.
+- [x] **Dedicated project email** (e.g. a new Gmail, "For my personal use", named after the project). Use it for every account below so the business stays separate from your personal inbox and can be handed off or sold cleanly later.
 - [ ] **Password manager** entry for each account.
 - [ ] **Two-factor authentication** on every account, especially Stripe and Cloudflare.
 
@@ -20,30 +20,52 @@ Create each account when its milestone starts; there's no need to sign up for ev
 
 ### Cloudflare (M0)
 
-- [ ] Sign up at dash.cloudflare.com with the project email and turn on 2FA.
-- [ ] **Workers & Pages → Create → Pages → Connect to Git** → choose `memorial-garden`. Build command `pnpm --filter web build`, output folder `apps/web/dist`. (Do this once the app exists.)
-- [ ] **R2 → enable.** This requires a card on file, but the first 10GB is free. Create buckets `mg-media-dev` and `mg-media-prod`, both private.
-- [ ] **R2 → Manage API tokens → create** a token with Object Read & Write access to those buckets only. Save the access key ID and secret.
-- [ ] **Turnstile → add site** → save the site key and secret key.
-- [ ] **Billing → set a $5 billing alert.**
+- [x] Sign up at dash.cloudflare.com with the project email (email + password, or Google with the project Gmail) and turn on 2FA.
+- [x] **Workers & Pages → Create application → "Continue to Pages"** (the legacy Pages flow; the default flow creates a Worker, which needs a Wrangler config the web app doesn't have) → **Connect to Git** → choose `memorial-garden`.
+  - Production branch `main`, framework preset **None**
+  - Build command `pnpm --filter @memorial-garden/web build`, output directory `apps/web/dist`
+  - Variables: `NODE_VERSION=22`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and (Production only) `VITE_SENTRY_DSN`. `VITE_*` values are built into the site, so redeploy after changing them.
+- [x] **Notifications → Add → Billing:** usage-based billing alert at $5.
+- [ ] The site is currently behind **Cloudflare Access** (visitors are sent to a login page). Keep it until launch, then remove it for production so the public can reach the site.
+- [ ] (M1) **R2 → enable.** This requires a card on file, but the first 10GB is free. Create buckets `mg-media-dev` and `mg-media-prod`, both private.
+- [ ] (M1) **R2 → Manage API tokens → create** a token with Object Read & Write access to those buckets only. Save the access key ID and secret.
+- [ ] (M1) **Turnstile → add site** → save the site key and secret key.
 - [ ] (M6) **Domain Registration → buy the domain**, then point it at Pages under Custom domains.
 
 ### Supabase (M0)
 
-- [ ] Sign up at supabase.com using **Sign in with GitHub** and turn on 2FA.
-- [ ] Create the project `memorial-garden` (free plan). Choose the region closest to most users and save the database password in your password manager.
-- [ ] **Project Settings → API**: save the Project URL, the `anon` key, and the `service_role` key. **The `service_role` key bypasses all security rules, so it goes only in server environment variables, never in the browser.**
-- [ ] **Authentication → URL Configuration**: set Site URL to `http://localhost:5173` for now. Add redirect URLs for `http://localhost:5173/**` and, later, the Pages and production domains.
-- [ ] Keep the **spend cap** on (the default).
+- [x] Sign up at supabase.com and turn on 2FA.
+- [x] Create the project `memorial-garden` (free plan), project ref `qihwhgxpfvwvnuobgfbq`. Save the database password in your password manager. At creation: keep **Enable Data API** on, turn **Automatically expose new tables** off, and turn **automatic RLS** on.
+- [x] **Connect** button (or Project Settings → **Data API** and **API Keys**): note the Project URL and the **publishable key** (`sb_publishable_…`, public, used by the web app). The **secret key** (`sb_secret_…`) bypasses all security rules and is not needed until the API does privileged writes (M4); create one then, and keep it only in server environment variables, never in the browser, the repo, or a chat. Prefer these over the legacy `anon`/`service_role` keys.
+- [x] **Authentication → URL Configuration**: Site URL `http://localhost:5173`, redirect URL `http://localhost:5173/**`.
+- [ ] Add the redirect URL `https://memorial-garden.pages.dev/**` (and the production domain at launch).
+- [x] Apply migrations from your laptop:
+  ```bash
+  pnpm exec supabase login
+  pnpm exec supabase link --project-ref qihwhgxpfvwvnuobgfbq
+  pnpm exec supabase db push --remote --dry-run   # preview
+  pnpm exec supabase db push --remote
+  ```
+  Supabase CLI 3 targets the local database unless told otherwise; check `pnpm exec supabase db push --help` if the flag name differs. Never edit a migration once it has been pushed.
 
 ### Google Cloud Console (M0)
 
-- [ ] At console.cloud.google.com, create the project `memorial-garden`.
-- [ ] **APIs & Services → OAuth consent screen**: choose External, set the app name "Memorial Garden", and enter the project email as the support address. Scopes: `email`, `profile`, `openid`.
-- [ ] **Credentials → Create credentials → OAuth client ID** of type **Web application**.
-  - Authorized redirect URI: `https://<your-project-ref>.supabase.co/auth/v1/callback`
-- [ ] Copy the client ID and secret into **Supabase → Authentication → Providers → Google** and enable it.
-- [ ] (M6) Publish the consent screen (move it from Testing to In production) before launch. While it's in Testing, only listed test users can sign in.
+Sign in with the project Gmail. The OAuth screens are under **Google Auth Platform**.
+
+- [x] Create the project `memorial-garden` (no billing needed).
+- [x] **Get started** (consent screen): app name "Memorial Garden", audience **External**, project email as support and contact address.
+- [x] **Data Access**: only the non-sensitive `openid`, `userinfo.email`, `userinfo.profile` scopes (an empty list also works). Sensitive and restricted scopes must stay empty.
+- [x] **Audience → Test users**: add your own Google accounts.
+- [x] **Clients → Create client** of type **Web application**. JavaScript origin `http://localhost:5173`; redirect URI `https://qihwhgxpfvwvnuobgfbq.supabase.co/auth/v1/callback`. Save the client ID and secret in your password manager.
+- [x] Paste the client ID and secret into **Supabase → Authentication → Sign In / Providers → Google** and enable it. Leave "Skip nonce checks" and "Allow users without an email" off. Watch for browser autofill in these fields.
+- [ ] (M6) Publish the app (move it from Testing to In production) before launch. While it's in Testing, only listed test users can sign in.
+
+### Sentry (M0, free)
+
+- [x] Sign up with the project email, organization `memorial-garden`, and turn on 2FA.
+- [x] Projects `web` (React) and `api` (Hono), error monitoring only. Skip Sentry's setup wizard and agent plugin; the SDK is already wired in the repo.
+- [ ] Web DSN set in Cloudflare Pages as `VITE_SENTRY_DSN` (Production only), then redeploy.
+- [ ] (When the API is deployed) API DSN set on the API Worker as `SENTRY_DSN`. Keep DSNs out of local env files so local errors don't reach Sentry.
 
 ### Stripe (M4 test mode → M6 live)
 
@@ -57,7 +79,6 @@ Create each account when its milestone starts; there's no need to sign up for ev
 
 ### Launch-time accounts & registrations (M6)
 
-- [ ] **Sentry** (free): create a project for web + api, and save the DSN (`VITE_SENTRY_DSN`, `SENTRY_DSN`). Can be done as early as M0.
 - [ ] **Cloudflare → Caching → Configuration → CSAM Scanning Tool:** turn it on and enter the notification email. Requires the domain to be on Cloudflare.
 - [ ] **Cloudflare → Web Analytics:** add the site.
 - [ ] **Cloudflare → Email → Email Routing:** turn it on for the domain, verify the project Gmail as a destination, and route `support@<domain>` to it. The contact form's Worker uses the `send_email` binding to this verified address.
@@ -70,8 +91,13 @@ Create each account when its milestone starts; there's no need to sign up for ev
 ## 2. Local tools (on your personal computer)
 
 - [ ] **Git** and the **GitHub CLI** (`gh auth login`)
-- [ ] **Node.js 22 LTS** (through `nvm` or `fnm`)
-- [ ] **pnpm**: `corepack enable && corepack prepare pnpm@11.25.0 --activate`
+- [ ] **Node.js 22**: `brew install node@22`, then add it to your PATH (Homebrew doesn't link versioned Node automatically):
+  ```bash
+  echo 'export PATH="/opt/homebrew/opt/node@22/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc
+  node -v   # v22.x
+  ```
+  Use `/usr/local/opt/node@22/bin` on Intel Macs. Don't install plain `node`: Node 25+ no longer includes corepack. `nvm` or `fnm` also work (they read `.nvmrc`).
+- [ ] **pnpm**: `corepack enable`, then `pnpm -v` in the repo should print `11.25.0` (pinned in `package.json`)
 - [ ] **Docker** (optional until you work on the database locally; CI runs the database tests on every PR). On macOS use Docker Desktop, OrbStack, or Colima. Then limit published ports to your own computer: in Docker Desktop, **Settings → Docker Engine**, add `"ip": "127.0.0.1"` to the JSON and apply. The local Supabase stack uses well-known default passwords, and this keeps its ports off your Wi-Fi network.
 - [ ] **Supabase CLI**: installed per project through pnpm (`pnpm db:start`, `pnpm db:test`, `pnpm db:stop`); no separate install needed
 - [ ] **Gitleaks**: `brew install gitleaks` (used by CI; M0 will enable the repository hook)
@@ -88,22 +114,22 @@ cd memorial-garden
 
 ## 3. Environment variables
 
-Never commit real values. Example files are provided at `apps/web/.env.example` and `apps/api/.env.example`.
+Never commit real values. Copy `apps/web/.env.example` to `apps/web/.env.local` and `apps/api/.env.example` to `apps/api/.dev.vars` (both gitignored) and fill in only what you need. Leave the Sentry DSNs out locally.
 
-| Variable                                    | Where | Secret?                                            |
-| ------------------------------------------- | ----- | -------------------------------------------------- |
-| `VITE_SUPABASE_URL`                         | web   | no                                                 |
-| `VITE_SUPABASE_ANON_KEY`                    | web   | no (public by design; security rules protect data) |
-| `VITE_TURNSTILE_SITE_KEY`                   | web   | no                                                 |
-| `SUPABASE_URL`                              | api   | no                                                 |
-| `SUPABASE_SERVICE_ROLE_KEY`                 | api   | **yes**                                            |
-| `R2_ACCOUNT_ID`                             | api   | no                                                 |
-| `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | api   | **yes**                                            |
-| `R2_BUCKET`                                 | api   | no                                                 |
-| `TURNSTILE_SECRET_KEY`                      | api   | **yes**                                            |
-| `STRIPE_SECRET_KEY`                         | api   | **yes**                                            |
-| `STRIPE_WEBHOOK_SECRET`                     | api   | **yes**                                            |
-| `VITE_SENTRY_DSN`                           | web   | no                                                 |
-| `SENTRY_DSN`                                | api   | no                                                 |
+| Variable                                    | Where | Secret?                                                                |
+| ------------------------------------------- | ----- | ---------------------------------------------------------------------- |
+| `VITE_SUPABASE_URL`                         | web   | no                                                                     |
+| `VITE_SUPABASE_PUBLISHABLE_KEY`             | web   | no (`sb_publishable_…`, public by design; security rules protect data) |
+| `VITE_TURNSTILE_SITE_KEY`                   | web   | no                                                                     |
+| `SUPABASE_URL`                              | api   | no                                                                     |
+| `SUPABASE_SECRET_KEY`                       | api   | **yes** (`sb_secret_…`, bypasses all security rules)                   |
+| `R2_ACCOUNT_ID`                             | api   | no                                                                     |
+| `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` | api   | **yes**                                                                |
+| `R2_BUCKET`                                 | api   | no                                                                     |
+| `TURNSTILE_SECRET_KEY`                      | api   | **yes**                                                                |
+| `STRIPE_SECRET_KEY`                         | api   | **yes**                                                                |
+| `STRIPE_WEBHOOK_SECRET`                     | api   | **yes**                                                                |
+| `VITE_SENTRY_DSN`                           | web   | no (Cloudflare Pages, Production only)                                 |
+| `SENTRY_DSN`                                | api   | no (deployed Worker only)                                              |
 
-In production, set these as encrypted environment variables in the Cloudflare Pages/Workers settings. Use `wrangler secret put` for the secrets.
+In production, `VITE_*` values go in the Cloudflare Pages project's Variables and Secrets (they are built into the site). API secrets go on the Worker with `wrangler secret put <NAME>`.
