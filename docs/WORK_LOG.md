@@ -22,7 +22,7 @@ M0 is in progress. Code foundation is merged (PR #7). Hosted accounts exist: Sup
 1. GitHub settings: secret scanning + push protection; branch protection on `main` requiring the CI checks.
 2. Workflow that applies new migrations on merge (secrets `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` in GitHub; optional `production` environment with required reviewer).
 3. ~~Gitleaks pre-commit hook~~ (done).
-4. Playwright mobile/desktop projects and the responsive foundation.
+4. ~~Playwright mobile/desktop projects and the responsive foundation~~ (done).
 5. shadcn/ui + Motion + Lucide + Sonner, restyled; `Intl` date formatting.
 6. Choose and record the first licensed art pack/style.
 7. Before M1 notes, add a safe public profile projection so content can show `display_name` without exposing private profile fields.

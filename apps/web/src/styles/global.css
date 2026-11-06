@@ -17,6 +17,21 @@
   --color-sky: #dce6e8;
   --font-display: 'Fraunces', Georgia, serif;
   --font-sans: 'Nunito', ui-rounded, system-ui, sans-serif;
+  --spacing-touch: 2.75rem;
+}
+
+@custom-variant can-hover (@media (hover: hover) and (pointer: fine));
+@custom-variant touch (@media (hover: none), (pointer: coarse));
+
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility px-safe {
+  padding-left: max(1rem, env(safe-area-inset-left));
+  padding-right: max(1rem, env(safe-area-inset-right));
 }
 
 :root {
@@ -40,8 +55,9 @@ html {
 }
 body {
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 a {
   color: inherit;

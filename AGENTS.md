@@ -14,7 +14,7 @@ Context for AI coding sessions on this repo (Codex, Claude Code, and other agent
 - Never edit a migration that has been applied to a hosted Supabase project; add a new one instead.
 - Secrets go in `.env.local` / `.dev.vars` (gitignored) and never in code. CI runs gitleaks, Semgrep, and `pnpm audit`, and they must pass. A gitleaks pre-commit hook also runs locally; never bypass it (`--no-verify`, `LEFTHOOK=0`).
 - Render user content as plain text, never as raw HTML. Validate all API input with Zod.
-- Every UI change must work well from 320px phones to large desktop windows (DESIGN §7.1): mobile-first, touch equivalents for every hover, 44px touch targets, no horizontal scroll. Verify at the listed test viewports.
+- Every UI change must work well from 320px phones to large desktop windows (DESIGN §7.1): mobile-first, touch equivalents for every hover, 44px touch targets, no horizontal scroll. The Playwright suite (`pnpm test:e2e`) checks every test viewport in `apps/web/e2e/viewports.ts`; extend it for new pages. Use the `can-hover:` and `touch:` variants (pointer capability), not screen width, to decide hover vs. tap behavior.
 - Prefer the approved libraries in DESIGN §7.2 over hand-rolled components or animations. Follow the "rules for adding a library" there, and match the cozy art direction in §7.0.
 - One memorial = one page = one garden with one gravestone. Never render multiple graves in one scene.
 - Never add loot boxes, ads, or guilt-driven messaging (Tenet 1).
@@ -36,6 +36,7 @@ apps/web/src/
   lib/          small framework-free helpers
   locales/      i18next resources
   styles/       global CSS and theme tokens
+apps/web/e2e/   Playwright tests and the shared test viewport list
 apps/api/src/
   index.ts      Worker entry (middleware, Sentry)
   app.ts        route composition, testable without the Worker runtime
@@ -54,6 +55,7 @@ Run these from the repository root; all must pass:
 
 ```bash
 pnpm format:check && pnpm lint && pnpm typecheck && pnpm build && pnpm test
+pnpm test:e2e                   # first time: pnpm --filter @memorial-garden/web exec playwright install chromium
 pnpm db:start && pnpm db:test   # requires Docker
 ```
 

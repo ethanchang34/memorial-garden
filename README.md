@@ -18,13 +18,14 @@ M0 implementation is underway. The local monorepo foundation is being built firs
 
 Use Node.js 22 and pnpm. From the repository root:
 
-| Command                                                          | What it does                                                                              |
-| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `pnpm install`                                                   | Install dependencies                                                                      |
-| `pnpm dev`                                                       | Web app at http://localhost:5173 (add `--host` to test from your phone on the same Wi-Fi) |
-| `pnpm --filter @memorial-garden/api dev`                         | API Worker locally                                                                        |
-| `pnpm test`                                                      | Unit tests                                                                                |
-| `pnpm db:start` / `pnpm db:test` / `pnpm db:stop`                | Local Supabase database (Docker) and its pgTAP tests                                      |
-| `pnpm format:check && pnpm lint && pnpm typecheck && pnpm build` | Everything CI checks                                                                      |
+| Command                                                          | What it does                                                                                                                |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm install`                                                   | Install dependencies                                                                                                        |
+| `pnpm dev`                                                       | Web app at http://localhost:5173 (add `--host` to test from your phone on the same Wi-Fi)                                   |
+| `pnpm --filter @memorial-garden/api dev`                         | API Worker locally                                                                                                          |
+| `pnpm test`                                                      | Unit tests                                                                                                                  |
+| `pnpm test:e2e`                                                  | Browser tests at phone and desktop sizes (first run: `pnpm --filter @memorial-garden/web exec playwright install chromium`) |
+| `pnpm db:start` / `pnpm db:test` / `pnpm db:stop`                | Local Supabase database (Docker) and its pgTAP tests                                                                        |
+| `pnpm format:check && pnpm lint && pnpm typecheck && pnpm build` | Everything CI checks                                                                                                        |
 
 Copy `apps/web/.env.example` to `apps/web/.env.local` when configuring local services.
