@@ -100,7 +100,7 @@ Sign in with the project Gmail. The OAuth screens are under **Google Auth Platfo
 - [ ] **pnpm**: `corepack enable`, then `pnpm -v` in the repo should print `11.25.0` (pinned in `package.json`)
 - [ ] **Docker** (optional until you work on the database locally; CI runs the database tests on every PR). On macOS use Docker Desktop, OrbStack, or Colima. Then limit published ports to your own computer: in Docker Desktop, **Settings → Docker Engine**, add `"ip": "127.0.0.1"` to the JSON and apply. The local Supabase stack uses well-known default passwords, and this keeps its ports off your Wi-Fi network.
 - [ ] **Supabase CLI**: installed per project through pnpm (`pnpm db:start`, `pnpm db:test`, `pnpm db:stop`); no separate install needed
-- [ ] **Gitleaks**: `brew install gitleaks` (used by CI; M0 will enable the repository hook)
+- [ ] **Gitleaks**: `brew install gitleaks`. Required: `pnpm install` sets up a pre-commit hook (lefthook) that scans staged changes for secrets and blocks the commit if it finds one or if gitleaks isn't installed. If it flags something, remove the secret from the change; if a real key was already committed, rotate it.
 - [ ] **Wrangler** (Cloudflare CLI): installed per project through pnpm, then `pnpm wrangler login`
 - [ ] **Stripe CLI** (M4): `brew install stripe/stripe-cli/stripe`, then `stripe login`
 - [ ] **A coding agent** (Codex, Claude Code, ...) opened in the repo folder. Both read the rules in `AGENTS.md`.

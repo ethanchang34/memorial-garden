@@ -15,7 +15,8 @@ Each milestone is shippable on its own. Check items off as you go.
 - [x] Cloudflare Pages connected to the GitHub repo (auto-deploy on push to `main`)
 - [x] GitHub Actions CI: format, lint, typecheck, build, unit + DB tests, gitleaks, Semgrep, `pnpm audit`
 - [x] Dependabot
-- [ ] gitleaks pre-commit hook; GitHub secret scanning + push protection turned on
+- [x] gitleaks pre-commit hook (lefthook, installed by `pnpm install`)
+- [ ] GitHub secret scanning + push protection turned on
 - [x] Security headers (`_headers` file); Sentry wired in web + api (no-op until a DSN is set)
 - [x] Sentry projects created (`web`, `api`)
 - [ ] Sentry DSNs set (web: Cloudflare Pages; api: when the Worker is deployed)
