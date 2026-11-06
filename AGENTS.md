@@ -10,6 +10,7 @@ Context for AI coding sessions on this repo (Codex, Claude Code, and other agent
 - Follow Clean Architecture boundaries in DESIGN §3.1: dependencies point inward; domain/application code owns policy, ports define external needs, and delivery layers translate requests into use-case calls. Keep coin-balance and other business rules out of UI components.
 - The coin ledger is append-only. Never write balance logic on the client, and never UPDATE/DELETE `coin_ledger`.
 - Every new table gets RLS policies and pgTAP tests (`supabase/tests/database/`) in the same change.
+- Every migration grants API access explicitly (`grant ... to authenticated` / `anon`) for each table and function it adds, and its tests check those grants. The hosted project does not expose new tables automatically, but the local stack does, so a missing grant passes locally and fails in production.
 - Never edit a migration that has been applied to a hosted Supabase project; add a new one instead.
 - Secrets go in `.env.local` / `.dev.vars` (gitignored) and never in code. CI runs gitleaks, Semgrep, and `pnpm audit`, and they must pass.
 - Render user content as plain text, never as raw HTML. Validate all API input with Zod.

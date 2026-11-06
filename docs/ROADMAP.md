@@ -9,14 +9,16 @@ Each milestone is shippable on its own. Check items off as you go.
 - [x] pnpm monorepo: `apps/web` (Vite + React + TS + Tailwind), `apps/api` (Hono), `packages/shared`
 - [x] ESLint + Prettier + TypeScript strict
 - [x] Local Supabase CLI (`pnpm db:start`); first migration (`profiles`) with RLS + pgTAP tests
-- [ ] Hosted Supabase project (free); apply migrations with `supabase db push`
-- [ ] Google OAuth configured in Supabase + Google Cloud console
-- [ ] Cloudflare Pages connected to the GitHub repo (auto-deploy on push to `main`)
+- [x] Hosted Supabase project (free); `profiles` migration applied with `supabase db push --remote`
+- [ ] GitHub Actions workflow that applies new migrations on merge to `main`
+- [x] Google OAuth configured in Supabase + Google Cloud console
+- [x] Cloudflare Pages connected to the GitHub repo (auto-deploy on push to `main`)
 - [x] GitHub Actions CI: format, lint, typecheck, build, unit + DB tests, gitleaks, Semgrep, `pnpm audit`
 - [x] Dependabot
 - [ ] gitleaks pre-commit hook; GitHub secret scanning + push protection turned on
 - [x] Security headers (`_headers` file); Sentry wired in web + api (no-op until a DSN is set)
-- [ ] Sentry project created and DSNs set
+- [x] Sentry projects created (`web`, `api`)
+- [ ] Sentry DSNs set (web: Cloudflare Pages; api: when the Worker is deployed)
 - [x] Design tokens (palette, fonts) in the Tailwind theme
 - [ ] i18next setup: all interface text in `locales/en` (done), `Intl` date formatting (todo)
 - [ ] Install shadcn/ui + Motion + Lucide + Sonner; restyle the base components to the cozy look (DESIGN §7.0)
