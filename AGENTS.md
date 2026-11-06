@@ -12,7 +12,7 @@ Context for AI coding sessions on this repo (Codex, Claude Code, and other agent
 - Every new table gets RLS policies and pgTAP tests (`supabase/tests/database/`) in the same change.
 - Every migration grants API access explicitly (`grant ... to authenticated` / `anon`) for each table and function it adds, and its tests check those grants. The hosted project does not expose new tables automatically, but the local stack does, so a missing grant passes locally and fails in production.
 - Never edit a migration that has been applied to a hosted Supabase project; add a new one instead.
-- Secrets go in `.env.local` / `.dev.vars` (gitignored) and never in code. CI runs gitleaks, Semgrep, and `pnpm audit`, and they must pass.
+- Secrets go in `.env.local` / `.dev.vars` (gitignored) and never in code. CI runs gitleaks, Semgrep, and `pnpm audit`, and they must pass. A gitleaks pre-commit hook also runs locally; never bypass it (`--no-verify`, `LEFTHOOK=0`).
 - Render user content as plain text, never as raw HTML. Validate all API input with Zod.
 - Every UI change must work well from 320px phones to large desktop windows (DESIGN §7.1): mobile-first, touch equivalents for every hover, 44px touch targets, no horizontal scroll. Verify at the listed test viewports.
 - Prefer the approved libraries in DESIGN §7.2 over hand-rolled components or animations. Follow the "rules for adding a library" there, and match the cozy art direction in §7.0.
