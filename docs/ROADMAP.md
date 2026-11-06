@@ -23,7 +23,8 @@ Each milestone is shippable on its own. Check items off as you go.
 - [x] Design tokens (palette, fonts) in the Tailwind theme
 - [x] i18next setup: all interface text in `locales/en`; `Intl` date formatting (`packages/shared/src/dates.ts`, `useDateFormat()` in web) for flexible-precision memorial dates, lifespans, and timestamps
 - [ ] Install shadcn/ui + Motion + Lucide + Sonner; restyle the base components to the cozy look (DESIGN §7.0)
-- [ ] Create `docs/ASSETS.md` (done) (asset source + license log); pick a first art pack or style
+- [x] Create `docs/ASSETS.md` (asset source + license log)
+- [ ] Pick a first art pack or style and record it in `docs/ASSETS.md`
 - [x] Responsive foundation: Tailwind breakpoints (match DESIGN §7.1), container queries, `can-hover:`/`touch:` variants, safe-area utilities, `dvh`; Playwright mobile + desktop projects with a no-horizontal-scroll and 44px-target check at every test viewport (runs in CI)
 
 ## M1 — Memorials (no money)
