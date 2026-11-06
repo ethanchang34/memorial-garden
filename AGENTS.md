@@ -18,7 +18,7 @@ Context for AI coding sessions on this repo (Codex, Claude Code, and other agent
 - Prefer the approved libraries in DESIGN §7.2 over hand-rolled components or animations. Follow the "rules for adding a library" there, and match the cozy art direction in §7.0.
 - One memorial = one page = one garden with one gravestone. Never render multiple graves in one scene.
 - Never add loot boxes, ads, or guilt-driven messaging (Tenet 1).
-- No hard-coded interface strings: all user-facing text goes through i18next (`apps/web/src/locales/en`).
+- No hard-coded interface strings: all user-facing text goes through i18next (`apps/web/src/locales/en`). Format dates with `useDateFormat()` (web) or the `packages/shared` date functions, never `toLocaleDateString` or hand-built strings. Memorial dates are calendar dates and always format in UTC; timestamps format in the viewer's time zone.
 - Show users by `display_name` only, never their full Google name or email.
 - Every admin action writes an `admin_actions` audit row; never UPDATE/DELETE that table.
 - Respect `prefers-reduced-motion`, and keep everything keyboard-accessible.

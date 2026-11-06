@@ -12,5 +12,8 @@
   },
   "accessibility": {
     "skipToContent": "Skip to content"
+  },
+  "dates": {
+    "circa": "c. {{year}}"
   }
 }
