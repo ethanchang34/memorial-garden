@@ -20,7 +20,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `pnpm build && pnpm exec vite preview --port ${port} --strictPort`,
+    command: `VITE_UI_PREVIEW=true pnpm build && pnpm exec vite preview --port ${port} --strictPort`,
     url: `http://localhost:${port}`,
     reuseExistingServer: !process.env['CI'],
     timeout: 120_000,

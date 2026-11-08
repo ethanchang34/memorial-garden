@@ -55,6 +55,13 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @memorial-garden/web exec playwright install --with-deps chromium
       - run: pnpm test:e2e
+      - if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-screenshots
+          path: apps/web/test-results/**/*.png
+          retention-days: 14
+          if-no-files-found: ignore
       - if: failure()
         uses: actions/upload-artifact@v7
         with:

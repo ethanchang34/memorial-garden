@@ -22,11 +22,7 @@ M0 is nearly done; PRs #7–#11 are merged and `main` is protected (changes go t
 
 ### Code (an agent can do these)
 
-1. **shadcn/ui + cozy restyle** (finishes M0).
-   - Install shadcn/ui (Radix + Tailwind) with Lucide, Sonner, Vaul, and Motion. Map shadcn's theme variables to the existing `@theme` tokens in `apps/web/src/styles/global.css`; don't add a second palette.
-   - Restyle Button, Dialog, Sheet/Drawer (bottom sheet on small screens), Tooltip, and Sonner toasts to DESIGN §7.0: 12–16px radii, soft shadows, warm neutrals, rounded type, slow soft motion, `prefers-reduced-motion` respected, 44px targets.
-   - Add a dev-only component preview route and Playwright screenshots at phone and desktop sizes for review.
-   - Keep the look in tokens (colors, radii, shadows, fonts in `@theme`) and component variants (`components/ui/*`), not scattered classes, so a later restyle from a reference site is mostly a token change.
+1. ~~shadcn/ui + cozy restyle~~ (done). To restyle from a reference site, change the role tokens in `apps/web/src/styles/global.css` and the variants in `components/ui/*`; review at `/dev/ui` or the `ui-screenshots` CI artifact.
 2. **Migration deploy workflow**: GitHub Action that runs `supabase db push --remote` when `supabase/migrations/` changes on `main`, plus a manual "Run workflow" button. Needs the GitHub secrets below. Do before M1's first new migration.
 3. **Public profile projection** before M1 notes: a view or function that exposes only `id` and `display_name`, so other users' content can show names without reading private profile fields.
 
