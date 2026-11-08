@@ -4,7 +4,7 @@ Updated: 2026-11-06
 
 ## Current stopping point
 
-M0 is nearly done; PRs #7–#11 are merged and `main` is protected (changes go through PRs with passing checks). Hosted accounts exist: Supabase project `qihwhgxpfvwvnuobgfbq` with the `profiles` migration applied, Google OAuth wired into Supabase, Cloudflare Pages deploying `main` to `memorial-garden.pages.dev` (behind Cloudflare Access), and Sentry projects `web` and `api`.
+M0's code work is done (PRs #7–#14 merged); `main` is protected (changes go through PRs with passing checks). Remaining M0 items are the migration deploy workflow and the checklists below. Hosted accounts exist: Supabase project `qihwhgxpfvwvnuobgfbq` with the `profiles` migration applied, Google OAuth wired into Supabase, Cloudflare Pages deploying `main` to `memorial-garden.pages.dev` (behind Cloudflare Access), and Sentry projects `web` and `api`.
 
 ## Done
 
@@ -15,6 +15,7 @@ M0 is nearly done; PRs #7–#11 are merged and `main` is protected (changes go t
 - Shared Zod schemas (display name, locale, memorial dates) and `Intl` date formatting (`packages/shared/src/dates.ts`, `useDateFormat()` in web), with unit tests.
 - Responsive foundation: `can-hover:`/`touch:` variants, safe-area utilities, `dvh`; Playwright checks no horizontal scroll and 44px targets at every DESIGN §7.1 viewport.
 - CI: format, lint, typecheck, build, unit, database, and e2e tests, `pnpm audit`; gitleaks; Semgrep pinned and failing on findings. Local gitleaks pre-commit hook (lefthook).
+- Cozy shadcn-style UI kit (`components/ui/`: Button, Dialog/bottom sheet, Tooltip, Toaster) themed by role tokens in `styles/global.css`; React Router with a not-found page; `/dev/ui` component preview (dev and test builds only); CI uploads `ui-screenshots`.
 - `AGENTS.md` holds agent rules (CLAUDE.md imports it).
 - Env vars follow Supabase's current key names: `VITE_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`.
 
@@ -32,7 +33,8 @@ M0 is nearly done; PRs #7–#11 are merged and `main` is protected (changes go t
 
 - [ ] `git pull` and `pnpm install` (picks up the merged PRs and installs the gitleaks pre-commit hook).
 - [ ] `gitleaks version` works; if not, `brew install gitleaks`. Commits are blocked without it.
-- [ ] Once: `pnpm --filter @memorial-garden/web exec playwright install chromium`, then `pnpm test:e2e` should show 11 passed, 9 skipped.
+- [ ] Once: `pnpm --filter @memorial-garden/web exec playwright install chromium`, then `pnpm test:e2e` should show 24 passed, 10 skipped.
+- [ ] `pnpm dev`, open http://localhost:5173/dev/ui, and check the components look right on your screen (try the dialog and tooltip; narrow the window to see the bottom sheet).
 
 **In a browser** (any device):
 
