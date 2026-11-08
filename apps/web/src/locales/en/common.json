@@ -2,6 +2,9 @@
   "brand": {
     "name": "Memorial Garden"
   },
+  "common": {
+    "close": "Close"
+  },
   "home": {
     "eyebrow": "A quiet place to remember",
     "heading": "A garden for the people we carry with us.",
@@ -9,6 +12,11 @@
     "createAction": "Create a memorial",
     "findAction": "Find someone",
     "comingSoon": "Your garden is taking shape"
+  },
+  "notFound": {
+    "heading": "This path leads nowhere",
+    "description": "The page you're looking for isn't here. It may have moved, or the link may be mistyped.",
+    "homeAction": "Return to the garden"
   },
   "accessibility": {
     "skipToContent": "Skip to content"

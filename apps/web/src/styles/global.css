@@ -8,13 +8,70 @@
   --color-stone: #c9c6bf;
   --color-stone-dark: #8e8a82;
   --color-ink: #2f2e2b;
-  --color-muted: #6e6b65;
   --color-sage: #8fa58a;
+  --color-sage-deep: #526b4d;
   --color-gold: #c8a96a;
+  --color-gold-deep: #8a6a2b;
   --color-rose: #c98f8f;
   --color-moss: #7e9461;
   --color-wood: #a47c5b;
   --color-sky: #dce6e8;
+
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-ink);
+  --color-card: #fffdf9;
+  --color-card-foreground: var(--color-ink);
+  --color-popover: #fffdf9;
+  --color-popover-foreground: var(--color-ink);
+  --color-primary: var(--color-sage-deep);
+  --color-primary-hover: #42583e;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #fffdf9;
+  --color-secondary-hover: #ffffff;
+  --color-secondary-foreground: var(--color-ink);
+  --color-muted: #efebe3;
+  --color-muted-foreground: #6e6b65;
+  --color-accent: #e5eadf;
+  --color-accent-foreground: var(--color-ink);
+  --color-destructive: #9b4a4a;
+  --color-destructive-hover: #843d3d;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e3dfd6;
+  --color-input: var(--color-stone-dark);
+  --color-ring: var(--color-gold-deep);
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  --shadow-soft: 0 1px 2px rgb(47 46 43 / 6%), 0 6px 18px rgb(47 46 43 / 7%);
+  --shadow-lift: 0 2px 6px rgb(47 46 43 / 8%), 0 24px 48px rgb(47 46 43 / 14%);
+
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-fade-in: fade-in 260ms var(--ease-soft);
+  --animate-dialog-in: dialog-in 320ms var(--ease-soft);
+  --animate-sheet-in: sheet-in 360ms var(--ease-soft);
+  --animate-tooltip-in: fade-in 180ms var(--ease-soft);
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      transform: translate(-50%, calc(-50% + 0.75rem)) scale(0.98);
+    }
+  }
+  @keyframes sheet-in {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
   --font-display: 'Fraunces', Georgia, serif;
   --font-sans: 'Nunito', ui-rounded, system-ui, sans-serif;
   --spacing-touch: 2.75rem;
@@ -69,7 +126,7 @@ a {
 }
 a:focus-visible,
 button:focus-visible {
-  outline: 3px solid var(--color-gold);
+  outline: 3px solid var(--color-ring);
   outline-offset: 3px;
 }
 
@@ -150,7 +207,7 @@ h1 {
 .hero-description {
   max-width: 35rem;
   margin: 1.5rem 0 0;
-  color: var(--color-muted);
+  color: var(--color-muted-foreground);
   font-size: clamp(1rem, 2.4cqi, 1.2rem);
   line-height: 1.7;
 }
@@ -238,7 +295,7 @@ h1 {
 }
 .site-footer {
   padding-block: 1.5rem 2rem;
-  color: var(--color-muted);
+  color: var(--color-muted-foreground);
   font-size: 0.9rem;
 }
 

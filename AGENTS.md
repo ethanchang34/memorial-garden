@@ -15,6 +15,7 @@ Context for AI coding sessions on this repo (Codex, Claude Code, and other agent
 - Secrets go in `.env.local` / `.dev.vars` (gitignored) and never in code. CI runs gitleaks, Semgrep, and `pnpm audit`, and they must pass. A gitleaks pre-commit hook also runs locally; never bypass it (`--no-verify`, `LEFTHOOK=0`).
 - Render user content as plain text, never as raw HTML. Validate all API input with Zod.
 - Every UI change must work well from 320px phones to large desktop windows (DESIGN §7.1): mobile-first, touch equivalents for every hover, 44px touch targets, no horizontal scroll. The Playwright suite (`pnpm test:e2e`) checks every test viewport in `apps/web/e2e/viewports.ts`; extend it for new pages. Use the `can-hover:` and `touch:` variants (pointer capability), not screen width, to decide hover vs. tap behavior.
+- Build UI from `apps/web/src/components/ui/*` (shadcn-style, themed only through the role tokens in `styles/global.css`: `primary`, `muted`, `border`, `ring`, radii, shadows). Never use raw hex colors in components. Preview components at `/dev/ui` (dev and test builds only).
 - Prefer the approved libraries in DESIGN §7.2 over hand-rolled components or animations. Follow the "rules for adding a library" there, and match the cozy art direction in §7.0.
 - One memorial = one page = one garden with one gravestone. Never render multiple graves in one scene.
 - Never add loot boxes, ads, or guilt-driven messaging (Tenet 1).
