@@ -10,7 +10,10 @@ export default defineConfig({
       output: {
         codeSplitting: {
           groups: [
-            { name: 'react', test: /node_modules[\\/](react|react-dom|scheduler|react-router)[\\/]/ },
+            {
+              name: 'react',
+              test: /node_modules[\\/](react|react-dom|scheduler|react-router)[\\/]/,
+            },
             { name: 'vendor', test: /node_modules[\\/]/ },
           ],
         },
