@@ -42,12 +42,10 @@ M0 is nearly done; PRs #7–#11 are merged and `main` is protected (changes go t
 
 - [ ] Cloudflare Pages → Settings → Variables and Secrets: the publishable key should be named `VITE_SUPABASE_PUBLISHABLE_KEY` (rename it if it still says `VITE_SUPABASE_ANON_KEY`); add `VITE_SENTRY_DSN` (Production only); redeploy. Not urgent: nothing reads these until M1 sign-in.
 - [ ] Supabase → Authentication → URL Configuration: add the redirect URL `https://memorial-garden.pages.dev/**`. Needed before M1 sign-in.
-- [ ] GitHub → Settings → Advanced Security: turn on **Push protection**, **Dependabot alerts**, and **Dependabot security updates**.
-- [ ] GitHub → Settings → Rules → Rulesets → "Require Pull Request": add `e2e` to the required status checks.
 - [ ] GitHub → Settings → Secrets and variables → Actions: add `SUPABASE_ACCESS_TOKEN` (supabase.com/dashboard/account/tokens) and `SUPABASE_DB_PASSWORD` for the migration workflow. Optional `production` environment with yourself as required reviewer. Needed before M1's first new migration.
 - [ ] Pick a first art style or asset pack and record it in `docs/ASSETS.md` (or share a reference site for the restyle).
 
-Already done: auto-delete merged branches, secret scanning, `main` ruleset (PR required, no force pushes or deletion, `quality`/`database`/`gitleaks`/`semgrep` required).
+Already done: auto-delete merged branches, secret scanning with push protection, Dependabot alerts and security updates, `main` ruleset (PR required, no force pushes or deletion, `quality`/`database`/`e2e`/`gitleaks`/`semgrep` required).
 
 ### Then M1 (memorials)
 
