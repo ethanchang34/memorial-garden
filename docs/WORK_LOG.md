@@ -4,7 +4,7 @@ Updated: 2026-11-06
 
 ## Current stopping point
 
-M0 is nearly done. PRs #8 → #9 → #10 → #11 are stacked; merge them in that order (GitHub retargets each to `main`). Hosted accounts exist: Supabase project `qihwhgxpfvwvnuobgfbq` with the `profiles` migration applied, Google OAuth wired into Supabase, Cloudflare Pages deploying `main` to `memorial-garden.pages.dev` (behind Cloudflare Access), and Sentry projects `web` and `api`.
+M0 is nearly done; PRs #7–#11 are merged and `main` is protected (changes go through PRs with passing checks). Hosted accounts exist: Supabase project `qihwhgxpfvwvnuobgfbq` with the `profiles` migration applied, Google OAuth wired into Supabase, Cloudflare Pages deploying `main` to `memorial-garden.pages.dev` (behind Cloudflare Access), and Sentry projects `web` and `api`.
 
 ## Done
 
@@ -30,17 +30,24 @@ M0 is nearly done. PRs #8 → #9 → #10 → #11 are stacked; merge them in that
 2. **Migration deploy workflow**: GitHub Action that runs `supabase db push --remote` when `supabase/migrations/` changes on `main`, plus a manual "Run workflow" button. Needs the GitHub secrets below. Do before M1's first new migration.
 3. **Public profile projection** before M1 notes: a view or function that exposes only `id` and `display_name`, so other users' content can show names without reading private profile fields.
 
-### You (accounts and settings)
+### You
 
-1. Merge PRs #8 → #11 in order.
-2. Cloudflare Pages: rename `VITE_SUPABASE_ANON_KEY` to `VITE_SUPABASE_PUBLISHABLE_KEY`; add `VITE_SENTRY_DSN` (Production only); redeploy.
-3. Supabase: add the redirect URL `https://memorial-garden.pages.dev/**`.
-4. GitHub repo settings:
-   - Code security: secret scanning and push protection.
-   - Branches: protect `main`; require a PR and the `quality`, `database`, `e2e`, `gitleaks`, `semgrep` checks.
-   - Actions secrets for the migration workflow: `SUPABASE_ACCESS_TOKEN` (supabase.com/dashboard/account/tokens) and `SUPABASE_DB_PASSWORD`. Optional `production` environment with yourself as required reviewer.
-5. Laptop: `brew install gitleaks`, `git pull`, `pnpm install`, and once `pnpm --filter @memorial-garden/web exec playwright install chromium`.
-6. Pick a first art style or asset pack and record it in `docs/ASSETS.md` (or share a reference site for the restyle).
+**On your laptop** (when you're back):
+
+- [ ] `git pull` and `pnpm install` (picks up the merged PRs and installs the gitleaks pre-commit hook).
+- [ ] `gitleaks version` works; if not, `brew install gitleaks`. Commits are blocked without it.
+- [ ] Once: `pnpm --filter @memorial-garden/web exec playwright install chromium`, then `pnpm test:e2e` should show 11 passed, 9 skipped.
+
+**In a browser** (any device):
+
+- [ ] Cloudflare Pages → Settings → Variables and Secrets: the publishable key should be named `VITE_SUPABASE_PUBLISHABLE_KEY` (rename it if it still says `VITE_SUPABASE_ANON_KEY`); add `VITE_SENTRY_DSN` (Production only); redeploy. Not urgent: nothing reads these until M1 sign-in.
+- [ ] Supabase → Authentication → URL Configuration: add the redirect URL `https://memorial-garden.pages.dev/**`. Needed before M1 sign-in.
+- [ ] GitHub → Settings → Advanced Security: turn on **Push protection**, **Dependabot alerts**, and **Dependabot security updates**.
+- [ ] GitHub → Settings → Rules → Rulesets → "Require Pull Request": add `e2e` to the required status checks.
+- [ ] GitHub → Settings → Secrets and variables → Actions: add `SUPABASE_ACCESS_TOKEN` (supabase.com/dashboard/account/tokens) and `SUPABASE_DB_PASSWORD` for the migration workflow. Optional `production` environment with yourself as required reviewer. Needed before M1's first new migration.
+- [ ] Pick a first art style or asset pack and record it in `docs/ASSETS.md` (or share a reference site for the restyle).
+
+Already done: auto-delete merged branches, secret scanning, `main` ruleset (PR required, no force pushes or deletion, `quality`/`database`/`gitleaks`/`semgrep` required).
 
 ### Then M1 (memorials)
 
