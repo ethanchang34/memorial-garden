@@ -4,7 +4,7 @@ Updated: 2026-11-09
 
 ## Current stopping point
 
-M0's code work is done (PRs #7–#14 merged); `main` is protected (changes go through PRs with passing checks). Remaining M0 items are the checklists below. Hosted accounts exist: Supabase project `qihwhgxpfvwvnuobgfbq` with the `profiles` migration applied, Google OAuth wired into Supabase, Cloudflare Pages deploying `main` to `memorial-garden-2ub.pages.dev` (public; `memorial-garden.pages.dev` is someone else's site), and Sentry projects `web` and `api`.
+M0's code work is done (PRs #7–#14 merged) and the first M1 slice (sign-in and profile) is in review; `main` is protected (changes go through PRs with passing checks). Remaining M0 items are the checklists below. Hosted accounts exist: Supabase project `qihwhgxpfvwvnuobgfbq` with the `profiles` migration applied, Google OAuth wired into Supabase, Cloudflare Pages deploying `main` to `memorial-garden-2ub.pages.dev` (public; `memorial-garden.pages.dev` is someone else's site), and Sentry projects `web` and `api`.
 
 ## Done
 
@@ -21,25 +21,17 @@ M0's code work is done (PRs #7–#14 merged); `main` is protected (changes go th
 
 ## Next steps
 
-### Next session: sign in and your profile (first M1 slice)
+### Sign in and your profile (PR in review)
 
-Decisions (record in DESIGN §2 in this PR): the header shows the **display name only, no Google photo**; display names are limited to **1–40 characters only** for now, with reporting/moderation added in M2.
+Built: Google sign-in/sign-out, header account menu (display name only), `/settings/profile` display-name editor, time zone sent after sign-in, `public_display_names(user_ids)` migration with pgTAP tests. Web code reaches Supabase only through `adapters/supabase` via `useServices()`; Playwright fakes Supabase in `e2e/fixtures.ts`.
 
-Before starting (owner): Cloudflare Pages variables and the `production` Required reviewer are done. Still check that the Google accounts used for testing are listed under Google Auth Platform → Audience → Test users.
+After merge (owner):
 
-Build (one PR, maybe two):
-
-1. Migration: public profile view exposing only `id` and `display_name` of active users, with explicit grants and pgTAP tests (anon and authenticated can read only those columns; the base table stays private).
-2. Supabase adapter in `apps/web/src/adapters/`, behind the `AuthProvider` port (DESIGN §3); nothing else imports Supabase.
-3. Session provider and hook (signed in/out, refresh, sign-out).
-4. Header **Sign in with Google**, returning to the current page.
-5. Account menu: display name, **Profile settings**, **Sign out**.
-6. After sign-in, send `Intl.DateTimeFormat().resolvedOptions().timeZone` to `set_time_zone()` once.
-7. `/settings/profile`: edit display name with `displayNameSchema`, toast on save; signed-out visitors are sent to sign in.
-8. Tests: unit tests with a fake auth provider; Playwright with Supabase mocked (signed-out and signed-in header, menu, settings form, every viewport); pgTAP for the view.
-9. Docs: DESIGN §2 decisions, ROADMAP M1 profile item, this log.
-
-After merge (owner): approve the "Deploy migrations" run; sign in on localhost and `memorial-garden-2ub.pages.dev`; check the `profiles` row shows "First L." in Supabase Table Editor; rename yourself in settings.
+- [ ] Approve the "Deploy migrations" run (Actions tab → run → **Review deployments**); it applies `20261109000000_public_display_names.sql`.
+- [ ] Check the Google accounts you'll test with are under Google Auth Platform → Audience → Test users.
+- [ ] Sign in at http://localhost:5173 (`pnpm dev`, with `apps/web/.env.local` holding `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`) and at https://memorial-garden-2ub.pages.dev.
+- [ ] Supabase → Table Editor → `profiles`: your row shows "First L." and your time zone.
+- [ ] Rename yourself at `/settings/profile`; the header updates.
 
 ### After that
 

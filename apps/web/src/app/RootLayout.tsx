@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Outlet } from 'react-router';
+import { AccountMenu } from '@/features/auth/AccountMenu';
 
 export function RootLayout() {
   const { t } = useTranslation();
@@ -19,8 +20,9 @@ export function RootLayout() {
           <span className="brand-mark" aria-hidden="true">
             ✿
           </span>
-          <span>{t('brand.name')}</span>
+          <span className="max-[359px]:sr-only">{t('brand.name')}</span>
         </Link>
+        <AccountMenu />
       </header>
       <main id="main-content">
         <Outlet />

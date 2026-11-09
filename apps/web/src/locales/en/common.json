@@ -3,7 +3,30 @@
     "name": "Memorial Garden"
   },
   "common": {
-    "close": "Close"
+    "close": "Close",
+    "loading": "Loading…"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "signedOut": "You’re signed out",
+    "account": "Account",
+    "signedInAs": "Signed in as {{name}}",
+    "signInFailed": "We couldn’t start sign-in. Please try again.",
+    "signOutFailed": "We couldn’t sign you out. Please try again."
+  },
+  "profile": {
+    "heading": "Your profile",
+    "settingsLink": "Profile settings",
+    "signInPrompt": "Sign in to choose the name others see on your notes and flowers.",
+    "displayNameLabel": "Display name",
+    "displayNameHelp": "Shown on your notes, voice memos, and decorations. Up to {{max}} characters.",
+    "displayNameInvalid": "Enter a name between 1 and {{max}} characters.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Profile saved",
+    "saveFailed": "We couldn’t save your profile. Please try again.",
+    "loadFailed": "We couldn’t load your profile. Please refresh the page."
   },
   "home": {
     "eyebrow": "A quiet place to remember",
