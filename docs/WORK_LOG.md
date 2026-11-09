@@ -25,7 +25,7 @@ M0's code work is done (PRs #7–#14 merged); `main` is protected (changes go th
 
 Decisions (record in DESIGN §2 in this PR): the header shows the **display name only, no Google photo**; display names are limited to **1–40 characters only** for now, with reporting/moderation added in M2.
 
-Before starting (owner): Cloudflare Pages has `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in **Production and Preview** and was redeployed; `production` environment has **Required reviewers**; the Google accounts used for testing are listed under Google Auth Platform → Audience → Test users.
+Before starting (owner): Cloudflare Pages variables and the `production` Required reviewer are done. Still check that the Google accounts used for testing are listed under Google Auth Platform → Audience → Test users.
 
 Build (one PR, maybe two):
 
@@ -54,12 +54,10 @@ Done earlier: cozy UI kit (restyle by changing role tokens in `apps/web/src/styl
 
 **In a browser** (any device):
 
-- [ ] Cloudflare Pages: `VITE_SUPABASE_PUBLISHABLE_KEY` added and `VITE_SUPABASE_ANON_KEY` removed (done); confirm `VITE_SUPABASE_URL` and the key are in **Production and Preview**; add `VITE_SENTRY_DSN` (Production only); redeploy.
-- [ ] GitHub → Settings → Environments → `production`: check **Required reviewers**, add yourself, leave "Prevent self-review" unchecked, **Save protection rules**. Without it, migrations apply on merge without waiting for you.
 - [ ] Art style: decided during the design deep dive (or share an asset pack or reference site anytime) and recorded in `docs/ASSETS.md`.
 - [ ] Shortlist names in `docs/NAMING.md` and run the clearance checks, including a **USPTO trademark search**. Decide by the start of M6, before buying the domain.
 
-Already done: Supabase redirect URLs (`http://localhost:5173/**`, `https://memorial-garden-2ub.pages.dev/**`), the `production` environment (main only) with `SUPABASE_DB_URL` (verified by a dry run: "Remote database is up to date"), auto-delete merged branches, secret scanning with push protection, Dependabot alerts and security updates, `main` ruleset (PR required, no force pushes or deletion, `quality`/`database`/`e2e`/`gitleaks`/`semgrep` required).
+Already done: Supabase redirect URLs (`http://localhost:5173/**`, `https://memorial-garden-2ub.pages.dev/**`), Cloudflare Pages variables (`VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in Production and Preview), the `production` environment (main only, required reviewer `ethanchang34`) with `SUPABASE_DB_URL` (verified by a dry run: "Remote database is up to date"), auto-delete merged branches, secret scanning with push protection, Dependabot alerts and security updates, `main` ruleset (PR required, no force pushes or deletion, `quality`/`database`/`e2e`/`gitleaks`/`semgrep` required).
 
 ### Reminders
 
