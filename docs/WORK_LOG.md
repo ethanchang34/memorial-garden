@@ -29,12 +29,7 @@ M0's code work is done (PRs #7–#14 merged); `main` is protected (changes go th
 
 ### You
 
-**On your laptop** (when you're back):
-
-- [ ] `git pull` and `pnpm install` (picks up the merged PRs and installs the gitleaks pre-commit hook).
-- [ ] `gitleaks version` works; if not, `brew install gitleaks`. Commits are blocked without it.
-- [ ] Once: `pnpm --filter @memorial-garden/web exec playwright install chromium`, then `pnpm test:e2e` should show 24 passed, 10 skipped.
-- [ ] `pnpm dev`, open http://localhost:5173/dev/ui, and check the components look right on your screen (try the dialog and tooltip; narrow the window to see the bottom sheet).
+**On your laptop:** done (pull and install, gitleaks hook, Playwright browser with `pnpm test:e2e` passing, `/dev/ui` checked).
 
 **In a browser** (any device):
 
