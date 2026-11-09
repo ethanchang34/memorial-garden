@@ -26,7 +26,7 @@ Create each account when its milestone starts; there's no need to sign up for ev
   - Build command `pnpm --filter @memorial-garden/web build`, output directory `apps/web/dist`
   - Variables: `NODE_VERSION=22`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and (Production only) `VITE_SENTRY_DSN`. `VITE_*` values are built into the site, so redeploy after changing them.
 - [x] **Notifications → Add → Billing:** usage-based billing alert at $5.
-- [ ] The site is currently behind **Cloudflare Access** (visitors are sent to a login page). Keep it until launch, then remove it for production so the public can reach the site.
+- [x] The Pages site is **`https://memorial-garden-2ub.pages.dev`**. Cloudflare added the `-2ub` suffix because `memorial-garden.pages.dev` belongs to someone else; never use that address. The site is publicly reachable.
 - [ ] (M1) **R2 → enable.** This requires a card on file, but the first 10GB is free. Create buckets `mg-media-dev` and `mg-media-prod`, both private.
 - [ ] (M1) **R2 → Manage API tokens → create** a token with Object Read & Write access to those buckets only. Save the access key ID and secret.
 - [ ] (M1) **Turnstile → add site** → save the site key and secret key.
@@ -38,7 +38,7 @@ Create each account when its milestone starts; there's no need to sign up for ev
 - [x] Create the project `memorial-garden` (free plan), project ref `qihwhgxpfvwvnuobgfbq`. Save the database password in your password manager. At creation: keep **Enable Data API** on, turn **Automatically expose new tables** off, and turn **automatic RLS** on.
 - [x] **Connect** button (or Project Settings → **Data API** and **API Keys**): note the Project URL and the **publishable key** (`sb_publishable_…`, public, used by the web app). The **secret key** (`sb_secret_…`) bypasses all security rules and is not needed until the API does privileged writes (M4); create one then, and keep it only in server environment variables, never in the browser, the repo, or a chat. Prefer these over the legacy `anon`/`service_role` keys.
 - [x] **Authentication → URL Configuration**: Site URL `http://localhost:5173`, redirect URL `http://localhost:5173/**`.
-- [ ] Add the redirect URL `https://memorial-garden.pages.dev/**` (and the production domain at launch).
+- [ ] Redirect URLs are exactly `http://localhost:5173/**` and `https://memorial-garden-2ub.pages.dev/**`. Add the production domain at launch. Never add an address you don't control: Supabase sends the user's login session to it.
 - [x] Apply migrations from your laptop:
   ```bash
   pnpm exec supabase login

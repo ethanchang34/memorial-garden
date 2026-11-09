@@ -4,7 +4,7 @@ Updated: 2026-11-06
 
 ## Current stopping point
 
-M0's code work is done (PRs #7–#14 merged); `main` is protected (changes go through PRs with passing checks). Remaining M0 items are the migration deploy workflow and the checklists below. Hosted accounts exist: Supabase project `qihwhgxpfvwvnuobgfbq` with the `profiles` migration applied, Google OAuth wired into Supabase, Cloudflare Pages deploying `main` to `memorial-garden.pages.dev` (behind Cloudflare Access), and Sentry projects `web` and `api`.
+M0's code work is done (PRs #7–#14 merged); `main` is protected (changes go through PRs with passing checks). Remaining M0 items are the migration deploy workflow and the checklists below. Hosted accounts exist: Supabase project `qihwhgxpfvwvnuobgfbq` with the `profiles` migration applied, Google OAuth wired into Supabase, Cloudflare Pages deploying `main` to `memorial-garden-2ub.pages.dev` (public; `memorial-garden.pages.dev` is someone else's site), and Sentry projects `web` and `api`.
 
 ## Done
 
@@ -24,7 +24,7 @@ M0's code work is done (PRs #7–#14 merged); `main` is protected (changes go th
 ### Code (an agent can do these)
 
 1. ~~shadcn/ui + cozy restyle~~ (done). To restyle from a reference site, change the role tokens in `apps/web/src/styles/global.css` and the variants in `components/ui/*`; review at `/dev/ui` or the `ui-screenshots` CI artifact.
-2. **Migration deploy workflow**: GitHub Action that runs `supabase db push --remote` when `supabase/migrations/` changes on `main`, plus a manual "Run workflow" button. Needs the GitHub secrets below. Do before M1's first new migration.
+2. **Migration deploy workflow** (own PR, before sign-in): GitHub Action in the `production` environment that runs `supabase db push --remote="$SUPABASE_DB_URL"` when `supabase/migrations/` changes on `main`, plus a manual "Run workflow" button.
 3. **Public profile projection** before M1 notes: a view or function that exposes only `id` and `display_name`, so other users' content can show names without reading private profile fields.
 
 ### You
@@ -34,8 +34,8 @@ M0's code work is done (PRs #7–#14 merged); `main` is protected (changes go th
 **In a browser** (any device):
 
 - [ ] Cloudflare Pages → Settings → Variables and Secrets: the publishable key should be named `VITE_SUPABASE_PUBLISHABLE_KEY` (rename it if it still says `VITE_SUPABASE_ANON_KEY`); add `VITE_SENTRY_DSN` (Production only); redeploy. Not urgent: nothing reads these until M1 sign-in.
-- [ ] Supabase → Authentication → URL Configuration: add the redirect URL `https://memorial-garden.pages.dev/**`. Needed before M1 sign-in.
-- [ ] GitHub → Settings → Secrets and variables → Actions: add `SUPABASE_ACCESS_TOKEN` (supabase.com/dashboard/account/tokens) and `SUPABASE_DB_PASSWORD` for the migration workflow. Optional `production` environment with yourself as required reviewer. Needed before M1's first new migration.
+- [ ] Supabase → Authentication → URL Configuration: redirect URLs should be exactly `http://localhost:5173/**` and `https://memorial-garden-2ub.pages.dev/**` (delete anything else). Needed before M1 sign-in.
+- [ ] GitHub → Settings → Environments → `production` (required reviewer: you; deployment branch: `main`) with the environment secret `SUPABASE_DB_URL` = the Supabase **Session pooler** URI with the password filled in (Connect → Session pooler; Direct is IPv6-only and unreachable from GitHub). No Supabase access token is needed. Needed before M1's first new migration.
 - [ ] Pick a first art style or asset pack and record it in `docs/ASSETS.md` (or share a reference site for the restyle).
 
 Already done: auto-delete merged branches, secret scanning with push protection, Dependabot alerts and security updates, `main` ruleset (PR required, no force pushes or deletion, `quality`/`database`/`e2e`/`gitleaks`/`semgrep` required).
@@ -48,7 +48,7 @@ Start with Google sign-in in the web app and sending the browser time zone to `s
 
 - When adding Turnstile, Stripe, or Cloudflare Web Analytics, extend the CSP in `apps/web/public/_headers`.
 - R2 (M1) needs a card on file; the $5 billing alert is already set under Notifications.
-- At launch, remove Cloudflare Access from the production site and publish the Google OAuth app.
+- At launch, publish the Google OAuth app and add the production domain to Supabase's redirect URLs.
 
 ## Environment notes
 
