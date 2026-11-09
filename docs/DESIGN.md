@@ -53,7 +53,7 @@ When tradeoffs conflict, these come first.
 | Payments               | **Stripe**, selling coin packs (no single-coin purchases).                                                                                                                                                                             |
 | Hosting                | **Cloudflare Pages** (static site) + Supabase + Cloudflare R2 + a small amount of Hono server code. Vercel rejected (see §9).                                                                                                          |
 | Portability            | Provider code is isolated in `src/adapters/`.                                                                                                                                                                                          |
-| Name                   | **Memorial Garden** (working name is final for now). Domain TBD.                                                                                                                                                                       |
+| Name                   | **Memorial Garden** is a working name. The public name and domain are decided together before launch, after a USPTO trademark search; see [NAMING.md](NAMING.md).                                                                      |
 | Weathering speed       | Moss is **visible after about 1 week** uncleaned and reaches **maximum grime at about 60 days**.                                                                                                                                       |
 | Decoration renewal     | The giver can **renew before it fades at 75% of the price**. This resets the timer to the full lifetime and keeps the slot.                                                                                                            |
 | Owner perks            | **None.** Owners pay the same as everyone else.                                                                                                                                                                                        |
@@ -791,7 +791,7 @@ Back up the database yourself: a weekly `pg_dump` from a GitHub Action to R2 (th
 
 All of the original questions were resolved on 2026-11-03 (see §2). Remaining items, none of which block M0–M3:
 
-1. Pick and register a domain (check availability for `memorialgarden.*` or alternatives).
+1. Pick the public name and domain, and clear them (USPTO trademark search) before registering; see [NAMING.md](NAMING.md).
 2. Where the art comes from: draw it, commission it, or license it (gravestones, decorations, grime textures).
 3. Choose an email provider for anniversary reminders (Resend's free plan vs. Amazon SES); needed only after launch.
 4. Find reviewers from each tradition in §6.12 before launch, and adjust items based on their feedback.
