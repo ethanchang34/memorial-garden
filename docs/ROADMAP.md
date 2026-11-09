@@ -89,6 +89,7 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] `docs/INCIDENT.md` incident plan
 - [ ] Check employer outside-activities policy
 - [ ] Weekly DB backup Action (keep 8) + first practice restore
+- [ ] Final name + domain decided and cleared ([NAMING.md](NAMING.md)), including a USPTO trademark search; rename checklist done; `noindex` header removed
 - [ ] Domain + Stripe live mode
 - [ ] Accessibility pass (keyboard, contrast, reduced motion)
 - [ ] Tradition review with people from each tradition (DESIGN §6.12)
