@@ -1,0 +1,49 @@
+name: Deploy migrations
+
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/migrations/**']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Only list the migrations that would be applied
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-migrations
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check the database secret is set
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL is not set in the production environment"
+            exit 1
+          fi
+      - name: Pending migrations
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: pnpm exec supabase db push --remote="$SUPABASE_DB_URL" --skip-vault --dry-run --yes
+      - name: Apply migrations
+        if: github.event_name == 'push' || inputs.dry_run == false
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: pnpm exec supabase db push --remote="$SUPABASE_DB_URL" --skip-vault --yes

@@ -11,7 +11,7 @@ Context for AI coding sessions on this repo (Codex, Claude Code, and other agent
 - The coin ledger is append-only. Never write balance logic on the client, and never UPDATE/DELETE `coin_ledger`.
 - Every new table gets RLS policies and pgTAP tests (`supabase/tests/database/`) in the same change.
 - Every migration grants API access explicitly (`grant ... to authenticated` / `anon`) for each table and function it adds, and its tests check those grants. The hosted project does not expose new tables automatically, but the local stack does, so a missing grant passes locally and fails in production.
-- Never edit a migration that has been applied to a hosted Supabase project; add a new one instead.
+- Never edit a migration that has been applied to a hosted Supabase project; add a new one instead. Migrations reach the hosted database only through the `Deploy migrations` workflow after a PR merges; never run `supabase db push --remote` yourself.
 - Secrets go in `.env.local` / `.dev.vars` (gitignored) and never in code. CI runs gitleaks, Semgrep, and `pnpm audit`, and they must pass. A gitleaks pre-commit hook also runs locally; never bypass it (`--no-verify`, `LEFTHOOK=0`).
 - Render user content as plain text, never as raw HTML. Validate all API input with Zod.
 - Every UI change must work well from 320px phones to large desktop windows (DESIGN §7.1): mobile-first, touch equivalents for every hover, 44px touch targets, no horizontal scroll. The Playwright suite (`pnpm test:e2e`) checks every test viewport in `apps/web/e2e/viewports.ts`; extend it for new pages. Use the `can-hover:` and `touch:` variants (pointer capability), not screen width, to decide hover vs. tap behavior.

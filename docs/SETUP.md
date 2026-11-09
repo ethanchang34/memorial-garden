@@ -38,15 +38,13 @@ Create each account when its milestone starts; there's no need to sign up for ev
 - [x] Create the project `memorial-garden` (free plan), project ref `qihwhgxpfvwvnuobgfbq`. Save the database password in your password manager. At creation: keep **Enable Data API** on, turn **Automatically expose new tables** off, and turn **automatic RLS** on.
 - [x] **Connect** button (or Project Settings → **Data API** and **API Keys**): note the Project URL and the **publishable key** (`sb_publishable_…`, public, used by the web app). The **secret key** (`sb_secret_…`) bypasses all security rules and is not needed until the API does privileged writes (M4); create one then, and keep it only in server environment variables, never in the browser, the repo, or a chat. Prefer these over the legacy `anon`/`service_role` keys.
 - [x] **Authentication → URL Configuration**: Site URL `http://localhost:5173`, redirect URL `http://localhost:5173/**`.
-- [ ] Redirect URLs are exactly `http://localhost:5173/**` and `https://memorial-garden-2ub.pages.dev/**`. Add the production domain at launch. Never add an address you don't control: Supabase sends the user's login session to it.
-- [x] Apply migrations from your laptop:
-  ```bash
-  pnpm exec supabase login
-  pnpm exec supabase link --project-ref qihwhgxpfvwvnuobgfbq
-  pnpm exec supabase db push --remote --dry-run   # preview
-  pnpm exec supabase db push --remote
-  ```
-  Supabase CLI 3 targets the local database unless told otherwise; check `pnpm exec supabase db push --help` if the flag name differs. Never edit a migration once it has been pushed.
+- [x] Redirect URLs are exactly `http://localhost:5173/**` and `https://memorial-garden-2ub.pages.dev/**`. Add the production domain at launch. Never add an address you don't control: Supabase sends the user's login session to it.
+- [x] Migrations deploy through GitHub Actions (`.github/workflows/deploy-migrations.yml`):
+  - Merging a PR that changes `supabase/migrations/` starts a run that waits for your approval (Actions tab → the run → **Review deployments → Approve**), lists the pending migrations, then applies them.
+  - **Actions → Deploy migrations → Run workflow** runs it by hand; leave **dry run** checked to only list pending migrations.
+  - It uses the `production` environment secret `SUPABASE_DB_URL` (Supabase **Connect → Session pooler** URI with the password filled in). If you reset the database password, update this secret. If you ever turn on Supabase **Network Restrictions**, GitHub's runners will be blocked.
+  - Manual fallback from your laptop, only if the workflow is broken: `pnpm exec supabase login`, `pnpm exec supabase link --project-ref qihwhgxpfvwvnuobgfbq`, then `pnpm exec supabase db push --remote --dry-run` and `pnpm exec supabase db push --remote`.
+  - Never edit a migration once it has been pushed.
 
 ### Google Cloud Console (M0)
 

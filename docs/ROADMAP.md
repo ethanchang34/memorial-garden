@@ -10,7 +10,7 @@ Each milestone is shippable on its own. Check items off as you go.
 - [x] ESLint + Prettier + TypeScript strict
 - [x] Local Supabase CLI (`pnpm db:start`); first migration (`profiles`) with RLS + pgTAP tests
 - [x] Hosted Supabase project (free); `profiles` migration applied with `supabase db push --remote`
-- [ ] GitHub Actions workflow that applies new migrations on merge to `main`
+- [x] GitHub Actions workflow that applies new migrations on merge to `main` (approval-gated `production` environment)
 - [x] Google OAuth configured in Supabase + Google Cloud console
 - [x] Cloudflare Pages connected to the GitHub repo (auto-deploy on push to `main`)
 - [x] GitHub Actions CI: format, lint, typecheck, build, unit + DB tests, gitleaks, Semgrep, `pnpm audit`
