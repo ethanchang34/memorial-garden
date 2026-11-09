@@ -1,6 +1,6 @@
 # Implementation work log
 
-Updated: 2026-11-06
+Updated: 2026-11-09
 
 ## Current stopping point
 
@@ -21,11 +21,32 @@ M0's code work is done (PRs #7–#14 merged); `main` is protected (changes go th
 
 ## Next steps
 
-### Code (an agent can do these)
+### Next session: sign in and your profile (first M1 slice)
 
-1. ~~shadcn/ui + cozy restyle~~ (done). To restyle from a reference site, change the role tokens in `apps/web/src/styles/global.css` and the variants in `components/ui/*`; review at `/dev/ui` or the `ui-screenshots` CI artifact.
-2. ~~Migration deploy workflow~~ (done): `.github/workflows/deploy-migrations.yml`, approval-gated in the `production` environment; see SETUP.md.
-3. **Public profile projection** before M1 notes: a view or function that exposes only `id` and `display_name`, so other users' content can show names without reading private profile fields.
+Decisions (record in DESIGN §2 in this PR): the header shows the **display name only, no Google photo**; display names are limited to **1–40 characters only** for now, with reporting/moderation added in M2.
+
+Before starting (owner): Cloudflare Pages has `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in **Production and Preview** and was redeployed; `production` environment has **Required reviewers**; the Google accounts used for testing are listed under Google Auth Platform → Audience → Test users.
+
+Build (one PR, maybe two):
+
+1. Migration: public profile view exposing only `id` and `display_name` of active users, with explicit grants and pgTAP tests (anon and authenticated can read only those columns; the base table stays private).
+2. Supabase adapter in `apps/web/src/adapters/`, behind the `AuthProvider` port (DESIGN §3); nothing else imports Supabase.
+3. Session provider and hook (signed in/out, refresh, sign-out).
+4. Header **Sign in with Google**, returning to the current page.
+5. Account menu: display name, **Profile settings**, **Sign out**.
+6. After sign-in, send `Intl.DateTimeFormat().resolvedOptions().timeZone` to `set_time_zone()` once.
+7. `/settings/profile`: edit display name with `displayNameSchema`, toast on save; signed-out visitors are sent to sign in.
+8. Tests: unit tests with a fake auth provider; Playwright with Supabase mocked (signed-out and signed-in header, menu, settings form, every viewport); pgTAP for the view.
+9. Docs: DESIGN §2 decisions, ROADMAP M1 profile item, this log.
+
+After merge (owner): approve the "Deploy migrations" run; sign in on localhost and `memorial-garden-2ub.pages.dev`; check the `profiles` row shows "First L." in Supabase Table Editor; rename yourself in settings.
+
+### After that
+
+1. **Design deep dive** (before the M1 memorial page and garden scene, where art direction gets locked in): study reference sites with Playwright screenshots (memorial sites, cozy games, calm apps), research design principles with sources, write `docs/VISUAL_DIRECTION.md` (references, mood, tokens, layouts per screen size, art route), then update tokens, refresh the home page, and prototype one garden scene for review.
+2. Rest of M1 (ROADMAP).
+
+Done earlier: cozy UI kit (restyle by changing role tokens in `apps/web/src/styles/global.css` and variants in `components/ui/*`; review at `/dev/ui` or the `ui-screenshots` CI artifact); migration deploy workflow (`.github/workflows/deploy-migrations.yml`; see SETUP.md).
 
 ### You
 
@@ -33,15 +54,12 @@ M0's code work is done (PRs #7–#14 merged); `main` is protected (changes go th
 
 **In a browser** (any device):
 
-- [ ] Cloudflare Pages → Settings → Variables and Secrets: the publishable key should be named `VITE_SUPABASE_PUBLISHABLE_KEY` (rename it if it still says `VITE_SUPABASE_ANON_KEY`); add `VITE_SENTRY_DSN` (Production only); redeploy. Not urgent: nothing reads these until M1 sign-in.
-- [ ] Pick a first art style or asset pack and record it in `docs/ASSETS.md` (or share a reference site for the restyle).
+- [ ] Cloudflare Pages: `VITE_SUPABASE_PUBLISHABLE_KEY` added and `VITE_SUPABASE_ANON_KEY` removed (done); confirm `VITE_SUPABASE_URL` and the key are in **Production and Preview**; add `VITE_SENTRY_DSN` (Production only); redeploy.
+- [ ] GitHub → Settings → Environments → `production`: check **Required reviewers**, add yourself, leave "Prevent self-review" unchecked, **Save protection rules**. Without it, migrations apply on merge without waiting for you.
+- [ ] Art style: decided during the design deep dive (or share an asset pack or reference site anytime) and recorded in `docs/ASSETS.md`.
 - [ ] Shortlist names in `docs/NAMING.md` and run the clearance checks, including a **USPTO trademark search**. Decide by the start of M6, before buying the domain.
 
-Already done: Supabase redirect URLs (`http://localhost:5173/**`, `https://memorial-garden-2ub.pages.dev/**`), the `production` environment with `SUPABASE_DB_URL`, auto-delete merged branches, secret scanning with push protection, Dependabot alerts and security updates, `main` ruleset (PR required, no force pushes or deletion, `quality`/`database`/`e2e`/`gitleaks`/`semgrep` required).
-
-### Then M1 (memorials)
-
-Start with Google sign-in in the web app and sending the browser time zone to `set_time_zone()`, then the `memorials` tables (ROADMAP M1).
+Already done: Supabase redirect URLs (`http://localhost:5173/**`, `https://memorial-garden-2ub.pages.dev/**`), the `production` environment (main only) with `SUPABASE_DB_URL` (verified by a dry run: "Remote database is up to date"), auto-delete merged branches, secret scanning with push protection, Dependabot alerts and security updates, `main` ruleset (PR required, no force pushes or deletion, `quality`/`database`/`e2e`/`gitleaks`/`semgrep` required).
 
 ### Reminders
 
