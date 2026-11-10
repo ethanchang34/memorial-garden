@@ -1,4 +1,9 @@
-import { displayNameSchema, DISPLAY_NAME_MAX_LENGTH } from '@memorial-garden/shared';
+import {
+  DISPLAY_NAME_MAX_LENGTH,
+  displayNameProblem,
+  normalizeDisplayName,
+  type DisplayNameProblem,
+} from '@memorial-garden/shared';
 import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -49,6 +54,15 @@ function DisplayNameForm() {
   return <DisplayNameFields key={profile.data.id} initialValue={profile.data.displayName} />;
 }
 
+const DISPLAY_NAME_ERRORS: Record<DisplayNameProblem, string> = {
+  empty: 'profile.displayNameErrors.length',
+  too_long: 'profile.displayNameErrors.length',
+  characters: 'profile.displayNameErrors.characters',
+  no_letter: 'profile.displayNameErrors.noLetter',
+  reserved: 'profile.displayNameErrors.reserved',
+  link: 'profile.displayNameErrors.link',
+};
+
 function DisplayNameFields({ initialValue }: { initialValue: string }) {
   const { t } = useTranslation();
   const update = useUpdateDisplayName();
@@ -60,13 +74,13 @@ function DisplayNameFields({ initialValue }: { initialValue: string }) {
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const parsed = displayNameSchema.safeParse(value);
-    if (!parsed.success) {
-      setError(t('profile.displayNameInvalid', { max: DISPLAY_NAME_MAX_LENGTH }));
+    const problem = displayNameProblem(value);
+    if (problem) {
+      setError(t(DISPLAY_NAME_ERRORS[problem], { max: DISPLAY_NAME_MAX_LENGTH }));
       return;
     }
     setError(null);
-    update.mutate(parsed.data, {
+    update.mutate(normalizeDisplayName(value), {
       onSuccess: (saved) => {
         setValue(saved.displayName);
         toast(t('profile.saved'));

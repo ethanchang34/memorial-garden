@@ -20,8 +20,14 @@
     "settingsLink": "Profile settings",
     "signInPrompt": "Sign in to choose the name others see on your notes and flowers.",
     "displayNameLabel": "Display name",
-    "displayNameHelp": "Shown on your notes, voice memos, and decorations. Up to {{max}} characters.",
-    "displayNameInvalid": "Enter a name between 1 and {{max}} characters.",
+    "displayNameHelp": "Shown on your notes, voice memos, and decorations. Letters, numbers, spaces, and . , ' - up to {{max}} characters.",
+    "displayNameErrors": {
+      "length": "Enter a name between 1 and {{max}} characters.",
+      "characters": "Use letters, numbers, spaces, and . , ' - only. Emoji and symbols aren’t allowed.",
+      "noLetter": "Include at least one letter.",
+      "reserved": "That name is reserved. Please choose another.",
+      "link": "Display names can’t include web addresses."
+    },
     "save": "Save",
     "saving": "Saving…",
     "saved": "Profile saved",

@@ -75,11 +75,16 @@ test.describe('signed in', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Your profile' })).toBeVisible();
   });
 
-  test('sign out returns to the signed-out header', async ({ page, supabase }) => {
-    await page.goto('/');
+  test('sign out from any page returns to the home page', async ({ page, supabase }) => {
+    await page.goto('/settings/profile');
+    await expect(page.getByLabel('Display name')).toHaveValue('Alex C.');
     await page.getByRole('button', { name: 'Alex C.' }).click();
     await page.getByRole('menuitem', { name: 'Sign out' }).click();
 
+    await expect(page).toHaveURL('/');
+    await expect(
+      page.getByRole('heading', { level: 1, name: /A garden for the people/ }),
+    ).toBeVisible();
     await expect(page.getByText('You’re signed out')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
     expect(supabase.calls.some((c) => c.method === 'POST' && c.path === '/auth/v1/logout')).toBe(
@@ -98,10 +103,28 @@ test.describe('signed in', () => {
     await input.fill('   ');
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByRole('alert')).toHaveText('Enter a name between 1 and 40 characters.');
+
+    for (const [name, message] of [
+      [
+        'Free $$$',
+        "Use letters, numbers, spaces, and . , ' - only. Emoji and symbols aren’t allowed.",
+      ],
+      [
+        'Alex 🌸',
+        "Use letters, numbers, spaces, and . , ' - only. Emoji and symbols aren’t allowed.",
+      ],
+      ['12345', 'Include at least one letter.'],
+      ['Admin', 'That name is reserved. Please choose another.'],
+      ['www.example', 'Display names can’t include web addresses.'],
+    ] as const) {
+      await input.fill(name);
+      await page.getByRole('button', { name: 'Save' }).click();
+      await expect(page.getByRole('alert')).toHaveText(message);
+    }
     await expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(supabase.calls.some((c) => c.method === 'PATCH')).toBe(false);
 
-    await input.fill('  Grandpa Joe\u2019s grandson  ');
+    await input.fill('  Grandpa   Joe\u2019s grandson  ');
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('Profile saved')).toBeVisible();

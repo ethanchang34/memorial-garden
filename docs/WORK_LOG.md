@@ -23,11 +23,11 @@ M0's code work is done (PRs #7–#14 merged) and the first M1 slice (sign-in and
 
 ### Sign in and your profile (PR in review)
 
-Built: Google sign-in/sign-out, header account menu (display name only), `/settings/profile` display-name editor, time zone sent after sign-in, `public_display_names(user_ids)` migration with pgTAP tests. Web code reaches Supabase only through `adapters/supabase` via `useServices()`; Playwright fakes Supabase in `e2e/fixtures.ts`.
+Built: Google sign-in/sign-out (sign-out goes to the home page), header account menu (display name only), `/settings/profile` display-name editor with the display-name rules (DESIGN §2), time zone sent after sign-in, and two migrations: `public_display_names(user_ids)` and `display_name_rules` (shared rules enforced by a check constraint), with pgTAP tests. Web code reaches Supabase only through `adapters/supabase` via `useServices()`; Playwright fakes Supabase in `e2e/fixtures.ts`.
 
 After merge (owner):
 
-- [ ] Approve the "Deploy migrations" run (Actions tab → run → **Review deployments**); it applies `20261109000000_public_display_names.sql`.
+- [ ] Approve the "Deploy migrations" run (Actions tab → run → **Review deployments**); it applies `20261109000000_public_display_names.sql` and `20261109000100_display_name_rules.sql`.
 - [ ] Check the Google accounts you'll test with are under Google Auth Platform → Audience → Test users.
 - [ ] Sign in at http://localhost:5173 (`pnpm dev`, with `apps/web/.env.local` holding `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`) and at https://memorial-garden-2ub.pages.dev.
 - [ ] Supabase → Table Editor → `profiles`: your row shows "First L." and your time zone.

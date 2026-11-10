@@ -45,7 +45,8 @@ Each milestone is shippable on its own. Check items off as you go.
 
 - [ ] `notes` table + RLS + rate limit; author edit ("edited" label) + delete
 - [ ] Filing-cabinet note stack: hover lift, date tooltip, All/Mine toggle, "mine" tabs
-- [ ] Owner hide/unhide; report button
+- [ ] Owner hide/unhide; report button (notes and display names)
+- [ ] Display name change limit (5/day per user) enforced in the database, with pgTAP tests
 - [ ] Turnstile on submit
 - [ ] New-account limits (first 24h)
 - [ ] Owner notification bell (`notifications` table, triggers, Realtime or polling)

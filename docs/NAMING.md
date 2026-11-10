@@ -46,6 +46,7 @@ Not legal advice. Do these before buying the domain, and consider a short lawyer
 Code and config:
 
 - [ ] `apps/web/src/locales/en/common.json` → `brand.name`, plus any copy that uses the name
+- [ ] Reserved display-name phrase for the site name: `RESERVED` in `packages/shared/src/profile.ts` and a **new migration** updating `private.display_name_problem` (keep the old name reserved too), with tests
 - [ ] `apps/web/e2e/home.spec.ts` title assertion
 - [ ] `README.md`, `docs/DESIGN.md` title and §2, this file
 - [ ] Remove `X-Robots-Tag: noindex` from `apps/web/public/_headers`; extend the CSP if the domain adds new origins (e.g. `media.<domain>`)
