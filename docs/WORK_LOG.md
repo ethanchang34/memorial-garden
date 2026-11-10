@@ -4,7 +4,7 @@ Updated: 2026-11-09
 
 ## Current stopping point
 
-M0's code work is done (PRs #7–#14 merged) and the first M1 slice (sign-in and profile) is in review; `main` is protected (changes go through PRs with passing checks). Remaining M0 items are the checklists below. Hosted accounts exist: Supabase project `qihwhgxpfvwvnuobgfbq` with the `profiles` migration applied, Google OAuth wired into Supabase, Cloudflare Pages deploying `main` to `memorial-garden-2ub.pages.dev` (public; `memorial-garden.pages.dev` is someone else's site), and Sentry projects `web` and `api`.
+M0's code work is done and the first M1 slice (sign-in and profile) is live; the design deep dive is in review; `main` is protected (changes go through PRs with passing checks). Remaining M0 items are the checklists below. Hosted accounts exist: Supabase project `qihwhgxpfvwvnuobgfbq` with the `profiles` migration applied, Google OAuth wired into Supabase, Cloudflare Pages deploying `main` to `memorial-garden-2ub.pages.dev` (public; `memorial-garden.pages.dev` is someone else's site), and Sentry projects `web` and `api`.
 
 ## Done
 
@@ -21,22 +21,17 @@ M0's code work is done (PRs #7–#14 merged) and the first M1 slice (sign-in and
 
 ## Next steps
 
-### Sign in and your profile (PR in review)
+### Done: sign in and your profile
 
-Built: Google sign-in/sign-out (sign-out goes to the home page), header account menu (display name only), `/settings/profile` display-name editor with the display-name rules (DESIGN §2), time zone sent after sign-in, and two migrations: `public_display_names(user_ids)` and `display_name_rules` (shared rules enforced by a check constraint), with pgTAP tests. Web code reaches Supabase only through `adapters/supabase` via `useServices()`; Playwright fakes Supabase in `e2e/fixtures.ts`.
+Google sign-in/sign-out (sign-out goes home without flashing the old page), header account menu (display name only), `/settings/profile`, display-name rules in shared code and the database, time zone sent after sign-in, `public_display_names(user_ids)`. Both migrations are applied to the hosted project. Web code reaches Supabase only through `adapters/supabase` via `useServices()`; Playwright fakes Supabase in `e2e/fixtures.ts`.
 
-After merge (owner):
+### Now: design deep dive
 
-- [ ] Approve the "Deploy migrations" run (Actions tab → run → **Review deployments**); it applies `20261109000000_public_display_names.sql` and `20261109000100_display_name_rules.sql`.
-- [ ] Check the Google accounts you'll test with are under Google Auth Platform → Audience → Test users.
-- [ ] Sign in at http://localhost:5173 (`pnpm dev`, with `apps/web/.env.local` holding `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`) and at https://memorial-garden-2ub.pages.dev.
-- [ ] Supabase → Table Editor → `profiles`: your row shows "First L." and your time zone.
-- [ ] Rename yourself at `/settings/profile`; the header updates.
+Draft in `docs/VISUAL_DIRECTION.md`: memorial-site and cozy-game references, the Project Horseshoe coziness framework applied to the garden, readability rules for older visitors, three candidate directions (recommended: layered paper garden scene with painterly light and stationery UI), and an avoid list. Waiting on the owner's decisions listed at the end of that file; then: DESIGN §7.0 update, tokens, a garden-scene prototype at `/dev/ui`, and the home hero.
 
 ### After that
 
-1. **Design deep dive** (before the M1 memorial page and garden scene, where art direction gets locked in): study reference sites with Playwright screenshots (memorial sites, cozy games, calm apps), research design principles with sources, write `docs/VISUAL_DIRECTION.md` (references, mood, tokens, layouts per screen size, art route), then update tokens, refresh the home page, and prototype one garden scene for review.
-2. Rest of M1 (ROADMAP).
+1. Rest of M1 (ROADMAP), starting with the memorial page and garden scene once the visual direction is decided.
 
 Done earlier: cozy UI kit (restyle by changing role tokens in `apps/web/src/styles/global.css` and variants in `components/ui/*`; review at `/dev/ui` or the `ui-screenshots` CI artifact); migration deploy workflow (`.github/workflows/deploy-migrations.yml`; see SETUP.md).
 
