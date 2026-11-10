@@ -20,7 +20,7 @@
     "settingsLink": "Profile settings",
     "signInPrompt": "Sign in to choose the name others see on your notes and flowers.",
     "displayNameLabel": "Display name",
-    "displayNameHelp": "Shown on your notes, voice memos, and decorations. Letters, numbers, spaces, and . , ' - up to {{max}} characters.",
+    "displayNameHelp": "Shown on your notes, voice memos, and decorations.",
     "displayNameErrors": {
       "length": "Enter a name between 1 and {{max}} characters.",
       "characters": "Use letters, numbers, spaces, and . , ' - only. Emoji and symbols aren’t allowed.",

@@ -108,7 +108,7 @@ function DisplayNameFields({ initialValue }: { initialValue: string }) {
           aria-describedby={error ? `${helpId} ${errorId}` : helpId}
         />
         <p id={helpId} className="text-muted-foreground text-sm">
-          {t('profile.displayNameHelp', { max: DISPLAY_NAME_MAX_LENGTH })}
+          {t('profile.displayNameHelp')}
         </p>
         {error ? (
           <p id={errorId} role="alert" className="text-destructive text-sm font-bold">
