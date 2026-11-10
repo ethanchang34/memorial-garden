@@ -129,7 +129,7 @@ The sketch palette was a quick tint of the UI tokens. A proper study compares se
 
 ## Next steps
 
-1. Build the slot and object system, starting from the still life's vase, flowers, and candle, including 1–5 candle cluster and stem arrangements.
+1. Build the slot and object system, starting from the still life's vase, flowers, and candle: a candle cluster template up to 15 (soft tiers), vase stem points for 5 interchangeable flower recipes (start with 3–4 types), incense up to 3, and a cat bed (calico default). See DESIGN §6.3 "Garden gestures".
    - Make the vase matte: the current white streak and strong highlight read as glazed; terracotta needs a softer, wider highlight and more clay texture.
    - Sky-style lighting ritual: hold to light, spreading glow, rising embers (see the Sky reference).
 2. Derive morning and day keyframes for honeyed orchard; blend by local time at page load; adjust UI tokens to harmonize.
