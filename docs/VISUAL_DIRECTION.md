@@ -97,11 +97,18 @@ The interface leads: botanical line drawings and watercolor washes on paper, wit
 - Pixel art, neon, harsh black, high-contrast saturated color.
 - Empty-looking new memorials.
 
+## Sketches
+
+Rough sketches of A, B, and C live at `/dev/directions` (dev and test builds only): the same garden in each style, a companion on/off switch, and B at all four times of day. CI attaches them as screenshots (`ui-screenshots` artifact). A imitates painting with SVG filters; real A art would be hand-painted.
+
+## Companion (owner's direction)
+
+A small ambient companion (e.g. a sleeping cat or a robin) is liked. Proposal: an optional coin purchase, permanent for that memorial, bought by the owner or caretakers (like premium stone styles, DESIGN §6.10), so visitors can't add one without the family. Keep free ambient life (birds, a butterfly) in every garden so unpaid gardens still feel alive. Record in DESIGN when the M4 coin catalog is designed.
+
 ## Decision needed
 
-1. Direction: **A**, **B**, **C**, or the recommended hybrid.
-2. The ambient companion (sleeping cat, robin, none): in or out?
-3. Body text size for memorial content: 18px as proposed?
+1. Direction: **A**, **B**, **C**, or the recommended hybrid, after viewing the sketches.
+2. Body text for memorial content starts at 18px; fonts and sizes are tokens and easy to change later.
 
 ## Next steps after the decision
 
