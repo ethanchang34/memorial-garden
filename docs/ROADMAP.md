@@ -58,20 +58,23 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] `last_cleaned_at`, `cleanings`, `clean_memorial()` function
 - [ ] Grime overlay textures + seeded pattern + wipe animation (visible ~day 7, max ~day 60)
 
-## M4 — Coins & decorations
+## M4 — Decorations & sharing checkout
 
-- [ ] `coin_ledger`, `coin_packs`, `payments`, `daily_rewards`, `decoration_types`, `memorial_slots`, `decorations`
-- [ ] `claim_daily_reward()` (user's local day, time-zone change limited to once every 7 days), `place_decoration()`, `renew_decoration()` (75%, giver only) with locking + tests
-- [ ] Stripe Checkout for packs + webhook (test mode) with idempotency
-- [ ] Slot hover/glow, confirm dialog, fill animations, expiry fade
-- [ ] Coin balance always in header; pack picker + recent transactions
-- [ ] Premium stone styles: `memorial_unlocks`, `unlock_stone_style()`, live preview, 2–3 premium styles
+Model: [MONETIZATION.md](MONETIZATION.md) (no coins).
+
+- [ ] `decoration_types`, `memorial_slots`, `decorations` (clusters of up to 5) + RLS + pgTAP
+- [ ] Placing sheet: live preview, 1–5 flowers, message, Undo toast; press-and-hold candles; gentle per-visitor limits enforced in the database
+- [ ] Drafts: `memorials.status = draft` (owner-only), draft caps
+- [ ] Share checkout: Stripe Checkout per memorial + verified, idempotent webhook (`memorial_purchases`, `payments.kind = memorial_share`); publish on payment; 14-day refund unpublishes only on request or chargeback
+- [ ] Hardship codes (hashed, admin-issued, single use)
+- [ ] Price shown before building ("Building is free; sharing is a one-time $20")
+- [ ] Premium stone styles and scenes, included in the fee; live preview
 - [ ] Cultural decorations + stone motifs (DESIGN §6.12); free visitation stones
 
 ## M5 — Voice memos
 
 - [ ] Recorder UI (MediaRecorder), 60s cap, preview
-- [ ] Quota (3 free) + paid extra/extended through coins
+- [ ] Quota (3 per visitor per memorial) + per-memorial cap
 - [ ] Signed R2 upload/playback; owner hide
 - [ ] Download button for memo author + memorial owner only
 
