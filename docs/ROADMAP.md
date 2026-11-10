@@ -62,8 +62,10 @@ Each milestone is shippable on its own. Check items off as you go.
 
 Model: [MONETIZATION.md](MONETIZATION.md) (no coins).
 
-- [ ] `decoration_types`, `memorial_slots`, `decorations` (clusters of up to 5) + RLS + pgTAP
-- [ ] Placing sheet: live preview, 1–5 flowers, message, Undo toast; press-and-hold candles; gentle per-visitor limits enforced in the database
+- [ ] `decoration_types`, `memorial_slots`, `decorations` (candle cluster to 15, 3 vases of 5, incense to 3; shared expiry per type) + RLS + pgTAP
+- [ ] Placing sheet: live preview, flower type choice, Undo toast; press-and-hold candles; 1 per visitor per memorial per day enforced in the database
+- [ ] Anonymous gestures: Supabase anonymous sign-in behind Turnstile, per-network caps, conversion to a real account keeps credit
+- [ ] Cat bed: calico default, coat patterns chosen by the owner
 - [ ] Drafts: `memorials.status = draft` (owner-only), draft caps
 - [ ] Share checkout: Stripe Checkout per memorial + verified, idempotent webhook (`memorial_purchases`, `payments.kind = memorial_share`); publish on payment; 14-day refund unpublishes only on request or chargeback
 - [ ] Hardship codes (hashed, admin-issued, single use)

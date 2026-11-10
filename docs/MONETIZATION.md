@@ -19,11 +19,11 @@ Tenet 1 becomes: _visiting, remembering, and tending are always free; sharing a 
 
 Because visitor gestures are free, decorating uses a calm **placing sheet**, not a payment prompt:
 
-- Tapping an empty spot opens a sheet with a live preview of the decoration, an optional short message, and how long it lasts. One button places it; there is no second "are you sure".
-- Vases offer **1–5 flowers** (any flower type in any stem point, chosen later); the preview vase fills as the count changes. Default is 1, with no "best value" labels.
-- Candles are lit one at a time with **press and hold** (the Sky-style ritual); a candle spot holds a cluster of up to 5 from different visitors.
+- Tapping an empty spot opens a sheet with a live preview and how long it lasts; for flowers, the visitor picks the **flower type**. One button places it; there is no second "are you sure".
+- Candles are lit with **press and hold** (the Sky-style ritual).
 - After placing, a toast offers **Undo** for about 10 seconds.
-- Gentle limits keep gestures meaningful and stop spam, for example one candle per visitor per memorial per day. Cluster timer and cap rules are open (DESIGN §12 item 6).
+- No account is needed for gestures; an account is needed to attach a message, write notes, record memos, or add photos.
+- Limits, cluster sizes, and refresh rules are in DESIGN §6.3 "Garden gestures": one candle cluster up to 15, up to 3 vases of 5, incense up to 3, one of each per visitor per memorial per day, and a new gesture refreshes every decoration of its type.
 
 ## Competitor pricing
 
@@ -121,5 +121,4 @@ Owner's idea (2026-11-10): cold-email funeral homes (and pet cremation services,
 - Final price ($20 vs $29) from the core-loop test.
 - Exact draft caps and per-memorial visitor upload caps.
 - Whether private memorials are included free (recommended) or tied to sharing.
-- Cluster rules (DESIGN §12 item 6).
 - Funeral-home pilot: free-share cap (count, time, or both) and whether to offer bulk or referral terms.
