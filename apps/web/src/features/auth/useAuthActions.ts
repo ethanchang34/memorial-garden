@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { useServices } from '@/app/services';
+import { SIGN_OUT_STATE } from './usePendingSignOut';
 
 export function useAuthActions() {
   const services = useServices();
@@ -33,11 +34,7 @@ export function useAuthActions() {
     },
     signOut: () => {
       if (!services) return Promise.resolve();
-      return run(async () => {
-        await services.auth.signOut();
-        await navigate('/', { replace: true });
-        toast(t('auth.signedOut'));
-      }, t('auth.signOutFailed'));
+      return navigate('/', { replace: true, state: SIGN_OUT_STATE });
     },
   };
 }

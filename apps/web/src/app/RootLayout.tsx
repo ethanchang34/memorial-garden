@@ -2,9 +2,11 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Outlet } from 'react-router';
 import { AccountMenu } from '@/features/auth/AccountMenu';
+import { usePendingSignOut } from '@/features/auth/usePendingSignOut';
 
 export function RootLayout() {
   const { t } = useTranslation();
+  usePendingSignOut();
 
   useEffect(() => {
     document.title = t('brand.name');

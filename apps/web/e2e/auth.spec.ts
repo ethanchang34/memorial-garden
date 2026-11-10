@@ -78,6 +78,14 @@ test.describe('signed in', () => {
   test('sign out from any page returns to the home page', async ({ page, supabase }) => {
     await page.goto('/settings/profile');
     await expect(page.getByLabel('Display name')).toHaveValue('Alex C.');
+    await page.evaluate(() => {
+      const observer = new MutationObserver(() => {
+        if (document.body.innerText.includes('Sign in to choose the name')) {
+          (window as unknown as { sawSignInPrompt: boolean }).sawSignInPrompt = true;
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    });
     await page.getByRole('button', { name: 'Alex C.' }).click();
     await page.getByRole('menuitem', { name: 'Sign out' }).click();
 
@@ -87,6 +95,12 @@ test.describe('signed in', () => {
     ).toBeVisible();
     await expect(page.getByText('You’re signed out')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => (window as unknown as { sawSignInPrompt?: boolean }).sawSignInPrompt,
+      ),
+      'the settings page must not flash its signed-out prompt',
+    ).toBeUndefined();
     expect(supabase.calls.some((c) => c.method === 'POST' && c.path === '/auth/v1/logout')).toBe(
       true,
     );
@@ -135,6 +149,10 @@ test.describe('signed in', () => {
       page.getByRole('banner').getByRole('button', { name: 'Grandpa Joe\u2019s grandson' }),
     ).toBeVisible();
     await expect(page.getByRole('alert')).toHaveCount(0);
+    await expect(
+      page.getByText('Shown on your notes, voice memos, and decorations.'),
+    ).toBeVisible();
+    await expect(page.getByText('Letters, numbers')).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath('profile-settings.png'), fullPage: true });
   });
 
