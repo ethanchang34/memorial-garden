@@ -1,16 +1,72 @@
 import { describe, expect, it } from 'vitest';
-import { displayNameSchema, localeSchema, profileUpdateSchema } from './profile';
+import {
+  displayNameProblem,
+  displayNameSchema,
+  localeSchema,
+  normalizeDisplayName,
+  profileUpdateSchema,
+} from './profile';
 
-describe('displayNameSchema', () => {
-  it('trims and accepts 1 to 40 characters', () => {
-    expect(displayNameSchema.parse('  Alex C.  ')).toBe('Alex C.');
-    expect(displayNameSchema.parse('J')).toBe('J');
-    expect(displayNameSchema.parse('a'.repeat(40))).toHaveLength(40);
+describe('displayNameProblem', () => {
+  it.each([
+    'Alex C.',
+    'Zoë S.',
+    'Mary-Kate O’Brien',
+    "Jean-Luc d'Arcy",
+    '李明',
+    'प्रिया श.',
+    'محمد ع.',
+    'J.R.R. T.',
+    'Sam 2',
+    'Admiral Ann',
+    'J',
+    'a'.repeat(40),
+  ])('accepts %s', (name) => {
+    expect(displayNameProblem(name)).toBeNull();
   });
 
-  it('rejects empty and overlong names', () => {
-    expect(displayNameSchema.safeParse('   ').success).toBe(false);
-    expect(displayNameSchema.safeParse('a'.repeat(41)).success).toBe(false);
+  it.each([
+    ['', 'empty'],
+    ['   ', 'empty'],
+    ['a'.repeat(41), 'too_long'],
+    ['$$$', 'characters'],
+    ['Alex?', 'characters'],
+    ['a/b', 'characters'],
+    ['me@example', 'characters'],
+    ['<b>Alex</b>', 'characters'],
+    ['Alex 🌸', 'characters'],
+    ['Al\u200Bex', 'characters'],
+    ['Alex\u202Egpj', 'characters'],
+    ['Alex™', 'characters'],
+    ['12345', 'no_letter'],
+    ['...', 'no_letter'],
+    ['Admin', 'reserved'],
+    ['The Moderator', 'reserved'],
+    ['Memorial Garden Help', 'reserved'],
+    ['www.spam', 'link'],
+    ['Buy cheap.com', 'link'],
+  ])('rejects %j as %s', (name, problem) => {
+    expect(displayNameProblem(name)).toBe(problem);
+  });
+});
+
+describe('normalizeDisplayName', () => {
+  it('trims, collapses spaces, and composes accents', () => {
+    expect(normalizeDisplayName('  Alex \t  C.  ')).toBe('Alex C.');
+    expect(normalizeDisplayName('E\u0300ve')).toBe('Ève');
+    expect(normalizeDisplayName('Alex\u00A0C.')).toBe('Alex C.');
+  });
+});
+
+describe('displayNameSchema', () => {
+  it('returns the normalized name', () => {
+    expect(displayNameSchema.parse('  Alex   C.  ')).toBe('Alex C.');
+  });
+
+  it('reports the problem as the issue message', () => {
+    const result = displayNameSchema.safeParse('Free $$$');
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.message).toBe('characters');
   });
 });
 

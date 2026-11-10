@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './fixtures';
 import { MIN_TOUCH_TARGET_PX } from './viewports';
 
 test.describe('UI components', () => {

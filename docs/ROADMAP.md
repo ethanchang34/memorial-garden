@@ -38,13 +38,15 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Home page: hero, Find someone, Recently tended, New gardens, How it works, Your gardens
 - [ ] Time-of-day lighting (4 looks, smooth transitions, setting to pin a look)
 - [ ] Link-preview + SEO Worker for `/m/:slug` (title, description, OG image, structured data), `sitemap.xml`, `robots.txt`
-- [ ] Profiles: editable display name (default "First L."); send the browser time zone to `set_time_zone()` after sign-in
+- [x] Sign in with Google / sign out; account menu with display name only
+- [x] Profiles: editable display name (default "First L.") at `/settings/profile`; browser time zone sent to `set_time_zone()` after sign-in; `public_display_names()` for showing other users' names
 
 ## M2 — Notes
 
 - [ ] `notes` table + RLS + rate limit; author edit ("edited" label) + delete
 - [ ] Filing-cabinet note stack: hover lift, date tooltip, All/Mine toggle, "mine" tabs
-- [ ] Owner hide/unhide; report button
+- [ ] Owner hide/unhide; report button (notes and display names)
+- [ ] Display name change limit (5/day per user) enforced in the database, with pgTAP tests
 - [ ] Turnstile on submit
 - [ ] New-account limits (first 24h)
 - [ ] Owner notification bell (`notifications` table, triggers, Realtime or polling)

@@ -1,5 +1,6 @@
-import { expect, test } from '@playwright/test';
-import { MIN_TOUCH_TARGET_PX, TEST_VIEWPORTS } from './viewports';
+import { expect, test } from './fixtures';
+import { expectResponsiveLayout } from './responsive';
+import { TEST_VIEWPORTS } from './viewports';
 
 test.describe('home page', () => {
   test('shows the welcome heading and actions', async ({ page }) => {
@@ -32,22 +33,8 @@ test.describe('responsive layout', () => {
     test(`${viewport.name} ${viewport.width}x${viewport.height}`, async ({ page }) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       await page.goto('/');
-
-      const overflow = await page.evaluate(
-        () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      );
-      expect(overflow, 'page must not scroll horizontally').toBeLessThanOrEqual(0);
-
-      const targets = page.locator('main a, main button, header a');
-      for (const target of await targets.all()) {
-        const box = await target.boundingBox();
-        expect(box, 'interactive element must be rendered').not.toBeNull();
-        if (!box) continue;
-        expect(
-          Math.min(box.width, box.height),
-          `${await target.innerText()} must be at least ${MIN_TOUCH_TARGET_PX}px`,
-        ).toBeGreaterThanOrEqual(MIN_TOUCH_TARGET_PX);
-      }
+      await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+      await expectResponsiveLayout(page);
     });
   }
 });
