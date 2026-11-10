@@ -25,9 +25,9 @@ M0's code work is done and the first M1 slice (sign-in and profile) is live; the
 
 Google sign-in/sign-out (sign-out goes home without flashing the old page), header account menu (display name only), `/settings/profile`, display-name rules in shared code and the database, time zone sent after sign-in, `public_display_names(user_ids)`. Both migrations are applied to the hosted project. Web code reaches Supabase only through `adapters/supabase` via `useServices()`; Playwright fakes Supabase in `e2e/fixtures.ts`.
 
-### Now: design deep dive
+### Now: visual direction
 
-Draft in `docs/VISUAL_DIRECTION.md`: memorial-site and cozy-game references, the Project Horseshoe coziness framework applied to the garden, readability rules for older visitors, three candidate directions (recommended: layered paper garden scene with painterly light and stationery UI), and an avoid list. Waiting on the owner's decisions listed at the end of that file; then: DESIGN §7.0 update, tokens, a garden-scene prototype at `/dev/ui`, and the home hero.
+Decided: **layered paper garden (B)** with composable objects (scene slots → objects with attachment points → parts), recorded in DESIGN §7.0, §6.3, §7.2 and `docs/VISUAL_DIRECTION.md`. Painted (A) is ruled out. Sketches at `/dev/directions`; color study (six palettes at golden hour and evening) at `/dev/palettes`, both dev and test builds only. Waiting on the owner's palette pick and art source (licensed vector pack, illustrator, or self-drawn). Then: derive the four times of day, adjust UI tokens, build the slot and object system with placeholder art, refresh the home hero.
 
 ### After that
 

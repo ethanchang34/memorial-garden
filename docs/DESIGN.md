@@ -378,6 +378,7 @@ Layout, top to bottom:
 - If the balance is too low, the dialog shows a "Get coins" button that opens the pack picker.
 - When a decoration expires it fades out (handled visually on the client; the server is the source of truth through `expires_at`).
 - Slot layouts come from `stone_style` templates (JSON: `[{position_key, slot_kind, x, y}]`), so a new stone style means a new template.
+- **Objects and parts (rendering):** a decoration type is drawn as an object (vase, holder, hook) with named attachment points, plus parts attached to them (flowers, a flame, a ribbon). The purchasable item can still be one `decoration_types` row ("pot of spring flowers"); the composition only controls drawing. Objects and parts share one coordinate system and are lit by the scene, never baked with their own lighting.
 
 ### 6.4 Weathering & cleaning
 
@@ -533,11 +534,12 @@ All public memorials are indexed (§2), and search is the main free source of ne
 
 ### 7.0 Art direction: "cozy memorial garden"
 
-**The feeling:** a quiet country churchyard at golden hour, somewhere you'd _want_ to linger. Warm, soft, hand-made, and comforting rather than somber. Mood reference: the cozy, lived-in warmth of farming and life-sim games, **but painterly and smooth, never pixelated**, and in our own original style.
+**The feeling:** a quiet country churchyard at golden hour, somewhere you'd _want_ to linger. Warm, soft, hand-made, and comforting rather than somber. Mood reference: the cozy, lived-in warmth of farming and life-sim games, **but smooth and layered, never pixelated**, and in our own original style. Research and the rejected alternatives are in [VISUAL_DIRECTION.md](VISUAL_DIRECTION.md).
 
 **What that means in practice:**
 
-- **Illustration style:** soft hand-painted or storybook look, with gentle gradients, slightly rounded shapes, subtle paper or watercolor textures, and soft shadows. No hard outlines, no pixel art, no photorealism.
+- **Illustration style (decided 2026-11-10): layered paper garden.** The scene is built from a few flat, layered vector shapes (backdrop, hedge, wall, stone, ground, branch) with a subtle paper grain and soft gradient shading. Light is painterly (warm glow, dappled sun, candlelight), but the art is not hand-painted. No outlines, no pixel art, no photorealism, no painted raster backgrounds.
+- **Composable objects:** everything in the garden is an SVG object that snaps into a slot. The scene has slots (beside the stone, in front, on the wall); objects such as a vase, candle holder, or lantern have their own slots for parts (flowers in the vase mouth, a flame on the wick). A decoration is drawn as an object plus its parts, so a small art library makes many combinations, and the scene's light applies to all of them at every time of day. See §6.3.
 - **Scene:** each grave sits in a small garden vignette (grass, a little path, a tree branch or hedge at the edge), not a stone floating on a blank page.
 - **Ambient life (subtle, optional):** grass swaying slightly, a few fireflies at dusk, a petal drifting down, candle flames flickering. All of it can be turned off and respects `prefers-reduced-motion`.
 - **Time of day (v1):** the scene's light follows the visitor's local time. There are four looks: morning (cool, soft), day (bright), golden hour (warm), and evening (dusk blue, with candles and lights glowing more strongly). Each is a set of color layers and a gradient over the same art, with no separate artwork, and the light changes smoothly over about 30 minutes. Visitors can pin a look in settings.
@@ -627,10 +629,10 @@ A warm, light, neutral palette, like soft morning sun on old stone and moss.
 
 **Art assets** (the biggest factor in the "cozy" look):
 
-- **Option A (recommended start): licensed asset packs.** Painterly or cozy environment and prop packs from itch.io, Creative Market, or Envato, plus free textures (paper, watercolor) from sites like Poly Haven or Unsplash. **Check every license for commercial web use, and record it in `docs/ASSETS.md`.**
+- **Option A (recommended start): licensed asset packs.** Flat, layered **vector** (SVG) environment and prop packs from itch.io, Creative Market, or Envato that match §7.0 (no outlines, no pixel art), plus free textures (paper, watercolor) from sites like Poly Haven or Unsplash. **Check every license for commercial web use, and record it in `docs/ASSETS.md`.**
 - **Option B: commission an illustrator** for a consistent signature style (stones, decorations, scene backgrounds). Do this once the site has traction.
 - **Option C: AI-assisted art**, edited by hand for consistency. Check the tool's terms for commercial use, and be aware that AI-generated images may not be protected by copyright.
-- Prefer **SVG** for stones and props (scales well at every screen size, per Tenet 2) and **WebP/AVIF** for painted backgrounds.
+- **SVG for everything in the scene** (scales well at every screen size, per Tenet 2), drawn in a vector tool (Figma, Affinity Designer, or Inkscape) rather than hand-coded, and exported without baked-in lighting. Animations in Rive. WebP/AVIF only for photos.
 
 **Rules for adding a library:**
 
@@ -772,7 +774,7 @@ Back up the database yourself: a weekly `pg_dump` from a GitHub Action to R2 (th
 
 ## 10. Extensibility hooks
 
-- **Decorations:** a row in `decoration_types` plus an art asset.
+- **Decorations:** a row in `decoration_types` plus its art: an object and/or parts that snap into existing slots (§6.3).
 - **Stone styles and scenes:** a `stone_styles` row with a JSON slot template plus art. Premium ones set `is_premium` and `price_coins`.
 - **Traditions:** add a `tradition` value and tag new `decoration_types`, `stone_styles`, and `memory_prompts` with it.
 - **Memorial kinds:** `memorials.kind` (person, pet) filters stones, decorations, and prompts.

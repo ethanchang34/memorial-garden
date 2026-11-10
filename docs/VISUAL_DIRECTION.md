@@ -1,6 +1,6 @@
 # Visual direction (draft for review)
 
-Status: **draft**. Research is done; the direction is not chosen yet (see [Decision needed](#decision-needed)). Once chosen, the decisions move into DESIGN §7.0 and this file keeps the reasoning.
+Status: **direction chosen (2026-11-10): B, layered paper garden**, with composable objects. Decisions are in DESIGN §7.0, §6.3, and §7.2; this file keeps the research and reasoning. The palette is still open (see [Color study](#color-study)).
 
 DESIGN §7.0 already sets the goal: a quiet country churchyard at golden hour, painterly and smooth, never pixelated. This document tests that goal against real products and research and turns it into rules for the garden scene and the interface.
 
@@ -105,15 +105,20 @@ Rough sketches of A, B, and C live at `/dev/directions` (dev and test builds onl
 
 A small ambient companion (e.g. a sleeping cat or a robin) is liked. Proposal: an optional coin purchase, permanent for that memorial, bought by the owner or caretakers (like premium stone styles, DESIGN §6.10), so visitors can't add one without the family. Keep free ambient life (birds, a butterfly) in every garden so unpaid gardens still feel alive. Record in DESIGN when the M4 coin catalog is designed.
 
-## Decision needed
+## Decision
 
-1. Direction: **A**, **B**, **C**, or the recommended hybrid, after viewing the sketches.
-2. Body text for memorial content starts at 18px; fonts and sizes are tokens and easy to change later.
+- **Direction B, layered paper garden.** Painted (A) is ruled out. Stationery (C) is not used for the scene; its paper feel stays in the interface (notes, dialogs, cards), as already started in the UI kit.
+- **Composable objects:** objects with attachment points and parts that snap into them (DESIGN §6.3, §7.0).
+- **Quality bar:** the sketches are hand-coded placeholders. Real objects are drawn in a vector tool or come from a licensed pack; code handles composition, slots, and light. The art source (pack, illustrator, or self-drawn) is still to be decided.
+- Memorial body text starts at 18px (a token; easy to change).
 
-## Next steps after the decision
+## Color study
 
-1. Move the decisions into DESIGN §7.0 and §7.2 (art sources).
-2. Update tokens if needed (palette, type scale for memorial content).
-3. Prototype one garden scene at `/dev/ui`: one stone, two slots, four times of day, at phone and desktop sizes, for review.
+The sketch palette was a quick tint of the UI tokens. A proper study compares several complete palettes on the same scene at golden hour and evening at `/dev/palettes`, captured in CI's `ui-screenshots` artifact. Once one is picked, it becomes the scene palette for all four times of day, and the UI tokens are adjusted to harmonize with it.
+
+## Next steps
+
+1. Pick a palette from the color study; derive all four times of day and adjust UI tokens.
+2. Decide the art source (licensed vector pack, illustrator, or self-drawn) and record it in `docs/ASSETS.md`.
+3. Build the slot and object system with placeholder art, so real objects drop in.
 4. Refresh the home page hero to match.
-5. Record any art packs in `docs/ASSETS.md`.

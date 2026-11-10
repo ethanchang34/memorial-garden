@@ -14,6 +14,12 @@ const uiPreviewRoutes: RouteObject[] =
           }),
         },
         {
+          path: 'dev/palettes',
+          lazy: async () => ({
+            Component: (await import('@/features/dev/palettes/PalettesPage')).PalettesPage,
+          }),
+        },
+        {
           path: 'dev/directions',
           lazy: async () => ({
             Component: (await import('@/features/dev/directions/DirectionsPage')).DirectionsPage,
