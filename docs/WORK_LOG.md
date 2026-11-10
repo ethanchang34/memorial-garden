@@ -33,6 +33,14 @@ Layered paper garden with composable objects; honeyed orchard palette; time of d
 
 Build free, pay once to share ($20 to start, test $29); visitors never pay; no coins. See `docs/MONETIZATION.md` (model, competitor pricing, cost model, data-model changes). DESIGN coin sections are marked superseded; ROADMAP M4 rewritten. Confirm price and willingness to pay in the core-loop test. After that, plan funeral-home outreach with a capped free-share pilot (MONETIZATION.md, Outreach); the cap is to be decided together.
 
+### Core loop progress
+
+1. [x] Memorials: drafts, create form, memorial page, Your gardens (PR "Memorials with drafts"). Publishing is admin-only until checkout: to share test memorials, set your own `profiles.is_admin = true` in Supabase Table Editor, then use "Share this garden".
+2. [ ] Garden scene on the memorial page (slot system, first vase, unlit candle, honeyed orchard by local time).
+3. [ ] Light a candle (anonymous sign-in + Turnstile; owner prep: enable anonymous sign-ins in Supabase, create a Turnstile site).
+4. [ ] Notes.
+5. [ ] Cleaning the stone.
+
 ### Before building further: core-loop test
 
 Build only the core loop (one memorial page with the garden, a note, lighting a candle, cleaning the stone), make one real memorial, share it with 5–10 people, watch whether they come back, then decide. Read competitor reviews for complaints first.

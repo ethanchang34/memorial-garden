@@ -29,7 +29,9 @@ Each milestone is shippable on its own. Check items off as you go.
 
 ## M1 — Memorials (no money)
 
-- [ ] `memorials` (incl. nullable `owner_id`, `visibility`, `kind`, `tradition`), `stone_styles`, `memorial_photos`, `timeline_events` tables + RLS
+- [x] `memorials` table with drafts (2 per owner), slugs, flexible-precision dates, RLS + pgTAP; `publish_memorial()` (admin-only until the share checkout exists)
+- [x] Create-memorial form (name, dates with precision, epitaph), memorial page `/m/:slug`, Your gardens `/memorials`
+- [ ] `stone_styles`, `memorial_photos`, `timeline_events`; `tradition` on memorials
 - [ ] Create-memorial wizard (incl. optional tradition, flexible-precision dates, duplicate-match warning with `pg_trgm`); memorial page = one garden scene with one gravestone
 - [ ] Free classic stone style + slot template
 - [ ] R2 photo upload through signed URLs (API route); public photos served from a Cloudflare-proxied `media.` custom domain
