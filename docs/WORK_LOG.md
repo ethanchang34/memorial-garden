@@ -29,6 +29,14 @@ Google sign-in/sign-out (sign-out goes home without flashing the old page), head
 
 Layered paper garden with composable objects; honeyed orchard palette; time of day computed at page load and blended between keyframes; code-drawn SVG art (animals from a pack or AI-assisted vectors); moss only on and around the memorial stone. Recorded in DESIGN §2, §6.3, §6.4, §7.0, §7.2 and `docs/VISUAL_DIRECTION.md`. Dev previews: `/dev/directions`, `/dev/palettes`, `/dev/art` (dev and test builds only).
 
+### Decided (pending test): monetization
+
+Build free, pay once to share ($20 to start, test $29); visitors never pay; no coins. See `docs/MONETIZATION.md` (model, competitor pricing, cost model, data-model changes). DESIGN coin sections are marked superseded; ROADMAP M4 rewritten. Confirm price and willingness to pay in the core-loop test.
+
+### Before building further: core-loop test
+
+Build only the core loop (one memorial page with the garden, a note, lighting a candle, cleaning the stone), make one real memorial, share it with 5–10 people, watch whether they come back, then decide. Read competitor reviews for complaints first.
+
 ### Next: slot and object system
 
 Turn the `/dev/art` still life into reusable parts: scene slots, objects with attachment points (vase mouth, candle wick), parts (flowers, flame), four-layer drawing for vessels, scene lighting applied to all of it, then the honeyed orchard keyframes blended by local time.
