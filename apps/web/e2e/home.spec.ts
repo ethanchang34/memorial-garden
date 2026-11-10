@@ -8,7 +8,7 @@ test.describe('home page', () => {
 
     await expect(page).toHaveTitle('Memorial Garden');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Create a memorial' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Create a memorial' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Find someone' })).toBeVisible();
   });
 

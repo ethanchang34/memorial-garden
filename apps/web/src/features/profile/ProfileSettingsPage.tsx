@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSession } from '@/features/auth/session';
-import { useAuthActions } from '@/features/auth/useAuthActions';
+import { SignInPrompt } from '@/features/auth/SignInPrompt';
 import { useMyProfile, useUpdateDisplayName } from './useMyProfile';
 
 export function ProfileSettingsPage() {
@@ -24,23 +24,9 @@ export function ProfileSettingsPage() {
       {session.status === 'signed-in' ? (
         <DisplayNameForm />
       ) : session.status === 'loading' ? null : (
-        <SignInPrompt />
+        <SignInPrompt message={t('profile.signInPrompt')} />
       )}
     </section>
-  );
-}
-
-function SignInPrompt() {
-  const { t } = useTranslation();
-  const { signIn, pending, available } = useAuthActions();
-
-  return (
-    <div className="border-border bg-card shadow-soft flex flex-col items-start gap-4 rounded-xl border p-6">
-      <p className="text-muted-foreground text-lg leading-relaxed">{t('profile.signInPrompt')}</p>
-      <Button onClick={() => void signIn()} disabled={pending || !available}>
-        {t('auth.signIn')}
-      </Button>
-    </div>
   );
 }
 

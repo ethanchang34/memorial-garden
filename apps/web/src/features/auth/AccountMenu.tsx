@@ -1,4 +1,4 @@
-import { ChevronDown, LogOut, UserRound } from 'lucide-react';
+import { ChevronDown, Flower2, LogOut, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { Button } from '@/components/ui/button';
@@ -44,6 +44,12 @@ export function AccountMenu() {
         {displayName ? (
           <DropdownMenuLabel>{t('auth.signedInAs', { name: displayName })}</DropdownMenuLabel>
         ) : null}
+        <DropdownMenuItem asChild>
+          <Link to="/memorials">
+            <Flower2 aria-hidden="true" />
+            {t('memorial.mine.heading')}
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/settings/profile">
             <UserRound aria-hidden="true" />

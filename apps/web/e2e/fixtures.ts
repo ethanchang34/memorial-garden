@@ -6,9 +6,55 @@ export const TEST_USER_ID = '00000000-0000-4000-8000-000000000001';
 
 type ProfileRow = { id: string; display_name: string; time_zone: string; locale: string };
 
+export type MemorialRow = {
+  id: string;
+  slug: string;
+  owner_id: string | null;
+  full_name: string;
+  born_date: string | null;
+  born_precision: string | null;
+  died_date: string;
+  died_precision: string;
+  epitaph: string | null;
+  status: 'draft' | 'published' | 'hidden' | 'removed';
+};
+
+let memorialCounter = 0;
+export function memorialRow(
+  overrides: Partial<MemorialRow> & Pick<MemorialRow, 'full_name' | 'died_date'>,
+): MemorialRow {
+  memorialCounter += 1;
+  return {
+    id: `00000000-0000-4000-9000-${String(memorialCounter).padStart(12, '0')}`,
+    slug: `memorial-${memorialCounter}`,
+    owner_id: null,
+    born_date: null,
+    born_precision: null,
+    died_precision: 'day',
+    epitaph: null,
+    status: 'published',
+    ...overrides,
+  };
+}
+
+function slugFor(name: string, died: string, taken: MemorialRow[]): string {
+  const base =
+    name
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'memorial';
+  const slug = `${base}-${died.slice(0, 4)}`;
+  return taken.some((row) => row.slug === slug) ? `${slug}-${taken.length}` : slug;
+}
+
 export type SupabaseMock = {
   signIn(profile?: Partial<Omit<ProfileRow, 'id'>>): Promise<void>;
   profile: ProfileRow;
+  memorials: MemorialRow[];
+  isAdmin: boolean;
+  signedIn: boolean;
   calls: { method: string; path: string; body: unknown }[];
   unexpected: string[];
 };
@@ -62,9 +108,13 @@ function corsHeaders(request: Request): Record<string, string> {
 async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
   const mock: SupabaseMock = {
     profile: { id: TEST_USER_ID, display_name: 'Alex C.', time_zone: 'UTC', locale: 'en' },
+    memorials: [],
+    isAdmin: false,
     calls: [],
     unexpected: [],
+    signedIn: false,
     async signIn(profile = {}) {
+      mock.signedIn = true;
       Object.assign(mock.profile, profile);
       const session = fakeSession();
       await page.addInitScript(([key, value]) => window.localStorage.setItem(key, value), [
@@ -99,6 +149,63 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
     if (url.pathname === '/rest/v1/rpc/set_time_zone' && method === 'POST') {
       mock.profile.time_zone = (body as { requested_time_zone: string }).requested_time_zone;
       return json(mock.profile.time_zone);
+    }
+    if (url.pathname === '/rest/v1/memorials' && method === 'GET') {
+      const filters = [...url.searchParams.entries()].filter(
+        ([key]) => key === 'slug' || key === 'owner_id',
+      );
+      const signedIn = mock.signedIn;
+      const rows = mock.memorials.filter(
+        (row) =>
+          filters.every(
+            ([key, value]) =>
+              String(row[key as 'slug' | 'owner_id']) === value.replace(/^eq\./, ''),
+          ) &&
+          (row.status === 'published' || (signedIn && row.owner_id === TEST_USER_ID)),
+      );
+      return json(rows);
+    }
+    if (url.pathname === '/rest/v1/memorials' && method === 'POST') {
+      const input = body as Omit<MemorialRow, 'id' | 'slug' | 'status'>;
+      const drafts = mock.memorials.filter(
+        (row) => row.owner_id === input.owner_id && row.status === 'draft',
+      );
+      if (drafts.length >= 2) {
+        return json(
+          { code: 'P0001', message: 'Draft limit reached', hint: 'draft_limit', details: null },
+          400,
+        );
+      }
+      const row = memorialRow({
+        ...input,
+        status: 'draft',
+        slug: slugFor(input.full_name, input.died_date, mock.memorials),
+      });
+      mock.memorials.push(row);
+      return json(row, 201);
+    }
+    if (url.pathname === '/rest/v1/rpc/publish_memorial' && method === 'POST') {
+      if (!mock.isAdmin) {
+        return json(
+          {
+            code: '42501',
+            message: 'Sharing is not open yet',
+            hint: 'sharing_closed',
+            details: null,
+          },
+          403,
+        );
+      }
+      const row = mock.memorials.find(
+        (item) => item.id === (body as { memorial_id: string }).memorial_id,
+      );
+      if (!row)
+        return json(
+          { code: 'P0002', message: 'Memorial not found', hint: null, details: null },
+          404,
+        );
+      row.status = 'published';
+      return json(row.slug);
     }
     if (url.pathname === '/auth/v1/logout' && method === 'POST') {
       return route.fulfill({ status: 204, headers });

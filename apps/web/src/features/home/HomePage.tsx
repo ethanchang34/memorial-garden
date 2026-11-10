@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 import { Button } from '@/components/ui/button';
 
 export function HomePage() {
@@ -11,7 +12,9 @@ export function HomePage() {
         <h1 id="hero-heading">{t('home.heading')}</h1>
         <p className="hero-description">{t('home.description')}</p>
         <div className="hero-actions">
-          <Button disabled>{t('home.createAction')}</Button>
+          <Button asChild>
+            <Link to="/memorials/new">{t('home.createAction')}</Link>
+          </Button>
           <Button disabled variant="secondary">
             {t('home.findAction')}
           </Button>

@@ -1,11 +1,13 @@
 import { createContext, useContext } from 'react';
 import { createSupabaseServices } from '@/adapters/supabase';
 import type { AuthProvider } from '@/core/auth';
+import type { MemorialRepository } from '@/core/memorial';
 import type { ProfileRepository } from '@/core/profile';
 
 export type AppServices = {
   auth: AuthProvider;
   profiles: ProfileRepository;
+  memorials: MemorialRepository;
 };
 
 export function createAppServices(): AppServices | null {

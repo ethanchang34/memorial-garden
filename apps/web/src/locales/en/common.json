@@ -34,6 +34,62 @@
     "saveFailed": "We couldn’t save your profile. Please try again.",
     "loadFailed": "We couldn’t load your profile. Please refresh the page."
   },
+  "memorial": {
+    "create": {
+      "heading": "Create a memorial",
+      "priceNote": "Building a garden is free. Sharing it is a one-time $20, and you only pay when you’re ready to share.",
+      "signInPrompt": "Sign in to start a garden for someone you love. Only you can see it until you share it.",
+      "save": "Save draft",
+      "saving": "Saving…",
+      "saved": "Draft saved",
+      "saveFailed": "We couldn’t save the memorial. Please try again.",
+      "draftLimit": "You already have 2 drafts. Share or finish one before starting another."
+    },
+    "form": {
+      "fullName": "Their full name",
+      "born": "Born",
+      "died": "Passed away",
+      "epitaph": "A short epitaph (optional)",
+      "epitaphHelp": "A line for the stone, like “Forever in our garden.”",
+      "precisionLabel": "How precise is the {{field}} date",
+      "precision": {
+        "day": "Exact date",
+        "month": "Month",
+        "year": "Year",
+        "circa": "Around",
+        "unknown": "Not sure"
+      },
+      "errors": {
+        "date": "Enter a complete date.",
+        "name_required": "Enter their name.",
+        "name_too_long": "Use up to {{max}} characters.",
+        "epitaph_too_long": "Use up to {{max}} characters.",
+        "born_after_died": "The birth date must be before the date they passed away.",
+        "died_in_future": "That date is in the future."
+      }
+    },
+    "page": {
+      "draftNotice": "This is a draft. Only you can see it.",
+      "share": "Share this garden",
+      "published": "Your garden is shared",
+      "sharingClosed": "Sharing opens soon. Your draft is saved.",
+      "publishFailed": "We couldn’t share the garden. Please try again.",
+      "loadFailed": "We couldn’t load this memorial. Please refresh the page.",
+      "gardenSoon": "The garden is being planted."
+    },
+    "mine": {
+      "heading": "Your gardens",
+      "signInPrompt": "Sign in to see the gardens you’ve made.",
+      "empty": "You haven’t started a garden yet.",
+      "loadFailed": "We couldn’t load your gardens. Please refresh the page."
+    },
+    "status": {
+      "draft": "Draft",
+      "published": "Shared",
+      "hidden": "Hidden",
+      "removed": "Removed"
+    }
+  },
   "home": {
     "eyebrow": "A quiet place to remember",
     "heading": "A garden for the people we carry with us.",
