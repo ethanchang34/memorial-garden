@@ -6,6 +6,7 @@ An online cemetery where visitors leave notes and voice memos, place flowers and
 - **Roadmap:** [docs/ROADMAP.md](docs/ROADMAP.md)
 - **Setup & accounts:** [docs/SETUP.md](docs/SETUP.md)
 - **Name & domain (decide before launch):** [docs/NAMING.md](docs/NAMING.md)
+- **Visual direction:** [docs/VISUAL_DIRECTION.md](docs/VISUAL_DIRECTION.md)
 
 ## Stack
 
