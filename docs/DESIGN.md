@@ -825,4 +825,4 @@ All of the original questions were resolved on 2026-11-03 (see §2). Remaining i
 2. **Launch day:** create real memorials for your own loved ones (or pets) and share them with family. These become the first real gardens and show what the site can do.
 3. **Communities:** share thoughtfully in grief-support, genealogy, and pet-loss communities (e.g. relevant subreddits and Facebook groups). **Read each community's rules on self-promotion first**, lead with something genuinely helpful, and never spam. One good post beats twenty bad ones.
 4. **Measure:** Cloudflare Web Analytics referrers + the admin stats dashboard. Watch: memorials created per week, average visitors per memorial (the sharing loop), and visitors coming from search.
-5. **Later, maybe:** partnerships with funeral homes, pet cremation services, and hospices.
+5. **Outreach to funeral homes** (owner's idea, after the core-loop test): personal cold emails to funeral homes, pet cremation services, and hospices introducing the product, possibly with a pilot offer of **free shares** for their families. Details and open decisions in [MONETIZATION.md](MONETIZATION.md#outreach-to-funeral-homes).
