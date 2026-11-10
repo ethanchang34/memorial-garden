@@ -1,5 +1,12 @@
 import { useId } from 'react';
-import { latheOutline, leafPath, petalPath, seededRandom, type Point } from './geometry';
+import {
+  frontRing,
+  leafPath,
+  petalPath,
+  seededRandom,
+  vesselOutline,
+  type Point,
+} from './geometry';
 
 const C = {
   skyTop: '#eebd86',
@@ -10,8 +17,6 @@ const C = {
   ledgeTop: '#d8c6a8',
   ledgeFace: '#b29e80',
   ledgeShade: '#8f7d63',
-  moss: '#7d8a45',
-  mossLight: '#a3a85a',
   stem: '#6f7a3e',
   leaf: '#7d8a45',
   leafLight: '#b0a95a',
@@ -56,7 +61,7 @@ type Bloom = {
 const BLOOMS: Bloom[] = [
   {
     seed: 11,
-    base: [292, 326],
+    base: [292, 330],
     head: [236, 196],
     size: 46,
     tilt: -18,
@@ -66,7 +71,7 @@ const BLOOMS: Bloom[] = [
   },
   {
     seed: 23,
-    base: [302, 326],
+    base: [302, 330],
     head: [318, 148],
     size: 52,
     tilt: 6,
@@ -76,7 +81,7 @@ const BLOOMS: Bloom[] = [
   },
   {
     seed: 37,
-    base: [310, 326],
+    base: [310, 330],
     head: [388, 214],
     size: 42,
     tilt: 22,
@@ -86,7 +91,7 @@ const BLOOMS: Bloom[] = [
   },
   {
     seed: 41,
-    base: [298, 326],
+    base: [298, 330],
     head: [270, 252],
     size: 34,
     tilt: -8,
@@ -100,7 +105,9 @@ export function OrchardStillLife({ label }: { label: string }) {
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
   const id = (name: string) => `${name}-${uid}`;
   const url = (name: string) => `url(#${id(name)})`;
-  const vase = latheOutline(300, VASE_PROFILE);
+  const vessel = vesselOutline(300, VASE_PROFILE, 11, 9);
+  const vase = vessel.body;
+  const lipFront = frontRing(300, vessel.rimY, vessel.rimRx, vessel.rimRy, 47, 8);
 
   return (
     <svg viewBox="0 0 600 600" role="img" aria-label={label} className="block h-auto w-full">
@@ -251,16 +258,6 @@ export function OrchardStillLife({ label }: { label: string }) {
 
       <rect x="60" y="514" width="480" height="58" rx="18" fill={url('ledge')} />
       <rect x="60" y="540" width="480" height="32" rx="14" fill={C.ledgeShade} opacity="0.55" />
-      <path
-        d="M78 518 C120 508 168 514 196 520 C170 526 120 528 78 524Z"
-        fill={C.moss}
-        opacity="0.8"
-      />
-      <path
-        d="M470 520 C496 512 520 514 532 520 C516 526 490 527 470 524Z"
-        fill={C.mossLight}
-        opacity="0.7"
-      />
 
       <ellipse
         cx="300"
@@ -281,10 +278,6 @@ export function OrchardStillLife({ label }: { label: string }) {
         filter={url('contact')}
       />
       <ellipse cx="452" cy="420" rx="120" ry="110" fill={url('glow')} className={`glow-${uid}`} />
-
-      {BLOOMS.map((bloom) => (
-        <Flower key={bloom.seed} bloom={bloom} uid={uid} url={url} />
-      ))}
 
       <path d={vase} fill={url('vase')} />
       <g clipPath={url('vaseClip')}>
@@ -330,8 +323,15 @@ export function OrchardStillLife({ label }: { label: string }) {
           filter={url('soften')}
         />
       </g>
-      <ellipse cx="300" cy="320" rx="56" ry="11" fill="#e9a274" />
-      <ellipse cx="300" cy="321" rx="47" ry="8" fill={url('opening')} />
+      <ellipse cx="300" cy={vessel.rimY} rx={vessel.rimRx} ry={vessel.rimRy} fill="#e9a274" />
+      <ellipse cx="300" cy={vessel.rimY + 1} rx="47" ry="8" fill={url('opening')} />
+
+      {BLOOMS.map((bloom) => (
+        <Flower key={bloom.seed} bloom={bloom} uid={uid} url={url} />
+      ))}
+
+      <path d={lipFront} fill="#e9a274" />
+      <path d={lipFront} fill="#8e4429" opacity="0.18" transform="translate(0 1.5)" />
 
       <g>
         <ellipse cx="452" cy="516" rx="40" ry="8" fill="#6e4f25" />

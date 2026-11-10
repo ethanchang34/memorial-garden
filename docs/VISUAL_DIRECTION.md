@@ -1,6 +1,6 @@
 # Visual direction (draft for review)
 
-Status: **direction chosen (2026-11-10): B, layered paper garden**, with composable objects. Decisions are in DESIGN §7.0, §6.3, and §7.2; this file keeps the research and reasoning. The palette is still open (see [Color study](#color-study)).
+Status: **direction chosen (2026-11-10): B, layered paper garden**, with composable objects. Decisions are in DESIGN §7.0, §6.3, and §7.2; this file keeps the research and reasoning. Palette: **honeyed orchard**. Art source: **code-drawn SVG**, with packs or AI-assisted vectors for complex subjects.
 
 DESIGN §7.0 already sets the goal: a quiet country churchyard at golden hour, painterly and smooth, never pixelated. This document tests that goal against real products and research and turns it into rules for the garden scene and the interface.
 
@@ -109,7 +109,9 @@ A small ambient companion (e.g. a sleeping cat or a robin) is liked. Proposal: a
 
 - **Direction B, layered paper garden.** Painted (A) is ruled out. Stationery (C) is not used for the scene; its paper feel stays in the interface (notes, dialogs, cards), as already started in the UI kit.
 - **Composable objects:** objects with attachment points and parts that snap into them (DESIGN §6.3, §7.0).
-- **Quality bar:** the sketches are hand-coded placeholders. Real objects are drawn in a vector tool or come from a licensed pack; code handles composition, slots, and light. The art source (pack, illustrator, or self-drawn) is still to be decided.
+- **Art source:** code-drawn SVG for the garden and most decorations, proven by the still life at `/dev/art` (form shading, rim light, contact shadows, depth of field, seeded variation, grain, and animation). Animals and figures come from a licensed vector pack or AI-assisted art converted to vectors. No illustrator.
+- **Palette:** honeyed orchard (§ Color study). **Time of day:** computed at page load and blended between keyframes; a refresh updates it.
+- Moss only on and around the memorial stone.
 - Memorial body text starts at 18px (a token; easy to change).
 
 ## Color study
@@ -118,7 +120,7 @@ The sketch palette was a quick tint of the UI tokens. A proper study compares se
 
 ## Next steps
 
-1. Pick a palette from the color study; derive all four times of day and adjust UI tokens.
-2. Decide the art source (licensed vector pack, illustrator, or self-drawn) and record it in `docs/ASSETS.md`.
-3. Build the slot and object system with placeholder art, so real objects drop in.
-4. Refresh the home page hero to match.
+1. Build the slot and object system, starting from the still life's vase, flowers, and candle.
+2. Derive morning and day keyframes for honeyed orchard; blend by local time at page load; adjust UI tokens to harmonize.
+3. Refresh the home page hero to match.
+4. Find a licensed vector pack or AI-assisted route for the companion animals.

@@ -34,10 +34,50 @@ export function smoothPath(points: readonly Point[], closed = false): string {
   return closed ? `${d}Z` : d;
 }
 
-export function latheOutline(centerX: number, profile: readonly Point[]): string {
+export type VesselOutline = {
+  body: string;
+  rimY: number;
+  rimRx: number;
+  rimRy: number;
+};
+
+export function vesselOutline(
+  centerX: number,
+  profile: readonly Point[],
+  rimRy: number,
+  baseRy: number,
+): VesselOutline {
   const right = profile.map(([y, r]) => [centerX + r, y] as const);
   const left = [...profile].reverse().map(([y, r]) => [centerX - r, y] as const);
-  return smoothPath([...right, ...left], true);
+  const [rimY, rimR] = profile[profile.length - 1]!;
+  const [, baseR] = profile[0]!;
+  const rightSide = smoothPath(right);
+  const leftSide = smoothPath(left).replace(/^M[^C]*/, '');
+  const body = [
+    rightSide,
+    `A${rimR} ${rimRy} 0 0 0 ${centerX - rimR} ${rimY}`,
+    leftSide,
+    `A${baseR} ${baseRy} 0 0 0 ${centerX + baseR} ${profile[0]![0]}`,
+    'Z',
+  ].join(' ');
+  return { body, rimY, rimRx: rimR, rimRy };
+}
+
+export function frontRing(
+  centerX: number,
+  y: number,
+  outerRx: number,
+  outerRy: number,
+  innerRx: number,
+  innerRy: number,
+): string {
+  return [
+    `M${centerX - outerRx} ${y}`,
+    `A${outerRx} ${outerRy} 0 0 0 ${centerX + outerRx} ${y}`,
+    `L${centerX + innerRx} ${y}`,
+    `A${innerRx} ${innerRy} 0 0 1 ${centerX - innerRx} ${y}`,
+    'Z',
+  ].join(' ');
 }
 
 export function petalPath(length: number, width: number, tipBias = 0.62): string {

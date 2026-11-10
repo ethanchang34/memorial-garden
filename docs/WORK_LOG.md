@@ -25,9 +25,13 @@ M0's code work is done and the first M1 slice (sign-in and profile) is live; the
 
 Google sign-in/sign-out (sign-out goes home without flashing the old page), header account menu (display name only), `/settings/profile`, display-name rules in shared code and the database, time zone sent after sign-in, `public_display_names(user_ids)`. Both migrations are applied to the hosted project. Web code reaches Supabase only through `adapters/supabase` via `useServices()`; Playwright fakes Supabase in `e2e/fixtures.ts`.
 
-### Now: visual direction
+### Done: visual direction
 
-Decided: **layered paper garden (B)** with composable objects (scene slots → objects with attachment points → parts), recorded in DESIGN §7.0, §6.3, §7.2 and `docs/VISUAL_DIRECTION.md`. Painted (A) is ruled out. Sketches at `/dev/directions`; color study (six palettes at golden hour and evening) at `/dev/palettes`, both dev and test builds only. Waiting on the owner's palette pick and art source (licensed vector pack, illustrator, or self-drawn). Then: derive the four times of day, adjust UI tokens, build the slot and object system with placeholder art, refresh the home hero.
+Layered paper garden with composable objects; honeyed orchard palette; time of day computed at page load and blended between keyframes; code-drawn SVG art (animals from a pack or AI-assisted vectors); moss only on and around the memorial stone. Recorded in DESIGN §2, §6.3, §6.4, §7.0, §7.2 and `docs/VISUAL_DIRECTION.md`. Dev previews: `/dev/directions`, `/dev/palettes`, `/dev/art` (dev and test builds only).
+
+### Next: slot and object system
+
+Turn the `/dev/art` still life into reusable parts: scene slots, objects with attachment points (vase mouth, candle wick), parts (flowers, flame), four-layer drawing for vessels, scene lighting applied to all of it, then the honeyed orchard keyframes blended by local time.
 
 ### After that
 
