@@ -35,7 +35,7 @@ Build free, pay once to share ($20 to start, test $29); visitors never pay; no c
 
 ### Core loop progress
 
-1. [x] Memorials: drafts, create form, memorial page, Your gardens (PR "Memorials with drafts"). Publishing is admin-only until checkout: to share test memorials, set your own `profiles.is_admin = true` in Supabase Table Editor, then use "Share this garden".
+1. [x] Memorials: drafts, create form, memorial page, Your gardens (PR #29; migration applied). Publishing is admin-only until checkout.
 2. [ ] Garden scene on the memorial page (slot system, first vase, unlit candle, honeyed orchard by local time).
 3. [ ] Light a candle (anonymous sign-in + Turnstile; owner prep: enable anonymous sign-ins in Supabase, create a Turnstile site).
 4. [ ] Notes.
@@ -64,6 +64,9 @@ Done earlier: cozy UI kit (restyle by changing role tokens in `apps/web/src/styl
 **On your laptop:** done (pull and install, gitleaks hook, Playwright browser with `pnpm test:e2e` passing, `/dev/ui` checked).
 
 **In a browser** (any device):
+
+- [ ] **Make yourself an admin** so you can share test memorials: Supabase → Table Editor → `profiles` → your row → set `is_admin` to `true`. Then "Share this garden" works on your drafts.
+- [ ] Decide whether the death date can be "Not sure" (currently required but can be approximate, e.g. "Around 1890"); making it optional needs a new migration.
 
 - [ ] Art style: decided during the design deep dive (or share an asset pack or reference site anytime) and recorded in `docs/ASSETS.md`.
 - [ ] Shortlist names in `docs/NAMING.md` and run the clearance checks, including a **USPTO trademark search**. Decide by the start of M6, before buying the domain.
