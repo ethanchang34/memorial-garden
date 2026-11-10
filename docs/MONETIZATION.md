@@ -102,9 +102,24 @@ Lawyer review of terms and privacy (often a few hundred dollars, once); terms ge
 - **Paywall before building:** asks the grieving to pay before seeing anything.
 - **Seeding the site with recent famous people:** posthumous publicity rights in several US states, photo copyright, families' objections, and troll magnets. Instead, avoid showing emptiness (no public counts, "Recently tended" only with activity, a gentle "Create a memorial for them" on empty search) and seed with real memorials from the owner and early testers. Long-deceased public-domain historical figures are possible later, clearly labeled, after a lawyer's review.
 
+## Outreach to funeral homes
+
+Owner's idea (2026-11-10): cold-email funeral homes (and pet cremation services, hospices) about the product, possibly offering free shares so their families can try it. Funeral homes are where competitors get most of their memorial traffic (Ever Loved, Legacy), so this is a real channel. Plan it after the core-loop test, once there is a garden worth showing.
+
+**Pilot offer (to decide together):**
+
+- A **partner code** per funeral home, reusing the hardship-code mechanism (hashed, single use per memorial), so redemptions are trackable per partner.
+- Limit by **count** (e.g. the next 20 shares; 20 is a placeholder), by **time** (e.g. 90 days), or both, whichever ends first. A cap protects the hosting reserve; each free share still costs storage (MONETIZATION cost model: under $1 each over decades).
+- Possibly a referral arrangement later instead of free shares (e.g. the home pays a discounted bulk rate, or earns credit).
+
+**Email rules** (not legal advice): personal, low-volume emails to individual businesses, not bulk spam. US CAN-SPAM applies to commercial email, including business-to-business: truthful sender and subject, a working opt-out honored within 10 business days, and a physical postal address (the PO box from SETUP.md). Stricter rules apply in the EU, UK, and Canada; start with US homes. Send from the project domain with SPF/DKIM set up so emails aren't flagged.
+
+**To prepare:** a short demo memorial, a one-page explainer for funeral directors, and a way to track which homes were contacted and which codes were redeemed (a spreadsheet is fine at first).
+
 ## Open
 
 - Final price ($20 vs $29) from the core-loop test.
 - Exact draft caps and per-memorial visitor upload caps.
 - Whether private memorials are included free (recommended) or tied to sharing.
 - Cluster rules (DESIGN §12 item 6).
+- Funeral-home pilot: free-share cap (count, time, or both) and whether to offer bulk or referral terms.

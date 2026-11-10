@@ -31,7 +31,7 @@ Layered paper garden with composable objects; honeyed orchard palette; time of d
 
 ### Decided (pending test): monetization
 
-Build free, pay once to share ($20 to start, test $29); visitors never pay; no coins. See `docs/MONETIZATION.md` (model, competitor pricing, cost model, data-model changes). DESIGN coin sections are marked superseded; ROADMAP M4 rewritten. Confirm price and willingness to pay in the core-loop test.
+Build free, pay once to share ($20 to start, test $29); visitors never pay; no coins. See `docs/MONETIZATION.md` (model, competitor pricing, cost model, data-model changes). DESIGN coin sections are marked superseded; ROADMAP M4 rewritten. Confirm price and willingness to pay in the core-loop test. After that, plan funeral-home outreach with a capped free-share pilot (MONETIZATION.md, Outreach); the cap is to be decided together.
 
 ### Before building further: core-loop test
 
