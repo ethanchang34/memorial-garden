@@ -26,6 +26,15 @@ Reviewed November 2026. Screenshots were taken locally for study and are not sto
 | [Stardew Valley](https://www.stardewvalley.net/)          | Cozy depth and a night sky with stars. Pixel art, which DESIGN §7.0 rules out.                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | [Spiritfarer](https://thunderlotusgames.com/spiritfarer/) | A "cozy management sim about dying" ([Red Bull interview](https://www.redbull.com/int-en/spiritfarer-developer-thunder-lotus-games-interview)): hand-drawn, warm, and sincere, built around small physical rituals of care such as hugging ([Game Developer](https://www.gamedeveloper.com/design/inside-the-thoughtful-design-of-thunder-lotus-i-spiritfarer-i-)). Proof that cozy and grief can coexist when the warmth is sincere and the rituals are tactile. Our equivalents: wiping the stone, lighting a candle, placing flowers. |
 
+### Sky: Children of the Light (owner's reference)
+
+[Sky](https://www.thatskygame.com/) by thatgamecompany is built around lighting candles, and doing it feels magical. Why, and what to borrow:
+
+- **A ritual, not a click:** press and hold to light; the flame grows during the hold.
+- **Light that spills:** the glow blooms outward and warms the stone and ground, strongest in the evening keyframe.
+- **Rising embers** that fade, plus an optional soft chime (sound stays off by default).
+- **Shared light:** candles from different visitors gather into a cluster (DESIGN §6.3, proposal).
+
 ## 3. What makes something feel cozy
 
 The game-design think tank Project Horseshoe defined coziness as **safety, abundance, and softness** ([Lostgarden write-up](https://lostgarden.com/2018/01/24/cozy-games/), [Game Developer](https://www.gamedeveloper.com/design/designing-for-coziness)). Their report lists concrete ingredients; here is how each applies to a memorial garden.
@@ -120,7 +129,9 @@ The sketch palette was a quick tint of the UI tokens. A proper study compares se
 
 ## Next steps
 
-1. Build the slot and object system, starting from the still life's vase, flowers, and candle.
+1. Build the slot and object system, starting from the still life's vase, flowers, and candle, including 1–5 candle cluster and stem arrangements.
+   - Make the vase matte: the current white streak and strong highlight read as glazed; terracotta needs a softer, wider highlight and more clay texture.
+   - Sky-style lighting ritual: hold to light, spreading glow, rising embers (see the Sky reference).
 2. Derive morning and day keyframes for honeyed orchard; blend by local time at page load; adjust UI tokens to harmonize.
 3. Refresh the home page hero to match.
 4. Find a licensed vector pack or AI-assisted route for the companion animals.

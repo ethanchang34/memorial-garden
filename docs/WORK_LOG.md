@@ -1,6 +1,6 @@
 # Implementation work log
 
-Updated: 2026-11-09
+Updated: 2026-11-10
 
 ## Current stopping point
 
@@ -32,6 +32,10 @@ Layered paper garden with composable objects; honeyed orchard palette; time of d
 ### Next: slot and object system
 
 Turn the `/dev/art` still life into reusable parts: scene slots, objects with attachment points (vase mouth, candle wick), parts (flowers, flame), four-layer drawing for vessels, scene lighting applied to all of it, then the honeyed orchard keyframes blended by local time.
+
+- Clusters: 1–5 candles per candle slot and 1–5 stems per vase, drawn from arrangement templates with any flower type in any stem point (DESIGN §6.3 proposal). Open rules (shared clusters, timers, cap behavior, price) are DESIGN §12 item 6; settle them before M4 pricing.
+- Make the vase matte (owner feedback: too shiny).
+- Sky-inspired candle ritual: hold to light, spreading glow, rising embers (VISUAL_DIRECTION, Sky reference).
 
 ### After that
 

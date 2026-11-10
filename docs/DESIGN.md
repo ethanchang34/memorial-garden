@@ -382,6 +382,7 @@ Layout, top to bottom:
 - When a decoration expires it fades out (handled visually on the client; the server is the source of truth through `expires_at`).
 - Slot layouts come from `stone_style` templates (JSON: `[{position_key, slot_kind, x, y}]`), so a new stone style means a new template.
 - **Objects and parts (rendering):** a decoration type is drawn as an object (vase, holder, hook) with named attachment points, plus parts attached to them (flowers, a flame, a ribbon). The purchasable item can still be one `decoration_types` row ("pot of spring flowers"); the composition only controls drawing. Objects and parts share one coordinate system and are lit by the scene, never baked with their own lighting. Vessels with an opening draw in four layers, back to front: body, the inside of the opening, contents (stems), then the front lip, so contents read as going inside.
+- **Clusters (proposal, not final):** a candle slot holds a cluster of up to **5 candles**; adding a candle to an existing cluster costs less than the first. At the cap, lighting refreshes the duration instead of adding a candle. Vases work the same way: up to **5 stems**, and any flower type fits any stem point, so visitors could choose flower types later. Rendering uses arrangement templates (1–5 positions with varied height and offset) and the single candle and flower objects, never pre-rendered images per count; each flame flickers on its own phase. Open questions are in §12.
 
 ### 6.4 Weathering & cleaning
 
@@ -807,7 +808,8 @@ All of the original questions were resolved on 2026-11-03 (see §2). Remaining i
 3. Choose an email provider for anniversary reminders (Resend's free plan vs. Amazon SES); needed only after launch.
 4. Find reviewers from each tradition in §6.12 before launch, and adjust items based on their feedback.
 5. Premium stone/scene designs and exact prices (1,000–1,500 coins).
-6. Whether renewing a decoration should ever be limited (e.g. a maximum number of renewals in a row) so other visitors get a chance at popular slots.
+6. **Candle and flower clusters (§6.3):** can different visitors add to the same cluster (Sky-like shared lighting); does each candle or stem fade on its own timer or does the cluster share one; at the cap of 5, does lighting refresh the oldest or all, and at what price; how this replaces "one decoration per slot, credited to one giver" and the 75% renewal rule.
+7. Whether renewing a decoration should ever be limited (e.g. a maximum number of renewals in a row) so other visitors get a chance at popular slots.
 
 ---
 
