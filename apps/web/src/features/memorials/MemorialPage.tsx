@@ -5,6 +5,7 @@ import { useDateFormat } from '@/app/useDateFormat';
 import { Button } from '@/components/ui/button';
 import { MemorialError, type Memorial } from '@/core/memorial';
 import { useSession } from '@/features/auth/session';
+import { GardenScene } from '@/features/garden/GardenScene';
 import { NotFoundPage } from '@/features/not-found/NotFoundPage';
 import { useMemorial, usePublishMemorial } from './useMemorials';
 
@@ -61,16 +62,22 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
           </Button>
         </div>
       ) : null}
-      <div className="border-border shadow-lift flex flex-col items-center gap-3 rounded-[2.5rem_2.5rem_1.25rem_1.25rem] border bg-[linear-gradient(100deg,var(--color-stone),var(--color-muted)_50%,var(--color-stone))] px-6 py-12 text-center">
+      <figure className="border-border shadow-lift overflow-hidden rounded-xl border">
+        <GardenScene
+          name={memorial.fullName}
+          dates={format.lifespan(memorial.born, memorial.died)}
+          label={t('memorial.page.gardenLabel', { name: memorial.fullName })}
+        />
+      </figure>
+      <header className="flex flex-col items-center gap-2 text-center">
         <h1 className="max-w-full [overflow-wrap:anywhere]">{memorial.fullName}</h1>
-        <p className="font-display text-ink/80 text-xl">
+        <p className="font-display text-muted-foreground text-xl">
           {format.lifespan(memorial.born, memorial.died)}
         </p>
         {memorial.epitaph ? (
-          <p className="text-ink/80 max-w-prose text-lg leading-relaxed">{memorial.epitaph}</p>
+          <p className="max-w-prose text-lg leading-relaxed">{memorial.epitaph}</p>
         ) : null}
-      </div>
-      <p className="text-muted-foreground text-center">{t('memorial.page.gardenSoon')}</p>
+      </header>
     </article>
   );
 }

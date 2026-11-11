@@ -75,7 +75,7 @@
       "sharingClosed": "Sharing opens soon. Your draft is saved.",
       "publishFailed": "We couldn’t share the garden. Please try again.",
       "loadFailed": "We couldn’t load this memorial. Please refresh the page.",
-      "gardenSoon": "The garden is being planted."
+      "gardenLabel": "The garden for {{name}}: a gravestone engraved with their name, an empty vase, and an unlit candle"
     },
     "mine": {
       "heading": "Your gardens",

@@ -6,7 +6,7 @@ import {
   seededRandom,
   vesselOutline,
   type Point,
-} from './geometry';
+} from '@/features/garden/geometry';
 
 const C = {
   skyTop: '#eebd86',

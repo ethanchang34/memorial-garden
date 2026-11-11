@@ -60,7 +60,9 @@ test.describe('signed in', () => {
     await expect(page).toHaveURL('/m/rosa-martinez-2024');
     await expect(page.getByText('Draft saved')).toBeVisible();
     await expect(page.getByRole('heading', { level: 1, name: 'Rosa Martínez' })).toBeVisible();
-    await expect(page.getByText('1932 – 2024')).toBeVisible();
+    await expect(
+      page.getByRole('banner').or(page.locator('main header')).getByText('1932 – 2024'),
+    ).toBeVisible();
     await expect(page.getByText('This is a draft. Only you can see it.')).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath('memorial-page.png'), fullPage: true });
 
@@ -189,6 +191,39 @@ test.describe('memorial layouts', () => {
       await page.goto('/m/long-2024');
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       await expectResponsiveLayout(page);
+    });
+  }
+});
+
+test.describe('garden scene', () => {
+  test.beforeEach(({ supabase }) => {
+    supabase.memorials.push(
+      memorialRow({
+        slug: 'rosa-martinez-2024',
+        full_name: 'Rosa Martínez',
+        born_date: '1932-01-01',
+        born_precision: 'year',
+        died_date: '2024-07-19',
+      }),
+    );
+  });
+
+  for (const [time, phase] of [
+    ['08:00', 'morning'],
+    ['14:00', 'day'],
+    ['19:00', 'golden'],
+    ['23:00', 'evening'],
+  ] as const) {
+    test(`follows the visitor's local time: ${phase}`, async ({ page }, testInfo) => {
+      await page.clock.setFixedTime(new Date(`2026-11-10T${time}:00`));
+      await page.goto('/m/rosa-martinez-2024');
+      const scene = page.getByRole('img', { name: /The garden for Rosa Martínez/ });
+      await expect(scene).toHaveAttribute('data-phase', phase);
+      await expect(scene.getByText('Rosa Martínez')).toBeAttached();
+      await expect(scene.getByText('1932 – 2024')).toBeAttached();
+      if (testInfo.project.name === 'desktop') {
+        await scene.screenshot({ path: testInfo.outputPath(`garden-${phase}.png`) });
+      }
     });
   }
 });
