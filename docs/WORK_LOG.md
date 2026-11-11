@@ -65,13 +65,27 @@ Done earlier: cozy UI kit (restyle by changing role tokens in `apps/web/src/styl
 
 **In a browser** (any device):
 
-- [ ] **Make yourself an admin** so you can share test memorials: Supabase → Table Editor → `profiles` → your row → set `is_admin` to `true`. Then "Share this garden" works on your drafts.
-- [ ] Decide whether the death date can be "Not sure" (currently required but can be approximate, e.g. "Around 1890"); making it optional needs a new migration.
+- [x] Made yourself an admin (`profiles.is_admin = true`).
+- [x] Death date: settled as required, but it can be just the year or "Around"; birth date can also be "Not sure".
 
 - [ ] Art style: decided during the design deep dive (or share an asset pack or reference site anytime) and recorded in `docs/ASSETS.md`.
 - [ ] Shortlist names in `docs/NAMING.md` and run the clearance checks, including a **USPTO trademark search**. Decide by the start of M6, before buying the domain.
 
 Already done: Supabase redirect URLs (`http://localhost:5173/**`, `https://memorial-garden-2ub.pages.dev/**`), Cloudflare Pages variables (`VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in Production and Preview), the `production` environment (main only, required reviewer `ethanchang34`) with `SUPABASE_DB_URL` (verified by a dry run: "Remote database is up to date"), auto-delete merged branches, secret scanning with push protection, Dependabot alerts and security updates, `main` ruleset (PR required, no force pushes or deletion, `quality`/`database`/`e2e`/`gitleaks`/`semgrep` required).
+
+### Owner testing checklist (test when convenient; building continues meanwhile)
+
+On https://memorial-garden-2ub.pages.dev unless noted:
+
+- [ ] Sign in with Google; the header shows your display name (no photo).
+- [ ] Profile settings: rejected names (`Free $$$`, `Admin`, an emoji) show the right message; a valid name saves and the header updates.
+- [ ] Sign out from Profile settings lands on the home page with no flash of the settings page.
+- [ ] Create a memorial from the home page: try Year, Around, and Not sure; the stone shows e.g. "1932 – 2024" or "c. 1890 – 1952".
+- [ ] A third draft is refused with the 2-draft message.
+- [ ] Your gardens (account menu) lists drafts; "Share this garden" publishes (you are admin).
+- [ ] Open a shared memorial in a private window (signed out): it shows without the draft notice or Share button; a draft's link shows "This path leads nowhere".
+- [ ] On a phone: the form and memorial page fit without sideways scrolling.
+- [ ] Locally (`pnpm dev`): `/dev/art` animation (swaying flowers, flickering flame, drifting petal), `/dev/palettes`, `/dev/directions`.
 
 ### Reminders
 
