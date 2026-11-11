@@ -38,7 +38,8 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Browse + search by name (memorial cards linking to each garden)
 - [ ] Share screen after publishing + Share button (native share sheet on phones)
 - [ ] Home page: hero, Find someone, Recently tended, New gardens, How it works, Your gardens
-- [ ] Time-of-day lighting: honeyed orchard keyframes (morning, day, golden hour, evening) blended by local time at page load; setting to pin a look
+- [x] Time-of-day lighting: honeyed orchard keyframes (morning, day, golden hour, evening) blended by local time at page load
+- [ ] Setting to pin a time-of-day look
 - [ ] Slot and object system: scene slots, objects with attachment points, parts; code-drawn vase, flowers, and candle as the first objects
 - [ ] Link-preview + SEO Worker for `/m/:slug` (title, description, OG image, structured data), `sitemap.xml`, `robots.txt`
 - [x] Sign in with Google / sign out; account menu with display name only

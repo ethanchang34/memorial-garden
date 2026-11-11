@@ -36,7 +36,7 @@ Build free, pay once to share ($20 to start, test $29); visitors never pay; no c
 ### Core loop progress
 
 1. [x] Memorials: drafts, create form, memorial page, Your gardens (PR #29; migration applied). Publishing is admin-only until checkout.
-2. [ ] Garden scene on the memorial page (slot system, first vase, unlit candle, honeyed orchard by local time).
+2. [x] Garden scene on the memorial page: honeyed orchard blended by local time at page load (`core/timeOfDay.ts`, `features/garden/`), name and years engraved on the stone, empty vase and unlit candle. Still placeholders: the slot system (objects with attachment points), real flowers in the vase, moss.
 3. [ ] Light a candle (anonymous sign-in + Turnstile; owner prep: enable anonymous sign-ins in Supabase, create a Turnstile site).
 4. [ ] Notes.
 5. [ ] Cleaning the stone.
@@ -85,6 +85,7 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 - [ ] Your gardens (account menu) lists drafts; "Share this garden" publishes (you are admin).
 - [ ] Open a shared memorial in a private window (signed out): it shows without the draft notice or Share button; a draft's link shows "This path leads nowhere".
 - [ ] On a phone: the form and memorial page fit without sideways scrolling.
+- [ ] The memorial page garden matches your local time of day (morning, day, golden hour, evening); refresh after the hour changes.
 - [ ] Locally (`pnpm dev`): `/dev/art` animation (swaying flowers, flickering flame, drifting petal), `/dev/palettes`, `/dev/directions`.
 
 ### Reminders
