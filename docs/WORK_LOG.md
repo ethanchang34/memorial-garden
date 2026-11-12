@@ -36,8 +36,13 @@ Build free, pay once to share ($20 to start, test $29); visitors never pay; no c
 ### Core loop progress
 
 1. [x] Memorials: drafts, create form, memorial page, Your gardens (PR #29; migration applied). Publishing is admin-only until checkout.
-2. [x] Garden scene on the memorial page: honeyed orchard blended by local time at page load (`core/timeOfDay.ts`, `features/garden/`), name and years engraved on the stone, empty vase and unlit candle. Still placeholders: the slot system (objects with attachment points), real flowers in the vase, moss.
-3. [ ] Light a candle. Anonymous sign-ins are enabled (owner) and content writes are blocked for anonymous users (migration `20261111000000`). Still needed: a Turnstile site, then Supabase **Attack Protection → CAPTCHA (Turnstile)** with the secret key, and the app sending the captcha token with sign-in calls; test Google sign-in after enabling.
+2. [x] Garden scene on the memorial page (owner feedback to address, from testing a real memorial):
+   - Leaves are plain ovals; draw real leaf shapes (use `leafPath` from the still life).
+   - Fireflies: too few and static; add more with gentle drifting and pulsing (respect reduced motion).
+   - The garden is a small boxed card; make it fill the screen width (edge to edge, larger on desktop) instead of a framed box.
+   - The path is not centered on the gravestone; align it with the stone's center.
+     Built: honeyed orchard blended by local time at page load (`core/timeOfDay.ts`, `features/garden/`), name and years engraved on the stone, empty vase and unlit candle. Still placeholders: the slot system (objects with attachment points), real flowers in the vase, moss.
+3. [ ] Light a candle. Anonymous sign-ins are enabled (owner) and content writes are blocked for anonymous users (migration `20261111000000`). Turnstile site created (site key in SETUP.md); Supabase CAPTCHA is on and Google sign-in still works (owner confirmed). Still needed: `VITE_TURNSTILE_SITE_KEY` in Cloudflare Pages; the app sends the captcha token with the anonymous sign-in; CSP allows `https://challenges.cloudflare.com` (script and frame).
 4. [ ] Notes.
 5. [ ] Cleaning the stone.
 

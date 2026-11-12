@@ -29,7 +29,8 @@ Create each account when its milestone starts; there's no need to sign up for ev
 - [x] The Pages site is **`https://memorial-garden-2ub.pages.dev`**. Cloudflare added the `-2ub` suffix because `memorial-garden.pages.dev` belongs to someone else; never use that address. The site is publicly reachable.
 - [ ] (M1) **R2 → enable.** This requires a card on file, but the first 10GB is free. Create buckets `mg-media-dev` and `mg-media-prod`, both private.
 - [ ] (M1) **R2 → Manage API tokens → create** a token with Object Read & Write access to those buckets only. Save the access key ID and secret.
-- [ ] (M1) **Turnstile → add site** → save the site key and secret key.
+- [x] **Turnstile** widget "Memorial Garden" (Managed; hostnames `memorial-garden-2ub.pages.dev`, `localhost`). Site key (public): `0x4AAAAAAF94b63umsS_h8Vy`. Secret key in the password manager and in Supabase CAPTCHA settings only. Add the production domain at launch.
+- [ ] Cloudflare Pages: add `VITE_TURNSTILE_SITE_KEY` = the site key (Production and Preview); redeploy.
 - [ ] (M6) **Domain Registration → buy the domain**, then point it at Pages under Custom domains.
 
 ### Supabase (M0)
