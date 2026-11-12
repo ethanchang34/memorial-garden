@@ -208,11 +208,12 @@ test.describe('garden scene', () => {
     );
   });
 
-  for (const [time, phase] of [
-    ['08:00', 'morning'],
-    ['14:00', 'day'],
-    ['19:00', 'golden'],
-    ['23:00', 'evening'],
+  for (const [time, phase, fireflies] of [
+    ['08:00', 'morning', [0, 0]],
+    ['14:00', 'day', [0, 0]],
+    ['18:30', 'golden', [0, 0]],
+    ['21:00', 'evening', [5, 8]],
+    ['02:00', 'night', [12, 16]],
   ] as const) {
     test(`follows the visitor's local time: ${phase}`, async ({ page }, testInfo) => {
       await page.clock.setFixedTime(new Date(`2026-11-10T${time}:00`));
@@ -221,9 +222,38 @@ test.describe('garden scene', () => {
       await expect(scene).toHaveAttribute('data-phase', phase);
       await expect(scene.getByText('Rosa Martínez')).toBeAttached();
       await expect(scene.getByText('1932 – 2024')).toBeAttached();
-      if (testInfo.project.name === 'desktop') {
-        await scene.screenshot({ path: testInfo.outputPath(`garden-${phase}.png`) });
+      const count = await scene.locator('[data-firefly]').count();
+      expect(count).toBeGreaterThanOrEqual(fireflies[0]);
+      expect(count).toBeLessThanOrEqual(fireflies[1]);
+      if (process.env['GARDEN_SHOTS']) {
+        await page.screenshot({ path: testInfo.outputPath(`garden-${phase}.png`) });
       }
     });
   }
+
+  test('fills the width and most of the screen height', async ({ page }) => {
+    await page.goto('/m/rosa-martinez-2024');
+    await expect(page.getByRole('heading', { level: 1, name: 'Rosa Martínez' })).toBeVisible();
+    for (const viewport of TEST_VIEWPORTS) {
+      await page.setViewportSize(viewport);
+      const box = await page.locator('[data-garden]').boundingBox();
+      expect(box, viewport.name).not.toBeNull();
+      expect(box!.x, viewport.name).toBe(0);
+      expect(box!.width, viewport.name).toBe(viewport.width);
+      expect(box!.height, viewport.name).toBeGreaterThanOrEqual(
+        Math.max(288, viewport.height * 0.8) - 1,
+      );
+      await expectResponsiveLayout(page);
+    }
+  });
+
+  test('fireflies hold still with a dim glow for reduced motion', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.clock.setFixedTime(new Date('2026-11-10T02:00:00'));
+    await page.goto('/m/rosa-martinez-2024');
+    const firefly = page.locator('.garden-firefly').first();
+    await expect(firefly).toBeAttached();
+    await expect(firefly).toHaveCSS('animation-name', 'none');
+    await expect(firefly).toHaveCSS('opacity', '0.45');
+  });
 });

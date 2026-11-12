@@ -95,3 +95,51 @@ export function leafPath(length: number, width: number): string {
   const w = width / 2;
   return `M0 0 C${(length * 0.25).toFixed(1)} ${(-w * 1.3).toFixed(1)} ${(length * 0.75).toFixed(1)} ${(-w * 1.1).toFixed(1)} ${length.toFixed(1)} 0 C${(length * 0.7).toFixed(1)} ${(w * 0.8).toFixed(1)} ${(length * 0.3).toFixed(1)} ${(w * 0.9).toFixed(1)} 0 0Z`;
 }
+
+export type LeafSpec = {
+  length: number;
+  width: number;
+  bend: number;
+  asym: number;
+  widest: number;
+  curl: number;
+};
+
+export type LeafShape = {
+  outline: string;
+  light: string;
+  ribs: string;
+  veins: number;
+};
+
+const LEAF_SAMPLES = [0, 0.06, 0.16, 0.3, 0.45, 0.6, 0.74, 0.86, 0.95, 1];
+
+export function leafShape({ length, width, bend, asym, widest, curl }: LeafSpec): LeafShape {
+  const k = Math.log(0.5) / Math.log(Math.min(0.6, Math.max(0.25, widest)));
+  const half = (t: number) => (width / 2) * Math.pow(Math.sin(Math.PI * Math.pow(t, k)), 0.85);
+  const rib = (t: number) => 4 * bend * t * (1 - t) + curl * t * t * t;
+  const upper = LEAF_SAMPLES.map((t) => [t * length, rib(t) - half(t) * (1 + asym)] as const);
+  const lower = LEAF_SAMPLES.map((t) => [t * length, rib(t) + half(t) * (1 - asym)] as const);
+  const midrib = LEAF_SAMPLES.slice(0, -1).map((t) => [t * length, rib(t)] as const);
+  const tail = (d: string) => d.replace(/^M[^C]*/, '');
+  const outline = `${smoothPath(upper)}${tail(smoothPath([...lower].reverse()))}Z`;
+  const light = `${smoothPath(upper)} L${(0.95 * length).toFixed(1)} ${rib(0.95).toFixed(1)}${tail(smoothPath([...midrib].reverse()))}Z`;
+  const count = length > 26 ? 5 : 4;
+  const fmt = (n: number) => n.toFixed(1);
+  let ribs = `M${fmt(-length * 0.14)} ${fmt(-bend * 0.4)} L0 0${tail(smoothPath(midrib))}`;
+  for (let i = 0; i < count; i += 1) {
+    const t = 0.16 + (i * 0.58) / (count - 1);
+    const end = Math.min(0.97, t + 0.15);
+    for (const side of [-1, 1]) {
+      const spread = side < 0 ? 1 + asym : 1 - asym;
+      const sx = t * length;
+      const sy = rib(t);
+      const cx = sx + length * 0.04;
+      const cy = sy + side * half(t) * 0.42 * spread;
+      const ex = end * length;
+      const ey = rib(end) + side * half(end) * 0.78 * spread;
+      ribs += ` M${fmt(sx)} ${fmt(sy)} Q${fmt(cx)} ${fmt(cy)} ${fmt(ex)} ${fmt(ey)}`;
+    }
+  }
+  return { outline, light, ribs, veins: count };
+}

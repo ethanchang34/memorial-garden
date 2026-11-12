@@ -1,13 +1,15 @@
-export type Phase = 'morning' | 'day' | 'golden' | 'evening';
+export type Phase = 'morning' | 'day' | 'golden' | 'evening' | 'night';
 
 const STOPS: readonly (readonly [number, Phase])[] = [
-  [0, 'evening'],
-  [5, 'evening'],
+  [0, 'night'],
+  [4, 'night'],
+  [5.5, 'evening'],
   [7, 'morning'],
   [13, 'day'],
   [18.5, 'golden'],
-  [21.5, 'evening'],
-  [24, 'evening'],
+  [21, 'evening'],
+  [22.5, 'night'],
+  [24, 'night'],
 ];
 
 export type PhaseBlend = { from: Phase; to: Phase; t: number };
@@ -21,7 +23,7 @@ export function blendForHour(hour: number): PhaseBlend {
       return { from, to, t: (h - startHour) / (endHour - startHour) };
     }
   }
-  return { from: 'evening', to: 'evening', t: 0 };
+  return { from: 'night', to: 'night', t: 0 };
 }
 
 export function localHour(date: Date): number {

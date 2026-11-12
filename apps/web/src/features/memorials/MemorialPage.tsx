@@ -50,11 +50,11 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
   }
 
   return (
-    <article className="mx-auto flex w-[min(100%-2rem,48rem)] flex-col gap-8 py-10">
+    <article className="flex flex-col">
       {memorial.status === 'draft' && isOwner ? (
         <div
           role="status"
-          className="border-border bg-muted flex flex-col gap-3 rounded-xl border p-5 sm:flex-row sm:items-center sm:justify-between"
+          className="border-border bg-muted mx-auto my-4 flex w-[min(100%-2rem,48rem)] flex-col gap-3 rounded-xl border p-5 sm:flex-row sm:items-center sm:justify-between"
         >
           <p className="text-base">{t('memorial.page.draftNotice')}</p>
           <Button onClick={onShare} disabled={publish.isPending}>
@@ -62,14 +62,14 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
           </Button>
         </div>
       ) : null}
-      <figure className="border-border shadow-lift overflow-hidden rounded-xl border">
+      <figure className="h-[80dvh] min-h-72 w-full overflow-hidden" data-garden="">
         <GardenScene
           name={memorial.fullName}
           dates={format.lifespan(memorial.born, memorial.died)}
           label={t('memorial.page.gardenLabel', { name: memorial.fullName })}
         />
       </figure>
-      <header className="flex flex-col items-center gap-2 text-center">
+      <header className="mx-auto flex w-[min(100%-2rem,48rem)] flex-col items-center gap-2 py-8 text-center">
         <h1 className="max-w-full [overflow-wrap:anywhere]">{memorial.fullName}</h1>
         <p className="font-display text-muted-foreground text-xl">
           {format.lifespan(memorial.born, memorial.died)}
