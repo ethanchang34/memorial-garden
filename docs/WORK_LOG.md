@@ -42,7 +42,7 @@ Build free, pay once to share ($20 to start, test $29); visitors never pay; no c
    - The garden is a small boxed card; make it fill the screen width (edge to edge, larger on desktop) instead of a framed box.
    - The path is not centered on the gravestone; align it with the stone's center.
      Built: honeyed orchard blended by local time at page load (`core/timeOfDay.ts`, `features/garden/`), name and years engraved on the stone, empty vase and unlit candle. Still placeholders: the slot system (objects with attachment points), real flowers in the vase, moss.
-3. [ ] Light a candle. Anonymous sign-ins are enabled (owner) and content writes are blocked for anonymous users (migration `20261111000000`). Turnstile site created (site key in SETUP.md); Supabase CAPTCHA is on and Google sign-in still works (owner confirmed). Still needed: `VITE_TURNSTILE_SITE_KEY` in Cloudflare Pages; the app sends the captcha token with the anonymous sign-in; CSP allows `https://challenges.cloudflare.com` (script and frame).
+3. [ ] Light a candle. Anonymous sign-ins are enabled (owner) and content writes are blocked for anonymous users (migration `20261111000000`). Turnstile site created (site key in SETUP.md); Supabase CAPTCHA is on and Google sign-in still works (owner confirmed). `VITE_TURNSTILE_SITE_KEY` is set in Cloudflare Pages (Production and Preview). Still needed: the app sends the captcha token with the anonymous sign-in; CSP allows `https://challenges.cloudflare.com` (script and frame).
 4. [ ] Notes.
 5. [ ] Cleaning the stone.
 
@@ -100,6 +100,8 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 - At launch, publish the Google OAuth app, add the production domain to Supabase's redirect URLs, and remove `X-Robots-Tag: noindex` from `apps/web/public/_headers` (see the NAMING.md rename checklist).
 
 ## Environment notes
+
+- Dependabot skips major `@types/node` updates so types match the Node 22 runtime; bump them together with `.nvmrc` and CI.
 
 - pnpm 11 requires explicit approval for package install scripts. `esbuild`, `lefthook`, and `workerd` are approved in `pnpm-workspace.yaml`. pnpm also rejects packages newer than its minimum release age; pick an older version instead of adding an exception.
 - Supabase CLI 3 targets the local database by default; use `--remote` (check `--help`) for the hosted project.

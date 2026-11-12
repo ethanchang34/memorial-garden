@@ -24,18 +24,20 @@ Create each account when its milestone starts; there's no need to sign up for ev
 - [x] **Workers & Pages → Create application → "Continue to Pages"** (the legacy Pages flow; the default flow creates a Worker, which needs a Wrangler config the web app doesn't have) → **Connect to Git** → choose `memorial-garden`.
   - Production branch `main`, framework preset **None**
   - Build command `pnpm --filter @memorial-garden/web build`, output directory `apps/web/dist`
-  - Variables: `NODE_VERSION=22`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and (Production only) `VITE_SENTRY_DSN`. `VITE_*` values are built into the site, so redeploy after changing them.
+  - Variables: `NODE_VERSION=22`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_TURNSTILE_SITE_KEY`, and (Production only) `VITE_SENTRY_DSN`. `VITE_*` values are built into the site, so redeploy after changing them.
 - [x] **Notifications → Add → Billing:** usage-based billing alert at $5.
 - [x] The Pages site is **`https://memorial-garden-2ub.pages.dev`**. Cloudflare added the `-2ub` suffix because `memorial-garden.pages.dev` belongs to someone else; never use that address. The site is publicly reachable.
 - [ ] (M1) **R2 → enable.** This requires a card on file, but the first 10GB is free. Create buckets `mg-media-dev` and `mg-media-prod`, both private.
 - [ ] (M1) **R2 → Manage API tokens → create** a token with Object Read & Write access to those buckets only. Save the access key ID and secret.
 - [x] **Turnstile** widget "Memorial Garden" (Managed; hostnames `memorial-garden-2ub.pages.dev`, `localhost`). Site key (public): `0x4AAAAAAF94b63umsS_h8Vy`. Secret key in the password manager and in Supabase CAPTCHA settings only. Add the production domain at launch.
-- [ ] Cloudflare Pages: add `VITE_TURNSTILE_SITE_KEY` = the site key (Production and Preview); redeploy.
+- [x] Cloudflare Pages: `VITE_TURNSTILE_SITE_KEY` set in Production and Preview; redeployed.
+- [x] Supabase **Attack Protection → CAPTCHA** on with Turnstile; Google sign-in verified afterwards.
 - [ ] (M6) **Domain Registration → buy the domain**, then point it at Pages under Custom domains.
 
 ### Supabase (M0)
 
 - [x] Sign up at supabase.com and turn on 2FA.
+- [x] **Anonymous sign-ins** enabled (for garden gestures without an account); every content-write policy excludes anonymous users (AGENTS.md).
 - [x] Create the project `memorial-garden` (free plan), project ref `qihwhgxpfvwvnuobgfbq`. Save the database password in your password manager. At creation: keep **Enable Data API** on, turn **Automatically expose new tables** off, and turn **automatic RLS** on.
 - [x] **Connect** button (or Project Settings → **Data API** and **API Keys**): note the Project URL and the **publishable key** (`sb_publishable_…`, public, used by the web app). The **secret key** (`sb_secret_…`) bypasses all security rules and is not needed until the API does privileged writes (M4); create one then, and keep it only in server environment variables, never in the browser, the repo, or a chat. Prefer these over the legacy `anon`/`service_role` keys.
 - [x] **Authentication → URL Configuration**: Site URL `http://localhost:5173`, redirect URL `http://localhost:5173/**`.
