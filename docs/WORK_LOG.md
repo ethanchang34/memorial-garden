@@ -37,7 +37,7 @@ Build free, pay once to share ($20 to start, test $29); visitors never pay; no c
 
 1. [x] Memorials: drafts, create form, memorial page, Your gardens (PR #29; migration applied). Publishing is admin-only until checkout.
 2. [x] Garden scene on the memorial page: honeyed orchard blended by local time at page load (`core/timeOfDay.ts`, `features/garden/`), name and years engraved on the stone, empty vase and unlit candle. Still placeholders: the slot system (objects with attachment points), real flowers in the vase, moss.
-3. [ ] Light a candle. Anonymous sign-ins are enabled (owner) and content writes are blocked for anonymous users (migration `20261111000000`). Still needed: a Turnstile site, then Supabase **Attack Protection → CAPTCHA (Turnstile)** with the secret key, and the app sending the captcha token with sign-in calls; test Google sign-in after enabling.
+3. [ ] Light a candle. Anonymous sign-ins are enabled (owner) and content writes are blocked for anonymous users (migration `20261111000000`). Turnstile site created (site key in SETUP.md). Still needed: owner confirms Supabase CAPTCHA (Turnstile secret) is on and Google sign-in still works; `VITE_TURNSTILE_SITE_KEY` in Cloudflare Pages; the app sends the captcha token with the anonymous sign-in; CSP allows `https://challenges.cloudflare.com` (script and frame).
 4. [ ] Notes.
 5. [ ] Cleaning the stone.
 
