@@ -37,9 +37,10 @@ Build free, pay once to share ($20 to start, test $29); visitors never pay; no c
 
 1. [x] Memorials: drafts, create form, memorial page, Your gardens (PR #29; migration applied). Publishing is admin-only until checkout.
 2. [x] Garden scene on the memorial page (owner feedback to address, from testing a real memorial):
-   - Leaves are plain ovals; draw real leaf shapes (use `leafPath` from the still life).
-   - Fireflies: too few and static; add more with gentle drifting and pulsing (respect reduced motion).
-   - The garden is a small boxed card; make it fill the screen width (edge to edge, larger on desktop) instead of a framed box.
+   - Leaves are plain ovals: replace the branch with a **fuller tree canopy framing the top of the scene**, with detailed, well-crafted leaves (varied shapes, veins, light and shadow, seeded variation), like the still life's flowers.
+   - Fireflies: **evening 5–8 faint, night 12–16 brighter** (add a separate night keyframe after evening). Each blinks with a real firefly flash pattern (quick glow, fade, dark pause, varied per firefly) and **moves while dark**, so it reappears somewhere else, like real fireflies. Respect reduced motion (static, dim glow).
+   - The garden is a small boxed card: make it fill the **full width and ~80% of the viewport height**, with no frame. Keep a name and years heading on the page for search engines.
+   - Bigger follow-up (DESIGN §6.1 direction, open questions in §12 item 8): a one-screen memorial page with **pullable objects on the left and right edges** (photo stack, notebook of notes, voice memo object, life story) instead of scrolling sections. Settle the phone and accessibility questions with the owner before building.
    - The path is not centered on the gravestone; align it with the stone's center.
      Built: honeyed orchard blended by local time at page load (`core/timeOfDay.ts`, `features/garden/`), name and years engraved on the stone, empty vase and unlit candle. Still placeholders: the slot system (objects with attachment points), real flowers in the vase, moss.
 3. [ ] Light a candle. Anonymous sign-ins are enabled (owner) and content writes are blocked for anonymous users (migration `20261111000000`). Turnstile site created (site key in SETUP.md); Supabase CAPTCHA is on and Google sign-in still works (owner confirmed). `VITE_TURNSTILE_SITE_KEY` is set in Cloudflare Pages (Production and Preview). Still needed: the app sends the captcha token with the anonymous sign-in; CSP allows `https://challenges.cloudflare.com` (script and frame).
