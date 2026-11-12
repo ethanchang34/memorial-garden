@@ -356,6 +356,15 @@ A Stripe Checkout one-time payment with preset amounts ($3/$5/$10/custom, minimu
 
 ### 6.1 Memorial page (`/m/:slug`)
 
+> **Direction (2026-11-11, owner):** the memorial page is **one screen, no scrolling sections**. The garden fills about 80% of the viewport height (full width). Its left and right edges hold **pullable objects** that open the memorial's content in place, instead of sections below:
+>
+> - a **stack of photos**: hover (or tap) lifts the top photo; opening it shows the gallery;
+> - a **notebook**: opening it shows everyone's notes chronologically; pick one to read; write a note from here;
+> - a **voice memo object** (e.g. an old radio or a music box): opening it lists the memos;
+> - the **life story** (bio) as another object, e.g. a framed letter.
+>
+> A visible text heading (name and years) stays on the page for search engines and screen readers, and the bio text is always in the page markup even when its object is closed. Open questions are in §12 (item 8). The scroll-based layout below is kept until this is built.
+
 **Each memorial is its own garden** (Tenet 7): one page, one scene, one gravestone. The scene, the stone style, and its decoration slots all belong to that single memorial. Browse and search pages (`/`, `/browse`, later `/pets`) show memorial **cards** (stone thumbnail, name, dates), never a shared multi-grave scene.
 
 Layout, top to bottom:
@@ -823,7 +832,8 @@ All of the original questions were resolved on 2026-11-03 (see §2). Remaining i
 4. Find reviewers from each tradition in §6.12 before launch, and adjust items based on their feedback.
 5. Premium stone/scene designs and exact prices (1,000–1,500 coins).
 6. ~~Candle and flower clusters~~: decided 2026-11-10, see §6.3 "Garden gestures".
-7. Whether renewing a decoration should ever be limited (e.g. a maximum number of renewals in a row) so other visitors get a chance at popular slots.
+7. Whether renewing a decoration should ever be limited
+8. **One-screen memorial page (§6.1 direction):** on phones (320px, touch, no hover), do the side objects become a row along the bottom, a tray, or swipe-in edge tabs? What opens: a side drawer over the garden, a bottom sheet on phones, or a centered "picked up" view? Which object is which (photos, notebook, radio or music box, framed letter for the bio)? Keyboard and screen-reader equivalents for every object (each is a labeled button). How visitors on very short screens (landscape phones) reach everything. (e.g. a maximum number of renewals in a row) so other visitors get a chance at popular slots.
 
 ---
 
