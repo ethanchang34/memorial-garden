@@ -337,3 +337,64 @@ h1 {
     transition-duration: 0.01ms !important;
   }
 }
+
+@keyframes garden-firefly-flash {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  7% {
+    opacity: 1;
+  }
+  18% {
+    opacity: 0.9;
+  }
+  44% {
+    opacity: 0;
+    transform: translate(var(--firefly-dx), var(--firefly-dy));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--firefly-dx), var(--firefly-dy));
+  }
+}
+
+@keyframes garden-firefly-double {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  5% {
+    opacity: 1;
+  }
+  11% {
+    opacity: 0.15;
+  }
+  20% {
+    opacity: 0.95;
+  }
+  46% {
+    opacity: 0;
+    transform: translate(var(--firefly-dx), var(--firefly-dy));
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--firefly-dx), var(--firefly-dy));
+  }
+}
+
+.garden-firefly {
+  opacity: 0;
+  animation: garden-firefly-flash 4s ease-in-out infinite;
+}
+
+.garden-firefly-double {
+  animation-name: garden-firefly-double;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garden-firefly {
+    animation: none !important;
+    opacity: 0.45;
+  }
+}

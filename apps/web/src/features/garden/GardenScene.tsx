@@ -1,7 +1,10 @@
-import { useId, useState } from 'react';
-import { blendForHour, dominantPhase, localHour, mixRecord } from '@/core/timeOfDay';
-import { frontRing, vesselOutline, type Point } from './geometry';
+import { useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { blendForHour, dominantPhase, localHour, mixHex, mixRecord } from '@/core/timeOfDay';
+import { buildCanopy, type CanopyLeaf } from './canopy';
+import { Fireflies } from './Fireflies';
+import { frontRing, seededRandom, smoothPath, vesselOutline, type Point } from './geometry';
 import { ORCHARD, type GardenPalette } from './palette';
+import { fitView, GROUND_Y, SCENE_SPAN, viewBox } from './view';
 
 type GardenSceneProps = {
   name: string;
@@ -40,8 +43,107 @@ function stoneLines(name: string): { lines: string[]; size: number } {
   return { lines, size: Math.max(9, Math.min(19, (19 * 13) / Math.max(13, longest))) };
 }
 
+const { left: SPAN_LEFT, right: SPAN_RIGHT } = SCENE_SPAN;
+const SPAN_WIDTH = SPAN_RIGHT - SPAN_LEFT;
+
+function closeToGround(points: readonly Point[]): string {
+  const [lastX] = points[points.length - 1]!;
+  const [firstX] = points[0]!;
+  return `${smoothPath(points)} L${lastX} ${GROUND_Y} L${firstX} ${GROUND_Y}Z`;
+}
+
+function hedgePath(from: number, to: number, random: () => number): string {
+  let d = `M${from} 324`;
+  let x = from;
+  while (x < to) {
+    const width = Math.min(to - x, 46 + random() * 34);
+    const rise = 22 + random() * 18;
+    const valley = 316 + random() * 8;
+    const end = x + width;
+    const y = end >= to ? 324 : valley;
+    d += ` C${(x + width * 0.05).toFixed(1)} ${(valley - rise * 1.3).toFixed(1)} ${(end - width * 0.05).toFixed(1)} ${(valley - rise * 1.3).toFixed(1)} ${end.toFixed(1)} ${y.toFixed(1)}`;
+    x = end;
+  }
+  return `${d} L${to} ${GROUND_Y} L${from} ${GROUND_Y}Z`;
+}
+
+const BACKDROP = (() => {
+  const random = seededRandom(5);
+  const hill: Point[] = [];
+  for (let x = SPAN_LEFT; x <= SPAN_RIGHT; x += 180) {
+    hill.push([x, 262 + Math.sin(x / 260) * 18 + (random() - 0.5) * 20]);
+  }
+  return {
+    farHill: closeToGround(hill),
+    leftHedge: hedgePath(SPAN_LEFT, 318, random),
+    rightHedge: hedgePath(500, SPAN_RIGHT, random),
+    hedgeShade: closeToGround([
+      [SPAN_LEFT, 354],
+      [-200, 346],
+      [120, 342],
+      [318, 350],
+    ]),
+    ground: closeToGround([
+      [SPAN_LEFT, 380],
+      [-400, 368],
+      [0, 372],
+      [400, 360],
+      [800, 374],
+      [1200, 366],
+      [SPAN_RIGHT, 378],
+    ]),
+  };
+})();
+
+const PATH = 'M352 500 C374 456 391 428 388 404 L412 404 C409 428 426 456 448 500Z';
+
+function leafFill(tone: number, p: GardenPalette): string {
+  return tone < 0.5
+    ? mixHex(p.leafShade, p.leaf, tone * 2)
+    : mixHex(p.leaf, p.leafLight, (tone - 0.5) * 2);
+}
+
+const RIB_OPACITY = [0.1, 0.26, 0.34] as const;
+const LIGHT_MIX = [0.12, 0.3, 0.38] as const;
+
+function Leaves({ leaves, p }: { leaves: CanopyLeaf[]; p: GardenPalette }) {
+  return leaves.map((leaf, index) => {
+    const fill = leafFill(leaf.tone, p);
+    return (
+      <g
+        key={index}
+        transform={`translate(${leaf.x.toFixed(1)} ${leaf.y.toFixed(1)}) rotate(${leaf.angle.toFixed(1)})`}
+      >
+        <path d={leaf.shape.outline} fill={fill} />
+        <path d={leaf.shape.light} fill={mixHex(fill, p.leafLight, LIGHT_MIX[leaf.layer])} />
+        {leaf.blotch ? (
+          <ellipse
+            cx={leaf.blotch.x}
+            cy={leaf.blotch.y}
+            rx={leaf.blotch.r * 1.4}
+            ry={leaf.blotch.r}
+            fill={p.leafShade}
+            opacity="0.35"
+          />
+        ) : null}
+        <path
+          d={leaf.shape.ribs}
+          fill="none"
+          stroke={p.leafVein}
+          strokeOpacity={RIB_OPACITY[leaf.layer]}
+          strokeWidth={leaf.layer === 0 ? 0.5 : 0.6}
+          strokeLinecap="round"
+        />
+      </g>
+    );
+  });
+}
+
 export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
   const [loadedAt] = useState(() => now ?? new Date());
+  const [fireflyRoll] = useState(() => Math.random());
+  const [aspect, setAspect] = useState(1.6);
+  const ref = useRef<SVGSVGElement>(null);
   const blend = blendForHour(localHour(loadedAt));
   const p: GardenPalette = mixRecord(ORCHARD[blend.from], ORCHARD[blend.to], blend.t);
   const uid = useId().replace(/[^a-zA-Z0-9_-]/g, '');
@@ -52,14 +154,38 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
   const nameTop = 276 - ((lines.length - 1) * lineHeight) / 2;
   const vase = vesselOutline(300, VASE, 4, 3);
   const lip = frontRing(300, vase.rimY, vase.rimRx, vase.rimRy, 13, 2.5);
+  const view = fitView(aspect);
+  const canopy = useMemo(() => buildCanopy(fitView(aspect)), [aspect]);
+  const right = view.x + view.width;
+  const sunX = Math.min(620, right - 90);
+  const sunY = Math.min(175, view.y + canopy.depth + 40);
+  const sunR = Math.min(40, Math.max(24, view.width * 0.05));
+  const fireflies =
+    p.fireflyMax < 1 ? 0 : Math.round(p.fireflyMin + fireflyRoll * (p.fireflyMax - p.fireflyMin));
+
+  useLayoutEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const update = () => {
+      const box = node.getBoundingClientRect();
+      if (box.width > 0 && box.height > 0)
+        setAspect(Math.round((box.width / box.height) * 50) / 50);
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <svg
-      viewBox="0 0 800 500"
+      ref={ref}
+      viewBox={viewBox(view)}
+      preserveAspectRatio="xMidYMax slice"
       role="img"
       aria-label={label}
       data-phase={dominantPhase(blend)}
-      className="block h-auto w-full"
+      className="block h-full w-full"
     >
       <defs>
         <linearGradient id={id('sky')} x1="0" y1="0" x2="0" y2="1">
@@ -69,6 +195,10 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
         <radialGradient id={id('sun')}>
           <stop offset="0" stopColor={p.sun} stopOpacity={p.sunGlow} />
           <stop offset="1" stopColor={p.sun} stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id={id('firefly')}>
+          <stop offset="0" stopColor={p.fireflyHalo} stopOpacity="0.55" />
+          <stop offset="1" stopColor={p.fireflyHalo} stopOpacity="0" />
         </radialGradient>
         <linearGradient id={id('haze')} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor={p.haze} stopOpacity="0" />
@@ -99,47 +229,39 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
         <filter id={id('dapple')} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="9" />
         </filter>
+        <filter id={id('leafShadow')} x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow
+            dx="1.5"
+            dy="3"
+            stdDeviation="2.5"
+            floodColor={p.shadow}
+            floodOpacity="0.28"
+          />
+        </filter>
         <filter id={id('grain')}>
           <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" />
           <feColorMatrix values="0 0 0 0 0.35  0 0 0 0 0.28  0 0 0 0 0.2  0 0 0 0.1 0" />
         </filter>
       </defs>
 
-      <rect width="800" height="500" fill={url('sky')} />
-      <circle cx="620" cy="175" r="190" fill={url('sun')} />
-      <circle cx="620" cy="175" r="40" fill={p.sun} opacity="0.92" />
-      <path
-        d="M0 300 C120 255 220 272 330 258 C450 242 560 272 800 248 L800 500 L0 500Z"
-        fill={p.farHill}
-      />
-      <rect y="220" width="800" height="120" fill={url('haze')} />
-      <path
-        d="M0 340 C30 296 80 300 112 318 C140 284 196 290 224 316 C256 292 300 300 318 322 L318 500 L0 500Z"
-        fill={p.hedge}
-      />
-      <path
-        d="M500 324 C530 292 580 296 606 318 C636 286 690 290 716 314 C746 294 790 300 800 312 L800 500 L500 500Z"
-        fill={p.hedge}
-      />
-      <path
-        d="M0 352 C120 340 220 344 318 350 L318 500 L0 500Z"
-        fill={p.hedgeShade}
-        opacity="0.5"
-      />
+      <rect x={view.x} y={view.y} width={view.width} height={view.height} fill={url('sky')} />
+      <circle cx={sunX} cy={sunY} r="190" fill={url('sun')} />
+      <circle cx={sunX} cy={sunY} r={sunR} fill={p.sun} opacity="0.92" />
+      <path d={BACKDROP.farHill} fill={p.farHill} />
+      <rect x={SPAN_LEFT} y="220" width={SPAN_WIDTH} height="120" fill={url('haze')} />
+      <path d={BACKDROP.leftHedge} fill={p.hedge} />
+      <path d={BACKDROP.rightHedge} fill={p.hedge} />
+      <path d={BACKDROP.hedgeShade} fill={p.hedgeShade} opacity="0.5" />
       <rect x="70" y="326" width="220" height="38" rx="12" fill={p.wall} />
-      <path d="M0 372 C200 352 600 360 800 374 L800 500 L0 500Z" fill={url('ground')} />
-      <path
-        d="M368 500 C382 452 398 424 392 404 L418 404 C414 426 432 456 456 500Z"
-        fill={p.path}
-        opacity="0.75"
-      />
+      <path d={BACKDROP.ground} fill={url('ground')} />
+      <path d={PATH} fill={p.path} opacity="0.75" />
 
       <ellipse
         cx="400"
         cy="406"
         rx="86"
         ry="11"
-        fill="#2f2e2b"
+        fill={p.shadow}
         opacity="0.18"
         filter={url('soft')}
       />
@@ -174,7 +296,7 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
           cy="418"
           rx="34"
           ry="6"
-          fill="#2f2e2b"
+          fill={p.shadow}
           opacity="0.2"
           filter={url('soft')}
         />
@@ -189,41 +311,16 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
           cx="508"
           cy="384"
           r="60"
-          fill="#ffd88a"
+          fill={p.candleLight}
           opacity={0.12 * p.candleGlow}
           filter={url('dapple')}
         />
         <ellipse cx="508" cy="416" rx="20" ry="4" fill={p.wood} opacity="0.7" />
         <rect x="498" y="384" width="20" height="30" rx="4" fill={url('wax')} />
         <ellipse cx="508" cy="385" rx="10" ry="2.5" fill={p.wax} />
-        <path d="M508 385 L508 378" stroke="#3d2a1c" strokeWidth="1.6" strokeLinecap="round" />
+        <path d="M508 385 L508 378" stroke={p.wick} strokeWidth="1.6" strokeLinecap="round" />
       </g>
 
-      <path
-        d="M0 70 C90 76 180 96 330 116"
-        stroke={p.wood}
-        strokeWidth="10"
-        fill="none"
-        strokeLinecap="round"
-      />
-      {[
-        [40, 64, 34, 20, -10],
-        [96, 82, 30, 18, 15],
-        [150, 72, 36, 20, -5],
-        [210, 104, 30, 17, 25],
-        [300, 112, 34, 18, -15],
-        [70, 96, 26, 15, 20],
-      ].map(([cx, cy, rx, ry, rot], index) => (
-        <ellipse
-          key={index}
-          cx={cx}
-          cy={cy}
-          rx={rx}
-          ry={ry}
-          transform={`rotate(${rot} ${cx} ${cy})`}
-          fill={index % 2 ? p.leafLight : p.leaf}
-        />
-      ))}
       {[
         [250, 430, 46, 10],
         [560, 444, 60, 12],
@@ -241,21 +338,41 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
           filter={url('dapple')}
         />
       ))}
-      {p.fireflies > 0.05
-        ? [
-            [180, 300],
-            [560, 280],
-            [660, 330],
-            [260, 250],
-            [470, 240],
-          ].map(([cx, cy], index) => (
-            <g key={index} opacity={p.fireflies}>
-              <circle cx={cx} cy={cy} r="9" fill="#ffe08a" opacity="0.25" />
-              <circle cx={cx} cy={cy} r="2.5" fill="#fff1bf" />
-            </g>
-          ))
-        : null}
-      <rect width="800" height="500" filter={url('grain')} style={{ mixBlendMode: 'multiply' }} />
+
+      <g aria-hidden="true" data-canopy="">
+        <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 0)} p={p} />
+        {canopy.boughs.map((d, index) => (
+          <path key={index} d={d} fill={p.wood} />
+        ))}
+        <path d={canopy.twigs} fill="none" stroke={p.twig} strokeWidth="2" strokeLinecap="round" />
+        <g filter={url('leafShadow')}>
+          <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 1)} p={p} />
+        </g>
+        <g filter={url('leafShadow')}>
+          <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 2)} p={p} />
+        </g>
+      </g>
+
+      <Fireflies
+        count={fireflies}
+        glow={p.fireflyGlow}
+        core={p.firefly}
+        halo={url('firefly')}
+        area={{
+          left: view.x + 20,
+          right: right - 20,
+          top: Math.max(view.y + canopy.depth + 20, 250),
+          bottom: 470,
+        }}
+      />
+      <rect
+        x={view.x}
+        y={view.y}
+        width={view.width}
+        height={view.height}
+        filter={url('grain')}
+        style={{ mixBlendMode: 'multiply' }}
+      />
     </svg>
   );
 }

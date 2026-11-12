@@ -1,6 +1,6 @@
 # Implementation work log
 
-Updated: 2026-11-10
+Updated: 2026-11-11
 
 ## Current stopping point
 
@@ -36,13 +36,13 @@ Build free, pay once to share ($20 to start, test $29); visitors never pay; no c
 ### Core loop progress
 
 1. [x] Memorials: drafts, create form, memorial page, Your gardens (PR #29; migration applied). Publishing is admin-only until checkout.
-2. [x] Garden scene on the memorial page (owner feedback to address, from testing a real memorial):
-   - Leaves are plain ovals: replace the branch with a **fuller tree canopy framing the top of the scene**, with detailed, well-crafted leaves (varied shapes, veins, light and shadow, seeded variation), like the still life's flowers.
-   - Fireflies: **evening 5–8 faint, night 12–16 brighter** (add a separate night keyframe after evening). Each blinks with a real firefly flash pattern (quick glow, fade, dark pause, varied per firefly) and **moves while dark**, so it reappears somewhere else, like real fireflies. Respect reduced motion (static, dim glow).
-   - The garden is a small boxed card: make it fill the **full width and ~80% of the viewport height**, with no frame. Keep a name and years heading on the page for search engines.
-   - Bigger follow-up (DESIGN §6.1 direction, open questions in §12 item 8): a one-screen memorial page with **pullable objects on the left and right edges** (photo stack, notebook of notes, voice memo object, life story) instead of scrolling sections. Decided (DESIGN §6.1): bottom toolbar of icons on phones; drawers slide over the garden to a fixed maximum, with wide ‹ › arrows to page; photo stack, stack of notes, framed letter, sound-wave icon for memos; small labels with counts. Build after the four garden fixes.
-   - The path is not centered on the gravestone; align it with the stone's center.
-     Built: honeyed orchard blended by local time at page load (`core/timeOfDay.ts`, `features/garden/`), name and years engraved on the stone, empty vase and unlit candle. Still placeholders: the slot system (objects with attachment points), real flowers in the vase, moss.
+2. [x] Garden scene on the memorial page, with the four owner fixes done (PR "Garden fixes"):
+   - Path centered on the stone.
+   - Full width at 80% of the viewport height (minimum 288px), no frame; the name and years heading stays below. The view is fitted to the screen shape (`features/garden/view.ts`): the stone, vase and candle always stay in view, more sky shows on phones, and more garden shows on wide screens.
+   - Tree canopy framing the top (`features/garden/canopy.ts`): seeded boughs, twigs and three depth layers of leaves, each with a lit half, midrib, side veins, and the occasional blemish; on wide screens it parts around the stone.
+   - Night keyframe (22:30–04:00, evening 21:00 and again at dawn). Fireflies: evening 5–8, night 12–16 and brighter, counted when the page loads. Each flashes on its own rhythm (some double-flash), drifts while lit, and moves while dark (`Fireflies.tsx`, CSS in `global.css`). Reduced motion: still, dim glow. They avoid the stone face.
+   - Next: the one-screen memorial page (DESIGN §6.1): pullable objects on the left and right edges on desktop, a bottom toolbar of icons on phones, drawers that slide over the garden to a fixed maximum with wide ‹ › arrows, small labels with counts.
+     Still placeholders: the slot system (objects with attachment points), real flowers in the vase, moss.
 3. [ ] Light a candle. Anonymous sign-ins are enabled (owner) and content writes are blocked for anonymous users (migration `20261111000000`). Turnstile site created (site key in SETUP.md); Supabase CAPTCHA is on and Google sign-in still works (owner confirmed). `VITE_TURNSTILE_SITE_KEY` is set in Cloudflare Pages (Production and Preview). Still needed: the app sends the captcha token with the anonymous sign-in; CSP allows `https://challenges.cloudflare.com` (script and frame).
 4. [ ] Notes.
 5. [ ] Cleaning the stone.
@@ -91,7 +91,9 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 - [ ] Your gardens (account menu) lists drafts; "Share this garden" publishes (you are admin).
 - [ ] Open a shared memorial in a private window (signed out): it shows without the draft notice or Share button; a draft's link shows "This path leads nowhere".
 - [ ] On a phone: the form and memorial page fit without sideways scrolling.
-- [ ] The memorial page garden matches your local time of day (morning, day, golden hour, evening); refresh after the hour changes.
+- [ ] The memorial page garden matches your local time of day (morning, day, golden hour, evening, night); refresh after the hour changes.
+- [ ] The garden fills the width and most of the screen on your phone and computer, with the path centered on the stone and the tree canopy across the top.
+- [ ] In the evening (around 9 pm) a few fireflies blink; late at night (after 10:30 pm) more of them, brighter, blinking and moving between flashes. With Reduce Motion on (phone accessibility settings), they hold still.
 - [ ] Locally (`pnpm dev`): `/dev/art` animation (swaying flowers, flickering flame, drifting petal), `/dev/palettes`, `/dev/directions`.
 
 ### Reminders
