@@ -255,5 +255,17 @@ test.describe('garden scene', () => {
     await expect(firefly).toBeAttached();
     await expect(firefly).toHaveCSS('animation-name', 'none');
     await expect(firefly).toHaveCSS('opacity', '0.45');
+    await expect(page.locator('.garden-leaf-fall').first()).toHaveCSS('display', 'none');
+  });
+
+  test('a few leaves fall from the canopy', async ({ page }) => {
+    await page.goto('/m/rosa-martinez-2024');
+    const leaves = page.locator('[data-falling-leaf]');
+    await expect(leaves.first()).toBeAttached();
+    expect(await leaves.count()).toBeGreaterThanOrEqual(3);
+    await expect(page.locator('.garden-leaf-fall').first()).toHaveCSS(
+      'animation-name',
+      'garden-leaf-fall',
+    );
   });
 });

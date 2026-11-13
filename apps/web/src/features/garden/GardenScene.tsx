@@ -1,6 +1,7 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { blendForHour, dominantPhase, localHour, mixHex, mixRecord } from '@/core/timeOfDay';
 import { buildCanopy, type CanopyLeaf } from './canopy';
+import { FallingLeaves } from './FallingLeaves';
 import { Fireflies } from './Fireflies';
 import { frontRing, seededRandom, smoothPath, vesselOutline, type Point } from './geometry';
 import { ORCHARD, type GardenPalette } from './palette';
@@ -229,15 +230,6 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
         <filter id={id('dapple')} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="9" />
         </filter>
-        <filter id={id('leafShadow')} x="-10%" y="-10%" width="120%" height="130%">
-          <feDropShadow
-            dx="1.5"
-            dy="3"
-            stdDeviation="2.5"
-            floodColor={p.shadow}
-            floodOpacity="0.28"
-          />
-        </filter>
         <filter id={id('grain')}>
           <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" />
           <feColorMatrix values="0 0 0 0 0.35  0 0 0 0 0.28  0 0 0 0 0.2  0 0 0 0.1 0" />
@@ -252,7 +244,6 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
       <path d={BACKDROP.leftHedge} fill={p.hedge} />
       <path d={BACKDROP.rightHedge} fill={p.hedge} />
       <path d={BACKDROP.hedgeShade} fill={p.hedgeShade} opacity="0.5" />
-      <rect x="70" y="326" width="220" height="38" rx="12" fill={p.wall} />
       <path d={BACKDROP.ground} fill={url('ground')} />
       <path d={PATH} fill={p.path} opacity="0.75" />
 
@@ -345,14 +336,23 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
           <path key={index} d={d} fill={p.wood} />
         ))}
         <path d={canopy.twigs} fill="none" stroke={p.twig} strokeWidth="2" strokeLinecap="round" />
-        <g filter={url('leafShadow')}>
-          <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 1)} p={p} />
-        </g>
-        <g filter={url('leafShadow')}>
-          <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 2)} p={p} />
-        </g>
+        <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 1)} p={p} />
+        <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 2)} p={p} />
       </g>
 
+      <FallingLeaves
+        count={view.width > 900 ? 4 : 3}
+        colors={[0.45, 0.7, 0.9].map((tone) => {
+          const fill = leafFill(tone, p);
+          return { fill, light: mixHex(fill, p.leafLight, 0.35), vein: p.leafVein };
+        })}
+        area={{
+          left: view.x + 30,
+          right: right - 30,
+          top: view.y + canopy.depth * 0.6,
+          bottom: 470,
+        }}
+      />
       <Fireflies
         count={fireflies}
         glow={p.fireflyGlow}

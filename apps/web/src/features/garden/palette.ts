@@ -9,7 +9,6 @@ export type GardenPalette = {
   haze: string;
   hedge: string;
   hedgeShade: string;
-  wall: string;
   ground: string;
   groundShade: string;
   path: string;
@@ -62,7 +61,6 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
     haze: '#f3e6cf',
     hedge: '#8f9258',
     hedgeShade: '#767a48',
-    wall: '#cdbca3',
     ground: '#b9a56a',
     groundShade: '#9c8a55',
     path: '#ead2a6',
@@ -92,7 +90,6 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
     haze: '#f3ebd6',
     hedge: '#919858',
     hedgeShade: '#777e47',
-    wall: '#d0bfa5',
     ground: '#bba96a',
     groundShade: '#9e8d56',
     path: '#eed7aa',
@@ -122,7 +119,6 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
     haze: '#f5dcb4',
     hedge: '#8a8a4e',
     hedgeShade: '#6f7140',
-    wall: '#c8b49a',
     ground: '#b49a5c',
     groundShade: '#957e48',
     path: '#e8c999',
@@ -156,7 +152,6 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
     haze: '#7c6670',
     hedge: '#4a4a3a',
     hedgeShade: '#3a3a2e',
-    wall: '#7f746d',
     ground: '#5a5440',
     groundShade: '#4a4535',
     path: '#8a7d6c',
@@ -190,7 +185,6 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
     haze: '#3a3a4e',
     hedge: '#2a2e28',
     hedgeShade: '#202420',
-    wall: '#504c50',
     ground: '#34362c',
     groundShade: '#282a22',
     path: '#5a5650',
