@@ -370,6 +370,8 @@ A Stripe Checkout one-time payment with preset amounts ($3/$5/$10/custom, minimu
 > - **Objects:** photos as a **photo stack**, notes as a **stack of notes**, the bio as a **framed letter**, voice memos as a **sound-wave icon** (provisional; the owner may revisit).
 > - **Labels:** every object has a small visible label with a count, e.g. "Notes (12)".
 >
+> **Built (2026-11-11):** desktop places the photos and life story on the left edge and the notes and voice memos on the right, clear of the stone, vase and candle. The phone toolbar is **translucent** (card color at 75% with a light blur) and sits along the garden's bottom edge in the order photos, notes, life story, voice memos. Drawers reach at most 40% of the width (side drawer, desktop) or 70% of the height (bottom sheet, phone). Lists page six items at a time.
+>
 > A visible text heading (name and years) stays on the page for search engines and screen readers, and the bio text is always in the page markup even when its object is closed. Open questions are in §12 (item 8). The scroll-based layout below is kept until this is built.
 
 **Each memorial is its own garden** (Tenet 7): one page, one scene, one gravestone. The scene, the stone style, and its decoration slots all belong to that single memorial. Browse and search pages (`/`, `/browse`, later `/pets`) show memorial **cards** (stone thumbnail, name, dates), never a shared multi-grave scene.

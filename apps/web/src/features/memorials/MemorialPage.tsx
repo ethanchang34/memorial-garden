@@ -7,6 +7,7 @@ import { MemorialError, type Memorial } from '@/core/memorial';
 import { useSession } from '@/features/auth/session';
 import { GardenScene } from '@/features/garden/GardenScene';
 import { NotFoundPage } from '@/features/not-found/NotFoundPage';
+import { MemorialObjects } from './objects/MemorialObjects';
 import { useMemorial, usePublishMemorial } from './useMemorials';
 
 export function MemorialPage() {
@@ -29,6 +30,8 @@ export function MemorialPage() {
   if (!memorial.data) return <NotFoundPage />;
   return <MemorialView memorial={memorial.data} />;
 }
+
+const NO_CONTENT_YET = { photos: 0, notes: 0, memos: 0 };
 
 function MemorialView({ memorial }: { memorial: Memorial }) {
   const { t } = useTranslation();
@@ -62,12 +65,13 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
           </Button>
         </div>
       ) : null}
-      <figure className="h-[80dvh] min-h-72 w-full overflow-hidden" data-garden="">
+      <figure className="relative h-[80dvh] min-h-72 w-full overflow-hidden" data-garden="">
         <GardenScene
           name={memorial.fullName}
           dates={format.lifespan(memorial.born, memorial.died)}
           label={t('memorial.page.gardenLabel', { name: memorial.fullName })}
         />
+        <MemorialObjects memorial={memorial} counts={NO_CONTENT_YET} />
       </figure>
       <header className="mx-auto flex w-[min(100%-2rem,48rem)] flex-col items-center gap-2 py-8 text-center">
         <h1 className="max-w-full [overflow-wrap:anywhere]">{memorial.fullName}</h1>
