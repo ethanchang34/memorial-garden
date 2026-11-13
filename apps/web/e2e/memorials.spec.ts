@@ -269,3 +269,57 @@ test.describe('garden scene', () => {
     );
   });
 });
+
+test.describe('memorial keepsakes', () => {
+  test.beforeEach(({ supabase }) => {
+    supabase.memorials.push(
+      memorialRow({
+        slug: 'rosa-martinez-2024',
+        full_name: 'Rosa Martínez',
+        died_date: '2024-07-19',
+        epitaph: 'Always in our garden',
+      }),
+    );
+  });
+
+  test('objects open drawers over the garden and return focus', async ({ page }, testInfo) => {
+    await page.goto('/m/rosa-martinez-2024');
+    const desktop = testInfo.project.name === 'desktop';
+    const scope = page.locator(desktop ? '[data-object]' : '[data-toolbar]');
+    await expect(scope).toHaveCount(4);
+    const hidden = page.locator(desktop ? '[data-toolbar]' : '[data-object]');
+    await expect(hidden.first()).toBeHidden();
+
+    for (const [name, empty] of [
+      ['Photos', 'No photos yet.'],
+      ['Notes', 'No notes yet.'],
+      ['Voice memos', 'No voice memos yet.'],
+    ] as const) {
+      const trigger = page.getByRole('button', { name, exact: true });
+      await trigger.click();
+      const drawer = page.getByRole('dialog', { name });
+      await expect(drawer).toBeVisible();
+      await expect(drawer).toContainText(empty);
+      const box = await drawer.boundingBox();
+      const viewport = page.viewportSize()!;
+      if (desktop) expect(box!.width).toBeLessThanOrEqual(viewport.width * 0.41);
+      else expect(box!.height).toBeLessThanOrEqual(viewport.height * 0.71);
+      await page.keyboard.press('Escape');
+      await expect(drawer).toBeHidden();
+      await expect(trigger).toBeFocused();
+    }
+
+    await page.getByRole('button', { name: 'Life story', exact: true }).click();
+    const story = page.getByRole('dialog', { name: 'Life story' });
+    await expect(story).toContainText('Always in our garden');
+    if (process.env['GARDEN_SHOTS']) {
+      await story.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
+      await page.screenshot({ path: testInfo.outputPath('story-open.png') });
+    }
+    await story.getByRole('button', { name: 'Close' }).click();
+    await expect(story).toBeHidden();
+    if (process.env['GARDEN_SHOTS']) {
+      await page.screenshot({ path: testInfo.outputPath('objects.png') });
+    }
+  });
+});

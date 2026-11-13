@@ -44,7 +44,7 @@ Build free, pay once to share ($20 to start, test $29); visitors never pay; no c
    - Owner tuning: boughs arc gently from the corners, ~10% fewer leaves, no blurred leaf shadow (it read as a halo), stone wall removed (a proper cat bed comes with the cat).
    - Bushes redrawn (`hedges.ts`): two rows of overlapping rounded clumps, each with a shadow edge, a sunlit rim scaled to the light level, and small leaf-tip flecks; the back row is hazier. Leaves a gap behind the stone. The ground light patches were removed (they weren't tied to the canopy; real dapples can come with lighting polish).
    - Falling leaves at every time of day: 3–4 leaves drift and sway down from the canopy, then reappear elsewhere (`FallingLeaves.tsx`); hidden with reduced motion.
-   - Next: the one-screen memorial page (DESIGN §6.1): pullable objects on the left and right edges on desktop, a bottom toolbar of icons on phones, drawers that slide over the garden to a fixed maximum with wide ‹ › arrows, small labels with counts.
+   - One-screen memorial page (DESIGN §6.1): code-drawn keepsakes on the garden edges on desktop (photo stack and framed life story on the left, notes and voice memos on the right) that lift on hover, and a translucent bottom toolbar of the same icons on phones. Each opens a drawer over the garden (`components/ui/drawer.tsx`, on Radix Dialog): a side drawer up to 40% of the width on desktop, a bottom sheet up to 70% of the height on phones. Escape or × closes it and focus returns to the object. Lists page with wide ‹ › arrows (`components/ui/pager.tsx`, 6 per page). Counts and lists are empty until notes, photos and memos exist; the life story drawer shows the name, years and epitaph.
      Still placeholders: the slot system (objects with attachment points), real flowers in the vase, moss.
 3. [ ] Light a candle. Anonymous sign-ins are enabled (owner) and content writes are blocked for anonymous users (migration `20261111000000`). Turnstile site created (site key in SETUP.md); Supabase CAPTCHA is on and Google sign-in still works (owner confirmed). `VITE_TURNSTILE_SITE_KEY` is set in Cloudflare Pages (Production and Preview). Still needed: the app sends the captcha token with the anonymous sign-in; CSP allows `https://challenges.cloudflare.com` (script and frame).
 4. [ ] Notes.
@@ -97,6 +97,8 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 - [ ] The memorial page garden matches your local time of day (morning, day, golden hour, evening, night); refresh after the hour changes.
 - [ ] The garden fills the width and most of the screen on your phone and computer, with the path centered on the stone, the tree canopy across the top, and a few leaves falling.
 - [ ] In the evening (around 9 pm) a few fireflies blink; late at night (after 10:30 pm) more of them, brighter, blinking and moving between flashes. With Reduce Motion on (phone accessibility settings), they hold still.
+- [ ] On a computer, the photos, life story, notes and voice memos objects sit on the garden's left and right edges, lift when you hover over them, and open a drawer from that side; Escape or × closes it.
+- [ ] On a phone, the same four open from the bottom toolbar as a sheet that leaves the top of the garden visible.
 - [ ] Locally (`pnpm dev`): `/dev/art` animation (swaying flowers, flickering flame, drifting petal), `/dev/palettes`, `/dev/directions`.
 
 ### Reminders

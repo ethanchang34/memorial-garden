@@ -88,6 +88,30 @@
       "published": "Shared",
       "hidden": "Hidden",
       "removed": "Removed"
+    },
+    "objects": {
+      "toolbar": "Memories",
+      "withCount": "{{name}} ({{count}})",
+      "photos": {
+        "label": "Photos",
+        "title": "Photos",
+        "empty": "No photos yet."
+      },
+      "notes": {
+        "label": "Notes",
+        "title": "Notes",
+        "empty": "No notes yet."
+      },
+      "story": {
+        "label": "Life story",
+        "title": "Life story",
+        "empty": "The life story hasn’t been written yet."
+      },
+      "memos": {
+        "label": "Voice memos",
+        "title": "Voice memos",
+        "empty": "No voice memos yet."
+      }
     }
   },
   "home": {
@@ -108,5 +132,11 @@
   },
   "dates": {
     "circa": "c. {{year}}"
+  },
+  "pager": {
+    "label": "Pages",
+    "previous": "Previous page",
+    "next": "Next page",
+    "position": "Page {{page}} of {{total}}"
   }
 }

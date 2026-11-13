@@ -71,6 +71,18 @@
       transform: translateY(100%);
     }
   }
+  --animate-drawer-left: drawer-left 380ms var(--ease-soft);
+  --animate-drawer-right: drawer-right 380ms var(--ease-soft);
+  @keyframes drawer-left {
+    from {
+      transform: translateX(-100%);
+    }
+  }
+  @keyframes drawer-right {
+    from {
+      transform: translateX(100%);
+    }
+  }
 
   --font-display: 'Fraunces', Georgia, serif;
   --font-sans: 'Nunito', ui-rounded, system-ui, sans-serif;
