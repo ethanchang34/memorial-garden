@@ -343,13 +343,13 @@ h1 {
     opacity: 0;
     transform: translate(0, 0);
   }
-  7% {
+  10% {
     opacity: 1;
   }
-  18% {
+  27% {
     opacity: 0.9;
   }
-  44% {
+  66% {
     opacity: 0;
     transform: translate(var(--firefly-dx), var(--firefly-dy));
   }
@@ -364,16 +364,16 @@ h1 {
     opacity: 0;
     transform: translate(0, 0);
   }
-  5% {
+  7% {
     opacity: 1;
   }
-  11% {
+  16% {
     opacity: 0.15;
   }
-  20% {
+  30% {
     opacity: 0.95;
   }
-  46% {
+  69% {
     opacity: 0;
     transform: translate(var(--firefly-dx), var(--firefly-dy));
   }

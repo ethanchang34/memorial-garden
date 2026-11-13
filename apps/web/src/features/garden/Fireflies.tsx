@@ -30,7 +30,7 @@ function pick(area: FireflyArea) {
 
 function Firefly({ area, core, halo }: { area: FireflyArea; core: string; halo: string }) {
   const [rhythm] = useState(() => ({
-    duration: 3 + Math.random() * 4,
+    duration: 2 + Math.random() * 2.6,
     delay: Math.random() * 6,
     double: Math.random() < 0.3,
     dx: (Math.random() - 0.5) * 18,
