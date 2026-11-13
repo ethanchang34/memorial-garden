@@ -21,8 +21,6 @@ export type GardenPalette = {
   leafVein: string;
   twig: string;
   wood: string;
-  dapple: string;
-  dappleOpacity: number;
   candleGlow: number;
   fireflyMin: number;
   fireflyMax: number;
@@ -73,8 +71,6 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
     leafVein: '#f0d3a0',
     twig: '#5e3f27',
     wood: '#745038',
-    dapple: '#fff0cc',
-    dappleOpacity: 0.2,
     candleGlow: 0.15,
     fireflyMin: 0,
     fireflyMax: 0,
@@ -102,8 +98,6 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
     leafVein: '#f3d9a8',
     twig: '#5e3f27',
     wood: '#745038',
-    dapple: '#fff4d6',
-    dappleOpacity: 0.24,
     candleGlow: 0.1,
     fireflyMin: 0,
     fireflyMax: 0,
@@ -131,8 +125,6 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
     leafVein: '#f2c98a',
     twig: '#58391f',
     wood: '#6e4a32',
-    dapple: '#ffd690',
-    dappleOpacity: 0.28,
     candleGlow: 0.35,
     fireflyMin: 0,
     fireflyMax: 0,
@@ -164,8 +156,6 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
     leafVein: '#a3765a',
     twig: '#3a281d',
     wood: '#4f3627',
-    dapple: '#ffcf80',
-    dappleOpacity: 0.12,
     candleGlow: 1,
     fireflyMin: 5,
     fireflyMax: 8,
@@ -197,8 +187,6 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
     leafVein: '#7a6352',
     twig: '#241a15',
     wood: '#33261e',
-    dapple: '#ffcf80',
-    dappleOpacity: 0.06,
     candleGlow: 1,
     fireflyMin: 12,
     fireflyMax: 16,
