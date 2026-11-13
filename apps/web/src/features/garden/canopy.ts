@@ -73,6 +73,7 @@ export function buildCanopy(view: View, seed = 11): Canopy {
   let twigs = '';
 
   function addLeaf(x: number, y: number, angle: number, layer: 0 | 1 | 2, size: number) {
+    if (random() < 0.1) return;
     const length = size * between(0.85, 1.15);
     const shape = leafShape({
       length,
@@ -127,16 +128,16 @@ export function buildCanopy(view: View, seed = 11): Canopy {
     const at = (fraction: number) => anchor + dir * reach * fraction;
 
     const main: Curve = [
-      [anchor - dir * 30, top + depth * 0.2],
-      [at(0.35), top + depth * 0.08],
-      [at(0.7), top + depth * 0.5],
-      [at(1), top + depth * 0.58],
+      [anchor - dir * 30, top + depth * 0.62],
+      [at(0.3), top + depth * 0.2],
+      [at(0.68), top + depth * 0.18],
+      [at(1), top + depth * 0.5],
     ];
     const upper: Curve = [
-      [anchor - dir * 20, top - 6],
-      [at(0.3), top + depth * 0.05],
-      [at(0.6), top + depth * 0.04],
-      [at(0.85), top + depth * 0.22],
+      [anchor - dir * 20, top + depth * 0.3],
+      [at(0.3), top - depth * 0.04],
+      [at(0.6), top - depth * 0.02],
+      [at(0.85), top + depth * 0.2],
     ];
 
     for (let x = 0; x <= reach * 1.08; x += 24) {
