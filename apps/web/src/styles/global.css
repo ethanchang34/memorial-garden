@@ -398,3 +398,48 @@ h1 {
     opacity: 0.45;
   }
 }
+
+@keyframes garden-leaf-fall {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+  6% {
+    opacity: 1;
+  }
+  82% {
+    opacity: 1;
+    transform: translate(var(--leaf-drift), var(--leaf-fall));
+  }
+  90%,
+  100% {
+    opacity: 0;
+    transform: translate(var(--leaf-drift), var(--leaf-fall));
+  }
+}
+
+@keyframes garden-leaf-sway {
+  0% {
+    transform: translateX(-14px) rotate(-38deg);
+  }
+  100% {
+    transform: translateX(14px) rotate(38deg);
+  }
+}
+
+.garden-leaf-fall {
+  opacity: 0;
+  animation: garden-leaf-fall 14s linear infinite;
+}
+
+.garden-leaf-sway {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: garden-leaf-sway 3s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garden-leaf-fall {
+    display: none;
+  }
+}
