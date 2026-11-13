@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildCanopy } from './canopy';
 import { leafShape } from './geometry';
+import { buildHedgeRow } from './hedges';
 import { fitView, GROUND_Y, SCENE_SPAN } from './view';
 
 const STONE = { left: 332, right: 468, top: 188 };
@@ -56,4 +57,24 @@ describe('buildCanopy', () => {
       }
     });
   }
+});
+
+describe('buildHedgeRow', () => {
+  it('is repeatable and leaves the gap behind the stone open', () => {
+    const spec = {
+      from: -400,
+      to: 1200,
+      base: 360,
+      radius: [24, 36],
+      gap: [330, 470],
+      seed: 3,
+    } as const;
+    const row = buildHedgeRow(spec);
+    expect(buildHedgeRow(spec)).toEqual(row);
+    expect(row.length).toBeGreaterThan(40);
+    for (const lobe of row) {
+      const x = Number(/^M(-?[\d.]+)/.exec(lobe.shade)![1]);
+      expect(x <= 350 || x >= 470).toBe(true);
+    }
+  });
 });

@@ -1,6 +1,7 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { blendForHour, dominantPhase, localHour, mixHex, mixRecord } from '@/core/timeOfDay';
 import { buildCanopy, type CanopyLeaf } from './canopy';
+import { buildHedgeRow, type HedgeLobe } from './hedges';
 import { FallingLeaves } from './FallingLeaves';
 import { Fireflies } from './Fireflies';
 import { frontRing, seededRandom, smoothPath, vesselOutline, type Point } from './geometry';
@@ -53,21 +54,6 @@ function closeToGround(points: readonly Point[]): string {
   return `${smoothPath(points)} L${lastX} ${GROUND_Y} L${firstX} ${GROUND_Y}Z`;
 }
 
-function hedgePath(from: number, to: number, random: () => number): string {
-  let d = `M${from} 324`;
-  let x = from;
-  while (x < to) {
-    const width = Math.min(to - x, 46 + random() * 34);
-    const rise = 22 + random() * 18;
-    const valley = 316 + random() * 8;
-    const end = x + width;
-    const y = end >= to ? 324 : valley;
-    d += ` C${(x + width * 0.05).toFixed(1)} ${(valley - rise * 1.3).toFixed(1)} ${(end - width * 0.05).toFixed(1)} ${(valley - rise * 1.3).toFixed(1)} ${end.toFixed(1)} ${y.toFixed(1)}`;
-    x = end;
-  }
-  return `${d} L${to} ${GROUND_Y} L${from} ${GROUND_Y}Z`;
-}
-
 const BACKDROP = (() => {
   const random = seededRandom(5);
   const hill: Point[] = [];
@@ -76,14 +62,6 @@ const BACKDROP = (() => {
   }
   return {
     farHill: closeToGround(hill),
-    leftHedge: hedgePath(SPAN_LEFT, 318, random),
-    rightHedge: hedgePath(500, SPAN_RIGHT, random),
-    hedgeShade: closeToGround([
-      [SPAN_LEFT, 354],
-      [-200, 346],
-      [120, 342],
-      [318, 350],
-    ]),
     ground: closeToGround([
       [SPAN_LEFT, 380],
       [-400, 368],
@@ -95,6 +73,38 @@ const BACKDROP = (() => {
     ]),
   };
 })();
+
+const HEDGE_SPAN = { from: -420, to: 1220 };
+
+const HEDGES = {
+  back: buildHedgeRow({ ...HEDGE_SPAN, base: 336, radius: [30, 44], seed: 21 }),
+  front: buildHedgeRow({ ...HEDGE_SPAN, base: 360, radius: [24, 36], gap: [330, 470], seed: 22 }),
+};
+
+function Hedge({
+  lobes,
+  color,
+  shade,
+  light,
+}: {
+  lobes: HedgeLobe[];
+  color: string;
+  shade: string;
+  light: string;
+}) {
+  return (
+    <g aria-hidden="true">
+      {lobes.map((lobe, index) => (
+        <g key={index}>
+          <path d={lobe.shade} fill={shade} />
+          <path d={lobe.light} fill={light} />
+          <path d={lobe.body} fill={color} />
+          <path d={lobe.tips} fill={light} opacity="0.7" />
+        </g>
+      ))}
+    </g>
+  );
+}
 
 const PATH = 'M352 500 C374 456 391 428 388 404 L412 404 C409 428 426 456 448 500Z';
 
@@ -158,6 +168,7 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
   const view = fitView(aspect);
   const canopy = useMemo(() => buildCanopy(fitView(aspect)), [aspect]);
   const right = view.x + view.width;
+  const rim = 0.08 + 0.3 * p.sunGlow;
   const sunX = Math.min(620, right - 90);
   const sunY = Math.min(175, view.y + canopy.depth + 40);
   const sunR = Math.min(40, Math.max(24, view.width * 0.05));
@@ -227,7 +238,7 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
         <filter id={id('soft')} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="6" />
         </filter>
-        <filter id={id('dapple')} x="-50%" y="-50%" width="200%" height="200%">
+        <filter id={id('glow')} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="9" />
         </filter>
         <filter id={id('grain')}>
@@ -241,9 +252,18 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
       <circle cx={sunX} cy={sunY} r={sunR} fill={p.sun} opacity="0.92" />
       <path d={BACKDROP.farHill} fill={p.farHill} />
       <rect x={SPAN_LEFT} y="220" width={SPAN_WIDTH} height="120" fill={url('haze')} />
-      <path d={BACKDROP.leftHedge} fill={p.hedge} />
-      <path d={BACKDROP.rightHedge} fill={p.hedge} />
-      <path d={BACKDROP.hedgeShade} fill={p.hedgeShade} opacity="0.5" />
+      <Hedge
+        lobes={HEDGES.back}
+        color={mixHex(p.hedge, p.haze, 0.35)}
+        shade={mixHex(p.hedgeShade, p.haze, 0.3)}
+        light={mixHex(mixHex(p.hedge, p.sun, rim), p.haze, 0.35)}
+      />
+      <Hedge
+        lobes={HEDGES.front}
+        color={p.hedge}
+        shade={p.hedgeShade}
+        light={mixHex(p.hedge, p.sun, rim)}
+      />
       <path d={BACKDROP.ground} fill={url('ground')} />
       <path d={PATH} fill={p.path} opacity="0.75" />
 
@@ -304,31 +324,13 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
           r="60"
           fill={p.candleLight}
           opacity={0.12 * p.candleGlow}
-          filter={url('dapple')}
+          filter={url('glow')}
         />
         <ellipse cx="508" cy="416" rx="20" ry="4" fill={p.wood} opacity="0.7" />
         <rect x="498" y="384" width="20" height="30" rx="4" fill={url('wax')} />
         <ellipse cx="508" cy="385" rx="10" ry="2.5" fill={p.wax} />
         <path d="M508 385 L508 378" stroke={p.wick} strokeWidth="1.6" strokeLinecap="round" />
       </g>
-
-      {[
-        [250, 430, 46, 10],
-        [560, 444, 60, 12],
-        [660, 416, 38, 8],
-        [130, 456, 52, 10],
-      ].map(([cx, cy, rx, ry], index) => (
-        <ellipse
-          key={index}
-          cx={cx}
-          cy={cy}
-          rx={rx}
-          ry={ry}
-          fill={p.dapple}
-          opacity={p.dappleOpacity * 1.6}
-          filter={url('dapple')}
-        />
-      ))}
 
       <g aria-hidden="true" data-canopy="">
         <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 0)} p={p} />
