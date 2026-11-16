@@ -4,7 +4,8 @@
   },
   "common": {
     "close": "Close",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "cancel": "Cancel"
   },
   "auth": {
     "signIn": "Sign in",
@@ -98,6 +99,39 @@
       "dailyLimit": "You've already lit a candle here today. Come back tomorrow.",
       "captchaFailed": "We couldn't check that you're a person. Please try again.",
       "failed": "The candle didn't light. Please try again."
+    },
+    "notes": {
+      "intro": "Notes from family and friends, newest first.",
+      "write": "Write a note",
+      "fieldLabel": "Your note",
+      "placeholder": "Share a memory, or what you would tell them today.",
+      "counter": "{{count}} / {{max}}",
+      "problem": {
+        "empty": "Write something before posting.",
+        "too_long": "Notes can be up to {{max}} characters.",
+        "characters": "Remove the unusual characters and try again."
+      },
+      "post": "Post note",
+      "posted": "Your note is in the garden.",
+      "save": "Save",
+      "edit": "Edit",
+      "edited": "edited · {{date}}",
+      "delete": "Delete",
+      "confirmDelete": "Delete this note for good?",
+      "deleted": "Note deleted.",
+      "hide": "Hide",
+      "unhide": "Show again",
+      "hidden": "Note hidden from visitors.",
+      "shown": "Note shown again.",
+      "hiddenLabel": "Hidden by the family",
+      "you": "You",
+      "someone": "A member",
+      "readMore": "Read more",
+      "showLess": "Show less",
+      "signInPrompt": "Sign in to leave a note. Your display name appears with it, never your email.",
+      "rateLimit": "You’ve written a lot of notes this hour. Please try again a little later.",
+      "newAccountLimit": "New accounts can post 5 notes on their first day. Please come back tomorrow.",
+      "saveFailed": "The note didn’t save. Please try again."
     },
     "objects": {
       "toolbar": "Memories",

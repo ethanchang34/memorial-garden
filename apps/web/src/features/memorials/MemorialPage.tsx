@@ -5,11 +5,13 @@ import { useDateFormat } from '@/app/useDateFormat';
 import { Button } from '@/components/ui/button';
 import { NO_CANDLES } from '@/core/candles';
 import { MemorialError, type Memorial } from '@/core/memorial';
+import { visibleCount } from '@/core/notes';
 import { useSession } from '@/features/auth/session';
 import { GardenScene } from '@/features/garden/GardenScene';
 import { NotFoundPage } from '@/features/not-found/NotFoundPage';
 import { LightCandle } from './candles/LightCandle';
 import { useCandles, useLightCandle } from './candles/useCandles';
+import { useNotes } from './notes/useNotes';
 import { MemorialObjects } from './objects/MemorialObjects';
 import { useMemorial, usePublishMemorial } from './useMemorials';
 
@@ -34,8 +36,6 @@ export function MemorialPage() {
   return <MemorialView memorial={memorial.data} />;
 }
 
-const NO_CONTENT_YET = { photos: 0, notes: 0, memos: 0 };
-
 function MemorialView({ memorial }: { memorial: Memorial }) {
   const { t } = useTranslation();
   const format = useDateFormat();
@@ -45,6 +45,8 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
   const candles = useCandles(memorial.id);
   const light = useLightCandle(memorial.id);
   const candleState = candles.data ?? NO_CANDLES;
+  const notes = useNotes(memorial.id);
+  const noteList = notes.data ?? [];
   const canLight =
     memorial.status === 'published' && session.status !== 'unavailable' && candles.isSuccess;
 
@@ -91,7 +93,12 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
             ) : null
           }
         />
-        <MemorialObjects memorial={memorial} counts={NO_CONTENT_YET} />
+        <MemorialObjects
+          memorial={memorial}
+          counts={{ photos: 0, notes: visibleCount(noteList), memos: 0 }}
+          notes={noteList}
+          notesLoading={notes.isPending}
+        />
       </figure>
       <header className="mx-auto flex w-[min(100%-2rem,48rem)] flex-col items-center gap-2 py-8 text-center">
         <h1 className="max-w-full [overflow-wrap:anywhere]">{memorial.fullName}</h1>

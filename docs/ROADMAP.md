@@ -47,12 +47,13 @@ Each milestone is shippable on its own. Check items off as you go.
 
 ## M2 — Notes
 
-- [ ] `notes` table + RLS + rate limit; author edit ("edited" label) + delete
+- [x] `notes` table + RLS + rate limit; author edit ("edited" label) + delete
 - [ ] Filing-cabinet note stack: hover lift, date tooltip, All/Mine toggle, "mine" tabs
-- [ ] Owner hide/unhide; report button (notes and display names)
+- [x] Owner hide/unhide
+- [ ] Report button (notes and display names)
 - [ ] Display name change limit (5/day per user) enforced in the database, with pgTAP tests
 - [ ] Turnstile on submit
-- [ ] New-account limits (first 24h)
+- [x] New-account limits (first 24h): 5 notes (memorial and memo limits come with those features)
 - [ ] Owner notification bell (`notifications` table, triggers, Realtime or polling)
 - [ ] Memory prompts in the note composer (`memory_prompts`, ~30 seeded)
 

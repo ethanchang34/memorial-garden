@@ -4,8 +4,10 @@ import { useDateFormat } from '@/app/useDateFormat';
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer';
 import { Pager } from '@/components/ui/pager';
 import type { Memorial } from '@/core/memorial';
+import type { Note } from '@/core/notes';
 import { pageOf } from '@/lib/pages';
 import { cn } from '@/lib/utils';
+import { NotesPanel } from '../notes/NotesPanel';
 import { ObjectArt, type ObjectKey } from './ObjectArt';
 
 export type ObjectCounts = Record<Exclude<ObjectKey, 'story'>, number>;
@@ -23,9 +25,14 @@ const TOOLBAR_ORDER: readonly ObjectKey[] = ['photos', 'notes', 'story', 'memos'
 
 const PER_PAGE = 6;
 
-type MemorialObjectsProps = { memorial: Memorial; counts: ObjectCounts };
+type MemorialObjectsProps = {
+  memorial: Memorial;
+  counts: ObjectCounts;
+  notes: Note[];
+  notesLoading: boolean;
+};
 
-export function MemorialObjects({ memorial, counts }: MemorialObjectsProps) {
+export function MemorialObjects({ memorial, counts, notes, notesLoading }: MemorialObjectsProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState<ObjectKey | null>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
@@ -116,7 +123,13 @@ export function MemorialObjects({ memorial, counts }: MemorialObjectsProps) {
             <DrawerTitle className="font-display pr-10 text-2xl font-medium tracking-tight">
               {t(`memorial.objects.${key}.title`)}
             </DrawerTitle>
-            {key === 'story' ? <StoryBody memorial={memorial} /> : <ListBody kind={key} />}
+            {key === 'story' ? (
+              <StoryBody memorial={memorial} />
+            ) : key === 'notes' ? (
+              <NotesPanel memorial={memorial} notes={notes} loading={notesLoading} />
+            ) : (
+              <ListBody kind={key} />
+            )}
           </DrawerContent>
         </Drawer>
       ))}
@@ -139,7 +152,7 @@ function StoryBody({ memorial }: { memorial: Memorial }) {
   );
 }
 
-function ListBody({ kind }: { kind: Exclude<ObjectKey, 'story'> }) {
+function ListBody({ kind }: { kind: 'photos' | 'memos' }) {
   const { t } = useTranslation();
   const [page, setPage] = useState(0);
   const slice = pageOf<never>([], PER_PAGE, page);

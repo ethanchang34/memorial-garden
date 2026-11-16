@@ -58,6 +58,26 @@ export type Database = {
         };
         Relationships: [];
       };
+      notes: {
+        Row: {
+          id: string;
+          memorial_id: string;
+          author_id: string;
+          body: string;
+          status: 'visible' | 'hidden_by_owner' | 'removed';
+          created_at: string;
+          edited_at: string | null;
+        };
+        Insert: {
+          memorial_id: string;
+          author_id: string;
+          body: string;
+        };
+        Update: {
+          body?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: { [_ in never]: never };
     Functions: {
@@ -76,6 +96,10 @@ export type Database = {
       candle_state: {
         Args: { target_memorial: string };
         Returns: { lit_count: number; lit_until: string | null; lit_today: boolean }[];
+      };
+      set_note_hidden: {
+        Args: { note_id: string; hidden: boolean };
+        Returns: string;
       };
       light_candle: {
         Args: { target_memorial: string };

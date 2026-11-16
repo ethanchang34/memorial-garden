@@ -20,6 +20,30 @@ export type MemorialRow = {
   status: 'draft' | 'published' | 'hidden' | 'removed';
 };
 
+export type NoteRow = {
+  id: string;
+  memorial_id: string;
+  author_id: string;
+  body: string;
+  status: 'visible' | 'hidden_by_owner' | 'removed';
+  created_at: string;
+  edited_at: string | null;
+};
+
+let noteCounter = 0;
+export function noteRow(
+  overrides: Partial<NoteRow> & Pick<NoteRow, 'memorial_id' | 'author_id' | 'body'>,
+): NoteRow {
+  noteCounter += 1;
+  return {
+    id: `00000000-0000-4000-a000-${String(noteCounter).padStart(12, '0')}`,
+    status: 'visible',
+    created_at: new Date(Date.UTC(2026, 10, 1, 12) + noteCounter * 60_000).toISOString(),
+    edited_at: null,
+    ...overrides,
+  };
+}
+
 let memorialCounter = 0;
 export function memorialRow(
   overrides: Partial<MemorialRow> & Pick<MemorialRow, 'full_name' | 'died_date'>,
@@ -58,6 +82,9 @@ export type SupabaseMock = {
   signedIn: boolean;
   visitor: boolean;
   candles: { lit: number; litToday: boolean; failNext?: 'daily_limit' };
+  notes: NoteRow[];
+  noteFailNext?: 'note_rate_limit' | 'note_new_account_limit';
+  displayNames: Record<string, string>;
   calls: { method: string; path: string; body: unknown }[];
   unexpected: string[];
 };
@@ -121,6 +148,8 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
     signedIn: false,
     visitor: false,
     candles: { lit: 0, litToday: false },
+    notes: [],
+    displayNames: {},
     async signIn(profile = {}) {
       mock.signedIn = true;
       Object.assign(mock.profile, profile);
@@ -214,6 +243,69 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
         );
       row.status = 'published';
       return json(row.slug);
+    }
+    const viewerId = mock.signedIn ? TEST_USER_ID : mock.visitor ? TEST_VISITOR_ID : null;
+    const eqParam = (key: string) => url.searchParams.get(key)?.replace(/^eq\./, '');
+    if (url.pathname === '/rest/v1/notes' && method === 'GET') {
+      const memorialId = eqParam('memorial_id');
+      const rows = mock.notes
+        .filter((note) => note.memorial_id === memorialId && note.status !== 'removed')
+        .filter((note) => {
+          const memorial = mock.memorials.find((row) => row.id === note.memorial_id);
+          const owner = Boolean(viewerId && memorial?.owner_id === viewerId);
+          return (
+            owner ||
+            note.author_id === viewerId ||
+            (note.status === 'visible' && memorial?.status === 'published')
+          );
+        })
+        .sort((a, b) => b.created_at.localeCompare(a.created_at));
+      return json(rows);
+    }
+    if (url.pathname === '/rest/v1/notes' && method === 'POST') {
+      if (!mock.signedIn) {
+        return json({ code: '42501', message: 'Not allowed', hint: null, details: null }, 403);
+      }
+      if (mock.noteFailNext) {
+        const hint = mock.noteFailNext;
+        delete mock.noteFailNext;
+        return json({ code: 'P0001', message: 'Limit', hint, details: null }, 400);
+      }
+      const input = body as Pick<NoteRow, 'memorial_id' | 'author_id' | 'body'>;
+      const row = noteRow({ ...input, created_at: new Date().toISOString() });
+      mock.notes.push(row);
+      return json(row, 201);
+    }
+    if (url.pathname === '/rest/v1/notes' && (method === 'PATCH' || method === 'DELETE')) {
+      const note = mock.notes.find((row) => row.id === eqParam('id'));
+      if (!note || note.author_id !== viewerId || !mock.signedIn) {
+        return json({ code: 'PGRST116', message: 'No rows', hint: null, details: null }, 406);
+      }
+      if (method === 'DELETE') {
+        mock.notes = mock.notes.filter((row) => row !== note);
+        return route.fulfill({ status: 204, headers });
+      }
+      note.body = (body as { body: string }).body;
+      note.edited_at = new Date().toISOString();
+      return json(note);
+    }
+    if (url.pathname === '/rest/v1/rpc/set_note_hidden' && method === 'POST') {
+      const input = body as { note_id: string; hidden: boolean };
+      const note = mock.notes.find((row) => row.id === input.note_id);
+      const memorial = mock.memorials.find((row) => row.id === note?.memorial_id);
+      if (!note || !mock.signedIn || memorial?.owner_id !== TEST_USER_ID) {
+        return json({ code: 'P0002', message: 'Note not found', hint: null, details: null }, 404);
+      }
+      note.status = input.hidden ? 'hidden_by_owner' : 'visible';
+      return json(note.status);
+    }
+    if (url.pathname === '/rest/v1/rpc/public_display_names' && method === 'POST') {
+      const ids = (body as { user_ids: string[] }).user_ids;
+      const names: Record<string, string> = {
+        ...mock.displayNames,
+        [TEST_USER_ID]: mock.profile.display_name,
+      };
+      return json(ids.filter((id) => names[id]).map((id) => ({ id, display_name: names[id] })));
     }
     const candleRows = () => [
       {
