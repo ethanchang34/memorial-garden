@@ -3,6 +3,7 @@ import { expect, test as base, type Page, type Request, type Route } from '@play
 export const SUPABASE_URL = 'https://test-project.supabase.co';
 const STORAGE_KEY = 'sb-test-project-auth-token';
 export const TEST_USER_ID = '00000000-0000-4000-8000-000000000001';
+export const TEST_VISITOR_ID = '00000000-0000-4000-8000-000000000002';
 
 type ProfileRow = { id: string; display_name: string; time_zone: string; locale: string };
 
@@ -55,6 +56,8 @@ export type SupabaseMock = {
   memorials: MemorialRow[];
   isAdmin: boolean;
   signedIn: boolean;
+  visitor: boolean;
+  candles: { lit: number; litToday: boolean; failNext?: 'daily_limit' };
   calls: { method: string; path: string; body: unknown }[];
   unexpected: string[];
 };
@@ -64,15 +67,17 @@ function base64Url(value: object | string): string {
   return Buffer.from(text).toString('base64url');
 }
 
-function fakeSession() {
+function fakeSession(anonymous = false) {
+  const userId = anonymous ? TEST_VISITOR_ID : TEST_USER_ID;
   const now = Math.floor(Date.now() / 1000);
   const expiresAt = now + 3600;
   const accessToken = [
     base64Url({ alg: 'HS256', typ: 'JWT' }),
     base64Url({
-      sub: TEST_USER_ID,
+      sub: userId,
       aud: 'authenticated',
       role: 'authenticated',
+      is_anonymous: anonymous,
       exp: expiresAt,
       iat: now,
     }),
@@ -86,10 +91,11 @@ function fakeSession() {
     expires_at: expiresAt,
     refresh_token: 'test-refresh-token',
     user: {
-      id: TEST_USER_ID,
+      id: userId,
       aud: 'authenticated',
       role: 'authenticated',
-      app_metadata: { provider: 'google', providers: ['google'] },
+      is_anonymous: anonymous,
+      app_metadata: anonymous ? {} : { provider: 'google', providers: ['google'] },
       user_metadata: {},
       created_at: new Date(now * 1000).toISOString(),
     },
@@ -113,6 +119,8 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
     calls: [],
     unexpected: [],
     signedIn: false,
+    visitor: false,
+    candles: { lit: 0, litToday: false },
     async signIn(profile = {}) {
       mock.signedIn = true;
       Object.assign(mock.profile, profile);
@@ -206,6 +214,40 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
         );
       row.status = 'published';
       return json(row.slug);
+    }
+    const candleRows = () => [
+      {
+        lit_count: mock.candles.lit,
+        lit_until:
+          mock.candles.lit > 0 ? new Date(Date.now() + 3 * 86_400_000).toISOString() : null,
+        lit_today: mock.candles.litToday,
+      },
+    ];
+    if (url.pathname === '/rest/v1/rpc/candle_state' && method === 'POST')
+      return json(candleRows());
+    if (url.pathname === '/rest/v1/rpc/light_candle' && method === 'POST') {
+      if (!mock.signedIn && !mock.visitor) {
+        return json({ code: '42501', message: 'Not signed in', hint: null, details: null }, 401);
+      }
+      if (mock.candles.litToday || mock.candles.failNext === 'daily_limit') {
+        delete mock.candles.failNext;
+        return json(
+          {
+            code: 'P0001',
+            message: 'Already lit a candle here today',
+            hint: 'candle_daily_limit',
+            details: null,
+          },
+          400,
+        );
+      }
+      mock.candles.lit = Math.min(15, mock.candles.lit + 1);
+      mock.candles.litToday = true;
+      return json(candleRows());
+    }
+    if (url.pathname === '/auth/v1/signup' && method === 'POST' && !mock.signedIn) {
+      mock.visitor = true;
+      return json(fakeSession(true));
     }
     if (url.pathname === '/auth/v1/logout' && method === 'POST') {
       return route.fulfill({ status: 204, headers });

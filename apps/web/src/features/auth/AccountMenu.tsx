@@ -22,7 +22,7 @@ export function AccountMenu() {
 
   if (session.status === 'unavailable' || session.status === 'loading') return null;
 
-  if (session.status === 'signed-out') {
+  if (session.status === 'signed-out' || session.status === 'visitor') {
     return (
       <Button variant="secondary" size="small" onClick={() => void signIn()} disabled={pending}>
         {t('auth.signIn')}

@@ -89,6 +89,16 @@
       "hidden": "Hidden",
       "removed": "Removed"
     },
+    "candles": {
+      "light": "Light a candle",
+      "hold": "Hold to light a candle",
+      "litToday": "Your candle is lit",
+      "burning_one": "{{count}} candle is burning for {{name}}.",
+      "burning_other": "{{count}} candles are burning for {{name}}.",
+      "dailyLimit": "You've already lit a candle here today. Come back tomorrow.",
+      "captchaFailed": "We couldn't check that you're a person. Please try again.",
+      "failed": "The candle didn't light. Please try again."
+    },
     "objects": {
       "toolbar": "Memories",
       "withCount": "{{name}} ({{count}})",

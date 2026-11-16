@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useServices } from '@/app/services';
 import { browserTimeZone, createTimeZoneSync } from '@/core/timeZoneSync';
 import { myProfileQueryKey } from '@/features/profile/useMyProfile';
-import { SessionContext, type Session } from './session';
+import { SessionContext, sessionUser, type Session } from './session';
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const services = useServices();
@@ -20,12 +20,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!services) return undefined;
     return services.auth.onChange((user) => {
-      setSession(user ? { status: 'signed-in', user } : { status: 'signed-out' });
+      setSession(
+        user
+          ? { status: user.isAnonymous ? 'visitor' : 'signed-in', user }
+          : { status: 'signed-out' },
+      );
       if (!user) queryClient.removeQueries({ queryKey: ['profile'] });
     });
   }, [services, queryClient]);
 
-  const userId = session.status === 'signed-in' ? session.user.id : null;
+  const userId = sessionUser(session)?.id ?? null;
 
   useEffect(() => {
     if (!userId || !syncTimeZone) return;

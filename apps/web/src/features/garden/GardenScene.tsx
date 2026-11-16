@@ -1,6 +1,8 @@
-import { useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { blendForHour, dominantPhase, localHour, mixHex, mixRecord } from '@/core/timeOfDay';
 import { buildCanopy, type CanopyLeaf } from './canopy';
+import { CandleCluster } from './CandleCluster';
+import { CLUSTER_CENTER } from './candleSlots';
 import { buildHedgeRow, type HedgeLobe } from './hedges';
 import { FallingLeaves } from './FallingLeaves';
 import { Fireflies } from './Fireflies';
@@ -13,6 +15,9 @@ type GardenSceneProps = {
   dates: string;
   label: string;
   now?: Date;
+  candlesLit?: number;
+  justLit?: boolean;
+  candleControl?: ReactNode;
 };
 
 const VASE: Point[] = [
@@ -150,7 +155,15 @@ function Leaves({ leaves, p }: { leaves: CanopyLeaf[]; p: GardenPalette }) {
   });
 }
 
-export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
+export function GardenScene({
+  name,
+  dates,
+  label,
+  now,
+  candlesLit = 0,
+  justLit = false,
+  candleControl,
+}: GardenSceneProps) {
   const [loadedAt] = useState(() => now ?? new Date());
   const [fireflyRoll] = useState(() => Math.random());
   const [aspect, setAspect] = useState(1.6);
@@ -189,192 +202,200 @@ export function GardenScene({ name, dates, label, now }: GardenSceneProps) {
     return () => observer.disconnect();
   }, []);
 
+  const control = {
+    left: `${((CLUSTER_CENTER.x - view.x) / view.width) * 100}%`,
+    top: `${((CLUSTER_CENTER.y - view.y) / view.height) * 100}%`,
+  };
+
   return (
-    <svg
-      ref={ref}
-      viewBox={viewBox(view)}
-      preserveAspectRatio="xMidYMax slice"
-      role="img"
-      aria-label={label}
-      data-phase={dominantPhase(blend)}
-      className="block h-full w-full"
-    >
-      <defs>
-        <linearGradient id={id('sky')} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={p.skyTop} />
-          <stop offset="1" stopColor={p.skyBottom} />
-        </linearGradient>
-        <radialGradient id={id('sun')}>
-          <stop offset="0" stopColor={p.sun} stopOpacity={p.sunGlow} />
-          <stop offset="1" stopColor={p.sun} stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id={id('firefly')}>
-          <stop offset="0" stopColor={p.fireflyHalo} stopOpacity="0.55" />
-          <stop offset="1" stopColor={p.fireflyHalo} stopOpacity="0" />
-        </radialGradient>
-        <linearGradient id={id('haze')} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={p.haze} stopOpacity="0" />
-          <stop offset="1" stopColor={p.haze} stopOpacity="0.7" />
-        </linearGradient>
-        <linearGradient id={id('ground')} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={p.ground} />
-          <stop offset="1" stopColor={p.groundShade} />
-        </linearGradient>
-        <linearGradient id={id('stone')} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor={p.stoneShade} />
-          <stop offset="0.6" stopColor={p.stone} />
-          <stop offset="1" stopColor={p.stoneShade} />
-        </linearGradient>
-        <linearGradient id={id('clay')} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor={p.clayShade} />
-          <stop offset="0.65" stopColor={p.clay} />
-          <stop offset="1" stopColor={p.clayShade} />
-        </linearGradient>
-        <linearGradient id={id('wax')} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor={p.waxShade} />
-          <stop offset="0.6" stopColor={p.wax} />
-          <stop offset="1" stopColor={p.waxShade} />
-        </linearGradient>
-        <filter id={id('soft')} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="6" />
-        </filter>
-        <filter id={id('glow')} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="9" />
-        </filter>
-        <filter id={id('grain')}>
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" />
-          <feColorMatrix values="0 0 0 0 0.35  0 0 0 0 0.28  0 0 0 0 0.2  0 0 0 0.1 0" />
-        </filter>
-      </defs>
-
-      <rect x={view.x} y={view.y} width={view.width} height={view.height} fill={url('sky')} />
-      <circle cx={sunX} cy={sunY} r="190" fill={url('sun')} />
-      <circle cx={sunX} cy={sunY} r={sunR} fill={p.sun} opacity="0.92" />
-      <path d={BACKDROP.farHill} fill={p.farHill} />
-      <rect x={SPAN_LEFT} y="220" width={SPAN_WIDTH} height="120" fill={url('haze')} />
-      <Hedge
-        lobes={HEDGES.back}
-        color={mixHex(p.hedge, p.haze, 0.35)}
-        shade={mixHex(p.hedgeShade, p.haze, 0.3)}
-        light={mixHex(mixHex(p.hedge, p.sun, rim), p.haze, 0.35)}
-      />
-      <Hedge
-        lobes={HEDGES.front}
-        color={p.hedge}
-        shade={p.hedgeShade}
-        light={mixHex(p.hedge, p.sun, rim)}
-      />
-      <path d={BACKDROP.ground} fill={url('ground')} />
-      <path d={PATH} fill={p.path} opacity="0.75" />
-
-      <ellipse
-        cx="400"
-        cy="406"
-        rx="86"
-        ry="11"
-        fill={p.shadow}
-        opacity="0.18"
-        filter={url('soft')}
-      />
-      <path d="M332 404 L332 246 Q332 188 400 188 Q468 188 468 246 L468 404Z" fill={url('stone')} />
-      <path d="M384 226 Q400 210 416 226 Q400 240 384 226Z" fill={p.engraving} opacity="0.45" />
-      <text
-        textAnchor="middle"
-        fontFamily="Fraunces, Georgia, serif"
-        fontSize={size}
-        fill={p.engraving}
+    <>
+      <svg
+        ref={ref}
+        viewBox={viewBox(view)}
+        preserveAspectRatio="xMidYMax slice"
+        role="img"
+        aria-label={label}
+        data-phase={dominantPhase(blend)}
+        className="block h-full w-full"
       >
-        {lines.map((line, index) => (
-          <tspan key={index} x="400" y={nameTop + index * lineHeight}>
-            {line}
-          </tspan>
-        ))}
-      </text>
-      <text
-        x="400"
-        y={nameTop + (lines.length - 1) * lineHeight + 26}
-        textAnchor="middle"
-        fontFamily="Fraunces, Georgia, serif"
-        fontSize="13"
-        fill={p.engraving}
-      >
-        {dates}
-      </text>
+        <defs>
+          <linearGradient id={id('sky')} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor={p.skyTop} />
+            <stop offset="1" stopColor={p.skyBottom} />
+          </linearGradient>
+          <radialGradient id={id('sun')}>
+            <stop offset="0" stopColor={p.sun} stopOpacity={p.sunGlow} />
+            <stop offset="1" stopColor={p.sun} stopOpacity="0" />
+          </radialGradient>
+          <radialGradient id={id('firefly')}>
+            <stop offset="0" stopColor={p.fireflyHalo} stopOpacity="0.55" />
+            <stop offset="1" stopColor={p.fireflyHalo} stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id={id('haze')} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor={p.haze} stopOpacity="0" />
+            <stop offset="1" stopColor={p.haze} stopOpacity="0.7" />
+          </linearGradient>
+          <linearGradient id={id('ground')} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor={p.ground} />
+            <stop offset="1" stopColor={p.groundShade} />
+          </linearGradient>
+          <linearGradient id={id('stone')} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor={p.stoneShade} />
+            <stop offset="0.6" stopColor={p.stone} />
+            <stop offset="1" stopColor={p.stoneShade} />
+          </linearGradient>
+          <linearGradient id={id('clay')} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor={p.clayShade} />
+            <stop offset="0.65" stopColor={p.clay} />
+            <stop offset="1" stopColor={p.clayShade} />
+          </linearGradient>
+          <linearGradient id={id('wax')} x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor={p.waxShade} />
+            <stop offset="0.6" stopColor={p.wax} />
+            <stop offset="1" stopColor={p.waxShade} />
+          </linearGradient>
+          <filter id={id('soft')} x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="6" />
+          </filter>
+          <filter id={id('glow')} x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="9" />
+          </filter>
+          <filter id={id('grain')}>
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" />
+            <feColorMatrix values="0 0 0 0 0.35  0 0 0 0 0.28  0 0 0 0 0.2  0 0 0 0.1 0" />
+          </filter>
+        </defs>
 
-      <g aria-hidden="true" data-slot="vase">
+        <rect x={view.x} y={view.y} width={view.width} height={view.height} fill={url('sky')} />
+        <circle cx={sunX} cy={sunY} r="190" fill={url('sun')} />
+        <circle cx={sunX} cy={sunY} r={sunR} fill={p.sun} opacity="0.92" />
+        <path d={BACKDROP.farHill} fill={p.farHill} />
+        <rect x={SPAN_LEFT} y="220" width={SPAN_WIDTH} height="120" fill={url('haze')} />
+        <Hedge
+          lobes={HEDGES.back}
+          color={mixHex(p.hedge, p.haze, 0.35)}
+          shade={mixHex(p.hedgeShade, p.haze, 0.3)}
+          light={mixHex(mixHex(p.hedge, p.sun, rim), p.haze, 0.35)}
+        />
+        <Hedge
+          lobes={HEDGES.front}
+          color={p.hedge}
+          shade={p.hedgeShade}
+          light={mixHex(p.hedge, p.sun, rim)}
+        />
+        <path d={BACKDROP.ground} fill={url('ground')} />
+        <path d={PATH} fill={p.path} opacity="0.75" />
+
         <ellipse
-          cx="300"
-          cy="418"
-          rx="34"
-          ry="6"
+          cx="400"
+          cy="406"
+          rx="86"
+          ry="11"
           fill={p.shadow}
-          opacity="0.2"
+          opacity="0.18"
           filter={url('soft')}
         />
-        <path d={vase.body} fill={url('clay')} />
-        <ellipse cx="300" cy={vase.rimY} rx={vase.rimRx} ry={vase.rimRy + 3} fill={p.clay} />
-        <ellipse cx="300" cy={vase.rimY + 1} rx="13" ry="2.5" fill={p.clayShade} />
-        <path d={lip} fill={p.clay} />
-      </g>
-
-      <g aria-hidden="true" data-slot="candle">
-        <circle
-          cx="508"
-          cy="384"
-          r="60"
-          fill={p.candleLight}
-          opacity={0.12 * p.candleGlow}
-          filter={url('glow')}
+        <path
+          d="M332 404 L332 246 Q332 188 400 188 Q468 188 468 246 L468 404Z"
+          fill={url('stone')}
         />
-        <ellipse cx="508" cy="416" rx="20" ry="4" fill={p.wood} opacity="0.7" />
-        <rect x="498" y="384" width="20" height="30" rx="4" fill={url('wax')} />
-        <ellipse cx="508" cy="385" rx="10" ry="2.5" fill={p.wax} />
-        <path d="M508 385 L508 378" stroke={p.wick} strokeWidth="1.6" strokeLinecap="round" />
-      </g>
+        <path d="M384 226 Q400 210 416 226 Q400 240 384 226Z" fill={p.engraving} opacity="0.45" />
+        <text
+          textAnchor="middle"
+          fontFamily="Fraunces, Georgia, serif"
+          fontSize={size}
+          fill={p.engraving}
+        >
+          {lines.map((line, index) => (
+            <tspan key={index} x="400" y={nameTop + index * lineHeight}>
+              {line}
+            </tspan>
+          ))}
+        </text>
+        <text
+          x="400"
+          y={nameTop + (lines.length - 1) * lineHeight + 26}
+          textAnchor="middle"
+          fontFamily="Fraunces, Georgia, serif"
+          fontSize="13"
+          fill={p.engraving}
+        >
+          {dates}
+        </text>
 
-      <g aria-hidden="true" data-canopy="">
-        <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 0)} p={p} />
-        {canopy.boughs.map((d, index) => (
-          <path key={index} d={d} fill={p.wood} />
-        ))}
-        <path d={canopy.twigs} fill="none" stroke={p.twig} strokeWidth="2" strokeLinecap="round" />
-        <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 1)} p={p} />
-        <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 2)} p={p} />
-      </g>
+        <g aria-hidden="true" data-slot="vase">
+          <ellipse
+            cx="300"
+            cy="418"
+            rx="34"
+            ry="6"
+            fill={p.shadow}
+            opacity="0.2"
+            filter={url('soft')}
+          />
+          <path d={vase.body} fill={url('clay')} />
+          <ellipse cx="300" cy={vase.rimY} rx={vase.rimRx} ry={vase.rimRy + 3} fill={p.clay} />
+          <ellipse cx="300" cy={vase.rimY + 1} rx="13" ry="2.5" fill={p.clayShade} />
+          <path d={lip} fill={p.clay} />
+        </g>
 
-      <FallingLeaves
-        count={view.width > 900 ? 4 : 3}
-        colors={[0.45, 0.7, 0.9].map((tone) => {
-          const fill = leafFill(tone, p);
-          return { fill, light: mixHex(fill, p.leafLight, 0.35), vein: p.leafVein };
-        })}
-        area={{
-          left: view.x + 30,
-          right: right - 30,
-          top: view.y + canopy.depth * 0.6,
-          bottom: 470,
-        }}
-      />
-      <Fireflies
-        count={fireflies}
-        glow={p.fireflyGlow}
-        core={p.firefly}
-        halo={url('firefly')}
-        area={{
-          left: view.x + 20,
-          right: right - 20,
-          top: Math.max(view.y + canopy.depth + 20, 250),
-          bottom: 470,
-        }}
-      />
-      <rect
-        x={view.x}
-        y={view.y}
-        width={view.width}
-        height={view.height}
-        filter={url('grain')}
-        style={{ mixBlendMode: 'multiply' }}
-      />
-    </svg>
+        <CandleCluster lit={candlesLit} justLit={justLit} p={p} glow={url('glow')} id={id} />
+
+        <g aria-hidden="true" data-canopy="">
+          <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 0)} p={p} />
+          {canopy.boughs.map((d, index) => (
+            <path key={index} d={d} fill={p.wood} />
+          ))}
+          <path
+            d={canopy.twigs}
+            fill="none"
+            stroke={p.twig}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 1)} p={p} />
+          <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 2)} p={p} />
+        </g>
+
+        <FallingLeaves
+          count={view.width > 900 ? 4 : 3}
+          colors={[0.45, 0.7, 0.9].map((tone) => {
+            const fill = leafFill(tone, p);
+            return { fill, light: mixHex(fill, p.leafLight, 0.35), vein: p.leafVein };
+          })}
+          area={{
+            left: view.x + 30,
+            right: right - 30,
+            top: view.y + canopy.depth * 0.6,
+            bottom: 470,
+          }}
+        />
+        <Fireflies
+          count={fireflies}
+          glow={p.fireflyGlow}
+          core={p.firefly}
+          halo={url('firefly')}
+          area={{
+            left: view.x + 20,
+            right: right - 20,
+            top: Math.max(view.y + canopy.depth + 20, 250),
+            bottom: 470,
+          }}
+        />
+        <rect
+          x={view.x}
+          y={view.y}
+          width={view.width}
+          height={view.height}
+          filter={url('grain')}
+          style={{ mixBlendMode: 'multiply' }}
+        />
+      </svg>
+      {candleControl ? (
+        <div className="absolute size-0" style={control} data-candle-anchor="">
+          {candleControl}
+        </div>
+      ) : null}
+    </>
   );
 }
