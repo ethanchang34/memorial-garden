@@ -455,3 +455,93 @@ h1 {
     display: none;
   }
 }
+
+@keyframes garden-flame {
+  0%,
+  100% {
+    transform: scale(1, 1) skewX(0deg);
+  }
+  22% {
+    transform: scale(0.96, 1.07) skewX(-2deg);
+  }
+  48% {
+    transform: scale(1.03, 0.94) skewX(1.5deg);
+  }
+  71% {
+    transform: scale(0.98, 1.04) skewX(-1deg);
+  }
+}
+
+@keyframes garden-flame-new {
+  from {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes garden-glow-bloom {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.2;
+  }
+  45% {
+    transform: scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes candle-hold {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.garden-flame {
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
+  animation: garden-flame 1.9s ease-in-out infinite;
+}
+
+.garden-flame-new {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: garden-flame-new 700ms var(--ease-soft) both;
+}
+
+.garden-glow-bloom {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: garden-glow-bloom 1.6s var(--ease-soft) both;
+}
+
+.candle-hold-ring {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+[data-holding] .candle-hold-ring {
+  animation: candle-hold var(--hold-ms) linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garden-flame,
+  .garden-flame-new,
+  .garden-glow-bloom {
+    animation: none;
+  }
+
+  [data-holding] .candle-hold-ring {
+    animation-duration: 1ms;
+  }
+}

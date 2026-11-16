@@ -73,6 +73,14 @@ export type Database = {
         Args: { user_ids: string[] };
         Returns: { id: string; display_name: string }[];
       };
+      candle_state: {
+        Args: { target_memorial: string };
+        Returns: { lit_count: number; lit_until: string | null; lit_today: boolean }[];
+      };
+      light_candle: {
+        Args: { target_memorial: string };
+        Returns: { lit_count: number; lit_until: string | null; lit_today: boolean }[];
+      };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };

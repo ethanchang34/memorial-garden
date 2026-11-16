@@ -1,7 +1,9 @@
 import type { AuthProvider } from '@/core/auth';
+import type { CandleRepository } from '@/core/candles';
 import type { MemorialRepository } from '@/core/memorial';
 import type { ProfileRepository } from '@/core/profile';
 import { createSupabaseAuth } from './auth';
+import { createSupabaseCandles } from './candles';
 import { createSupabaseClient } from './client';
 import { createSupabaseMemorials } from './memorials';
 import { createSupabaseProfiles } from './profiles';
@@ -9,11 +11,17 @@ import { createSupabaseProfiles } from './profiles';
 export function createSupabaseServices(
   url: string,
   publishableKey: string,
-): { auth: AuthProvider; profiles: ProfileRepository; memorials: MemorialRepository } {
+): {
+  auth: AuthProvider;
+  profiles: ProfileRepository;
+  memorials: MemorialRepository;
+  candles: CandleRepository;
+} {
   const client = createSupabaseClient(url, publishableKey);
   return {
     auth: createSupabaseAuth(client),
     profiles: createSupabaseProfiles(client),
     memorials: createSupabaseMemorials(client),
+    candles: createSupabaseCandles(client),
   };
 }

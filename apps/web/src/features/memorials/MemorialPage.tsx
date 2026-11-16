@@ -3,10 +3,13 @@ import { useParams } from 'react-router';
 import { toast } from 'sonner';
 import { useDateFormat } from '@/app/useDateFormat';
 import { Button } from '@/components/ui/button';
+import { NO_CANDLES } from '@/core/candles';
 import { MemorialError, type Memorial } from '@/core/memorial';
 import { useSession } from '@/features/auth/session';
 import { GardenScene } from '@/features/garden/GardenScene';
 import { NotFoundPage } from '@/features/not-found/NotFoundPage';
+import { LightCandle } from './candles/LightCandle';
+import { useCandles, useLightCandle } from './candles/useCandles';
 import { MemorialObjects } from './objects/MemorialObjects';
 import { useMemorial, usePublishMemorial } from './useMemorials';
 
@@ -39,6 +42,11 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
   const session = useSession();
   const publish = usePublishMemorial(memorial.slug);
   const isOwner = session.status === 'signed-in' && session.user.id === memorial.ownerId;
+  const candles = useCandles(memorial.id);
+  const light = useLightCandle(memorial.id);
+  const candleState = candles.data ?? NO_CANDLES;
+  const canLight =
+    memorial.status === 'published' && session.status !== 'unavailable' && candles.isSuccess;
 
   function onShare() {
     publish.mutate(memorial.id, {
@@ -70,6 +78,18 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
           name={memorial.fullName}
           dates={format.lifespan(memorial.born, memorial.died)}
           label={t('memorial.page.gardenLabel', { name: memorial.fullName })}
+          candlesLit={candleState.lit}
+          justLit={light.isSuccess}
+          candleControl={
+            canLight ? (
+              <LightCandle
+                name={memorial.fullName}
+                state={candleState}
+                pending={light.isPending}
+                onLight={() => light.mutateAsync()}
+              />
+            ) : null
+          }
         />
         <MemorialObjects memorial={memorial} counts={NO_CONTENT_YET} />
       </figure>

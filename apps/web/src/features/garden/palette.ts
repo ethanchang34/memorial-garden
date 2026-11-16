@@ -30,6 +30,11 @@ export type GardenPalette = {
   shadow: string;
   candleLight: string;
   wick: string;
+  flameHeart: string;
+  flameCore: string;
+  flameMid: string;
+  flameEdge: string;
+  flameTip: string;
   clay: string;
   clayShade: string;
   wax: string;
@@ -46,6 +51,11 @@ const shared = {
   shadow: '#2f2e2b',
   candleLight: '#ffd88a',
   wick: '#3d2a1c',
+  flameHeart: '#fffef6',
+  flameCore: '#fffbe8',
+  flameMid: '#ffe08a',
+  flameEdge: '#f6a64a',
+  flameTip: '#e2763a',
 };
 
 export const ORCHARD: Record<Phase, GardenPalette> = {
