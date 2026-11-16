@@ -2,7 +2,7 @@ import { useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } fro
 import { blendForHour, dominantPhase, localHour, mixHex, mixRecord } from '@/core/timeOfDay';
 import { buildCanopy, type CanopyLeaf } from './canopy';
 import { CandleCluster } from './CandleCluster';
-import { CLUSTER_CENTER } from './candleSlots';
+import { StoneWeathering } from './StoneWeathering';
 import { buildHedgeRow, type HedgeLobe } from './hedges';
 import { FallingLeaves } from './FallingLeaves';
 import { Fireflies } from './Fireflies';
@@ -17,8 +17,22 @@ type GardenSceneProps = {
   now?: Date;
   candlesLit?: number;
   justLit?: boolean;
-  candleControl?: ReactNode;
+  grime?: number;
+  seed?: string;
+  wiping?: boolean;
+  overlays?: readonly SceneOverlay[];
 };
+
+export type SceneOverlay = {
+  key: string;
+  x: number;
+  y: number;
+  width?: number;
+  height?: number;
+  children: ReactNode;
+};
+
+export const STONE_PATH = 'M332 404 L332 246 Q332 188 400 188 Q468 188 468 246 L468 404Z';
 
 const VASE: Point[] = [
   [416, 19],
@@ -162,7 +176,10 @@ export function GardenScene({
   now,
   candlesLit = 0,
   justLit = false,
-  candleControl,
+  grime = 0,
+  seed = name,
+  wiping = false,
+  overlays = [],
 }: GardenSceneProps) {
   const [loadedAt] = useState(() => now ?? new Date());
   const [fireflyRoll] = useState(() => Math.random());
@@ -202,10 +219,12 @@ export function GardenScene({
     return () => observer.disconnect();
   }, []);
 
-  const control = {
-    left: `${((CLUSTER_CENTER.x - view.x) / view.width) * 100}%`,
-    top: `${((CLUSTER_CENTER.y - view.y) / view.height) * 100}%`,
-  };
+  const place = (overlay: SceneOverlay) => ({
+    left: `${((overlay.x - view.x) / view.width) * 100}%`,
+    top: `${((overlay.y - view.y) / view.height) * 100}%`,
+    width: `${((overlay.width ?? 0) / view.width) * 100}%`,
+    height: `${((overlay.height ?? 0) / view.height) * 100}%`,
+  });
 
   return (
     <>
@@ -323,6 +342,15 @@ export function GardenScene({
           {dates}
         </text>
 
+        <StoneWeathering
+          level={grime}
+          seed={seed}
+          wiping={wiping}
+          stonePath={STONE_PATH}
+          p={p}
+          id={id}
+        />
+
         <g aria-hidden="true" data-slot="vase">
           <ellipse
             cx="300"
@@ -391,11 +419,16 @@ export function GardenScene({
           style={{ mixBlendMode: 'multiply' }}
         />
       </svg>
-      {candleControl ? (
-        <div className="absolute size-0" style={control} data-candle-anchor="">
-          {candleControl}
+      {overlays.map((overlay) => (
+        <div
+          key={overlay.key}
+          className="absolute"
+          style={place(overlay)}
+          data-overlay={overlay.key}
+        >
+          {overlay.children}
         </div>
-      ) : null}
+      ))}
     </>
   );
 }

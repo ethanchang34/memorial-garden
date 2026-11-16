@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import { toast } from 'sonner';
@@ -6,12 +7,18 @@ import { Button } from '@/components/ui/button';
 import { NO_CANDLES } from '@/core/candles';
 import { MemorialError, type Memorial } from '@/core/memorial';
 import { visibleCount } from '@/core/notes';
+import { UNKNOWN_STONE } from '@/core/stone';
+import { grimeLevel } from '@/core/weathering';
 import { useSession } from '@/features/auth/session';
-import { GardenScene } from '@/features/garden/GardenScene';
+import { CLUSTER_CENTER } from '@/features/garden/candleSlots';
+import { GardenScene, type SceneOverlay } from '@/features/garden/GardenScene';
+import { STONE } from '@/features/garden/moss';
 import { NotFoundPage } from '@/features/not-found/NotFoundPage';
 import { LightCandle } from './candles/LightCandle';
 import { useCandles, useLightCandle } from './candles/useCandles';
 import { useNotes } from './notes/useNotes';
+import { CleanStone, SHOW_HINT_AT } from './stone/CleanStone';
+import { useCleanStone, useStone } from './stone/useStone';
 import { MemorialObjects } from './objects/MemorialObjects';
 import { useMemorial, usePublishMemorial } from './useMemorials';
 
@@ -49,6 +56,57 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
   const noteList = notes.data ?? [];
   const canLight =
     memorial.status === 'published' && session.status !== 'unavailable' && candles.isSuccess;
+  const [now] = useState(() => new Date());
+  const stone = useStone(memorial.id);
+  const clean = useCleanStone(memorial.id);
+  const stoneState = stone.data ?? UNKNOWN_STONE;
+  const grime = grimeLevel(stoneState.dirtySince, now);
+  const [wipeFrom, setWipeFrom] = useState<number | null>(null);
+  const canClean =
+    memorial.status === 'published' && session.status !== 'unavailable' && stone.isSuccess;
+
+  useEffect(() => {
+    if (wipeFrom === null) return undefined;
+    const timer = window.setTimeout(() => setWipeFrom(null), 1600);
+    return () => window.clearTimeout(timer);
+  }, [wipeFrom]);
+
+  const overlays: SceneOverlay[] = [];
+  if (canClean)
+    overlays.push({
+      key: 'stone',
+      x: STONE.left,
+      y: STONE.top,
+      width: STONE.right - STONE.left,
+      height: STONE.base - STONE.top,
+      children: (
+        <CleanStone
+          name={memorial.fullName}
+          level={grime}
+          cleanedToday={stoneState.cleanedToday}
+          pending={clean.isPending}
+          onClean={() => {
+            const before = grime;
+            return clean.mutateAsync().then(() => setWipeFrom(before));
+          }}
+        />
+      ),
+    });
+  if (canLight)
+    overlays.push({
+      key: 'candle',
+      x: CLUSTER_CENTER.x,
+      y: CLUSTER_CENTER.y,
+      children: (
+        <LightCandle
+          name={memorial.fullName}
+          state={candleState}
+          pending={light.isPending}
+          onLight={() => light.mutateAsync()}
+          quietHint={canClean && !stoneState.cleanedToday && grime >= SHOW_HINT_AT}
+        />
+      ),
+    });
 
   function onShare() {
     publish.mutate(memorial.id, {
@@ -82,16 +140,10 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
           label={t('memorial.page.gardenLabel', { name: memorial.fullName })}
           candlesLit={candleState.lit}
           justLit={light.isSuccess}
-          candleControl={
-            canLight ? (
-              <LightCandle
-                name={memorial.fullName}
-                state={candleState}
-                pending={light.isPending}
-                onLight={() => light.mutateAsync()}
-              />
-            ) : null
-          }
+          grime={wipeFrom ?? grime}
+          wiping={wipeFrom !== null}
+          seed={memorial.id}
+          overlays={overlays}
         />
         <MemorialObjects
           memorial={memorial}

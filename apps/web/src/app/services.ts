@@ -7,6 +7,7 @@ import type { CandleRepository } from '@/core/candles';
 import type { MemorialRepository } from '@/core/memorial';
 import type { NoteRepository } from '@/core/notes';
 import type { ProfileRepository } from '@/core/profile';
+import type { StoneRepository } from '@/core/stone';
 
 export type AppServices = {
   auth: AuthProvider;
@@ -14,6 +15,7 @@ export type AppServices = {
   memorials: MemorialRepository;
   candles: CandleRepository;
   notes: NoteRepository;
+  stone: StoneRepository;
   captcha: CaptchaProvider;
 };
 

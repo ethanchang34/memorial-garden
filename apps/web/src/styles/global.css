@@ -545,3 +545,36 @@ h1 {
     animation-duration: 1ms;
   }
 }
+
+@keyframes garden-moss-wipe {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes garden-wipe-streak {
+  from {
+    transform: skewX(-12deg) translateX(0);
+  }
+  to {
+    transform: skewX(-12deg) translateX(260px);
+  }
+}
+
+.garden-moss-wipe {
+  animation: garden-moss-wipe 1.4s ease-in both;
+}
+
+.garden-wipe-streak {
+  animation: garden-wipe-streak 1.2s var(--ease-soft) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garden-moss-wipe,
+  .garden-wipe-streak {
+    display: none;
+  }
+}

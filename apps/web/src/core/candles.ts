@@ -1,6 +1,5 @@
-import type { AuthProvider, AuthUser } from './auth';
-import type { CaptchaProvider } from './captcha';
-import type { ProfileRepository } from './profile';
+import type { AuthUser } from './auth';
+import { ensureVisitor, type VisitorDeps } from './visitor';
 
 export const CANDLE_CLUSTER_MAX = 15;
 
@@ -25,24 +24,13 @@ export interface CandleRepository {
   light(memorialId: string): Promise<CandleState>;
 }
 
-export type LightCandleDeps = {
-  auth: Pick<AuthProvider, 'signInAsVisitor'>;
-  captcha: CaptchaProvider;
-  profiles: Pick<ProfileRepository, 'setTimeZone'>;
-  candles: Pick<CandleRepository, 'light'>;
-  timeZone: () => string | undefined;
-};
+export type LightCandleDeps = VisitorDeps & { candles: Pick<CandleRepository, 'light'> };
 
 export async function lightCandle(
   deps: LightCandleDeps,
   user: AuthUser | null,
   memorialId: string,
 ): Promise<CandleState> {
-  if (!user) {
-    const token = await deps.captcha.getToken();
-    await deps.auth.signInAsVisitor(token);
-    const timeZone = deps.timeZone();
-    if (timeZone) await deps.profiles.setTimeZone(timeZone).catch(() => undefined);
-  }
+  await ensureVisitor(deps, user);
   return deps.candles.light(memorialId);
 }
