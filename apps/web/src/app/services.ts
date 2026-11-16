@@ -5,6 +5,7 @@ import type { AuthProvider } from '@/core/auth';
 import { noCaptcha, type CaptchaProvider } from '@/core/captcha';
 import type { CandleRepository } from '@/core/candles';
 import type { MemorialRepository } from '@/core/memorial';
+import type { NoteRepository } from '@/core/notes';
 import type { ProfileRepository } from '@/core/profile';
 
 export type AppServices = {
@@ -12,6 +13,7 @@ export type AppServices = {
   profiles: ProfileRepository;
   memorials: MemorialRepository;
   candles: CandleRepository;
+  notes: NoteRepository;
   captcha: CaptchaProvider;
 };
 
