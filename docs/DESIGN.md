@@ -259,8 +259,8 @@ decorations ⚑       (id, slot_id, decoration_type_id, giver_id, message text?,
                      -- a slot is occupied iff it has a decoration with expires_at > now()
                      -- renewal updates expires_at/renewed_count; each renewal has its own ledger row
 
-cleanings ⚑         (id, memorial_id, user_id, cleaned_on date, created_at,
-                     unique(memorial_id, user_id, cleaned_on))
+cleanings ⚑         (id, memorial_id, cleaned_by, cleaned_on date, cleaned_at,
+                     unique(memorial_id, cleaned_by, cleaned_on))
 
 daily_rewards ⚑     (user_id, reward_on date  -- the user's LOCAL date, ledger_entry_id, primary key(user_id, reward_on))
 
@@ -423,7 +423,8 @@ Layout, top to bottom:
   - Every value is a config constant in `core/weathering.ts`.
 - Moss grows **only on the memorial stone and the ground immediately around it**, never on ledges, vessels, or other decorative surfaces.
 - Drawn as layered moss, dirt, and lichen textures (SVG/PNG with alpha) over the stone, with opacity scaling with the level. A seeded random pattern per memorial keeps each stone's look consistent.
-- **Clean:** click the stone, confirm "Clean the stone?", and a wipe animation plays. `clean_memorial()` sets `last_cleaned_at = now()` and inserts into `cleanings`. Each user can clean a given memorial once per day. Free.
+- **Clean:** click the stone, confirm "Clean the stone?", and a wipe animation plays. `clean_stone()` sets `last_cleaned_at = now()` and inserts into `cleanings`. Each visitor can clean a given memorial once per local day, only once it is shared. Free, no account needed (anonymous sign-in, §6.3).
+- Days are counted from `coalesce(last_cleaned_at, published_at, created_at)`. `stone_state()` returns that start (`dirty_since`) and whether the caller cleaned today; the client computes the level, so stones keep growing moss between visits without any writes.
 - Optional later: a "Recently tended by Alex, Sam, and 3 others" line.
 
 ### 6.5 Voice memos

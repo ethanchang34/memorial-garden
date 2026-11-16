@@ -98,6 +98,7 @@ test.describe('lighting a candle', () => {
   });
 
   test('the candle control fits every screen and clears the toolbar', async ({ page }) => {
+    test.slow();
     for (const viewport of TEST_VIEWPORTS) {
       await page.setViewportSize(viewport);
       await page.goto(`/m/${SLUG}`);

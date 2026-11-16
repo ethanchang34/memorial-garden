@@ -59,8 +59,8 @@ Each milestone is shippable on its own. Check items off as you go.
 
 ## M3 — Weathering & cleaning
 
-- [ ] `last_cleaned_at`, `cleanings`, `clean_memorial()` function
-- [ ] Grime overlay textures + seeded pattern + wipe animation (visible ~day 7, max ~day 60)
+- [x] `last_cleaned_at`, `cleanings`, `clean_stone()` and `stone_state()` functions
+- [x] Moss, lichen and dirt overlay + seeded pattern + wipe animation (visible ~day 7, max ~day 60)
 
 ## M4 — Decorations & sharing checkout
 

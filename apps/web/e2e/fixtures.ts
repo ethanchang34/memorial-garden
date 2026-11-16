@@ -82,6 +82,7 @@ export type SupabaseMock = {
   signedIn: boolean;
   visitor: boolean;
   candles: { lit: number; litToday: boolean; failNext?: 'daily_limit' };
+  stone: { dirtySince: string | null; cleanedToday: boolean; failNext?: 'daily_limit' };
   notes: NoteRow[];
   noteFailNext?: 'note_rate_limit' | 'note_new_account_limit';
   displayNames: Record<string, string>;
@@ -148,6 +149,7 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
     signedIn: false,
     visitor: false,
     candles: { lit: 0, litToday: false },
+    stone: { dirtySince: null, cleanedToday: false },
     notes: [],
     displayNames: {},
     async signIn(profile = {}) {
@@ -306,6 +308,29 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
         [TEST_USER_ID]: mock.profile.display_name,
       };
       return json(ids.filter((id) => names[id]).map((id) => ({ id, display_name: names[id] })));
+    }
+    const stoneRows = () => [
+      { dirty_since: mock.stone.dirtySince, cleaned_today: mock.stone.cleanedToday },
+    ];
+    if (url.pathname === '/rest/v1/rpc/stone_state' && method === 'POST') return json(stoneRows());
+    if (url.pathname === '/rest/v1/rpc/clean_stone' && method === 'POST') {
+      if (!mock.signedIn && !mock.visitor) {
+        return json({ code: '42501', message: 'Not signed in', hint: null, details: null }, 401);
+      }
+      if (mock.stone.cleanedToday || mock.stone.failNext === 'daily_limit') {
+        delete mock.stone.failNext;
+        return json(
+          {
+            code: 'P0001',
+            message: 'Already cleaned this stone today',
+            hint: 'stone_daily_limit',
+            details: null,
+          },
+          400,
+        );
+      }
+      mock.stone = { dirtySince: new Date().toISOString(), cleanedToday: true };
+      return json(stoneRows());
     }
     const candleRows = () => [
       {

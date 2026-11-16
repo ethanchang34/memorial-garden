@@ -37,6 +37,7 @@ export type Database = {
           created_at: string;
           updated_at: string;
           published_at: string | null;
+          last_cleaned_at: string | null;
         };
         Insert: {
           owner_id: string;
@@ -100,6 +101,14 @@ export type Database = {
       set_note_hidden: {
         Args: { note_id: string; hidden: boolean };
         Returns: string;
+      };
+      stone_state: {
+        Args: { target_memorial: string };
+        Returns: { dirty_since: string | null; cleaned_today: boolean }[];
+      };
+      clean_stone: {
+        Args: { target_memorial: string };
+        Returns: { dirty_since: string | null; cleaned_today: boolean }[];
       };
       light_candle: {
         Args: { target_memorial: string };

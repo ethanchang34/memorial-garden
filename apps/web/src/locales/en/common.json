@@ -133,6 +133,16 @@
       "newAccountLimit": "New accounts can post 5 notes on their first day. Please come back tomorrow.",
       "saveFailed": "The note didn’t save. Please try again."
     },
+    "stone": {
+      "clean": "Clean the stone",
+      "cleanedToday": "You cleaned the stone today",
+      "confirmTitle": "Clean the stone?",
+      "confirmBody": "Wipe away the moss and dust so {{name}}’s name stays clear. Anyone can clean it once a day.",
+      "notNow": "Not now",
+      "cleaned": "The stone is clean.",
+      "dailyLimit": "You’ve already cleaned this stone today. Come back tomorrow.",
+      "failed": "The stone wasn’t cleaned. Please try again."
+    },
     "objects": {
       "toolbar": "Memories",
       "withCount": "{{name}} ({{count}})",

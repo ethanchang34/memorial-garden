@@ -35,6 +35,11 @@ export type GardenPalette = {
   flameMid: string;
   flameEdge: string;
   flameTip: string;
+  moss: string;
+  mossLight: string;
+  mossShade: string;
+  lichen: string;
+  grime: string;
   clay: string;
   clayShade: string;
   wax: string;
@@ -56,6 +61,11 @@ const shared = {
   flameMid: '#ffe08a',
   flameEdge: '#f6a64a',
   flameTip: '#e2763a',
+  moss: '#6f8a4a',
+  mossLight: '#9aae68',
+  mossShade: '#4d6236',
+  lichen: '#cfc99a',
+  grime: '#5b5145',
 };
 
 export const ORCHARD: Record<Phase, GardenPalette> = {
