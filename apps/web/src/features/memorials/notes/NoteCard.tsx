@@ -4,75 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { useDateFormat } from '@/app/useDateFormat';
 import { Button } from '@/components/ui/button';
-import { DrawerDescription } from '@/components/ui/drawer';
-import { Pager } from '@/components/ui/pager';
 import { Textarea } from '@/components/ui/textarea';
-import type { Memorial } from '@/core/memorial';
 import { NoteError, type Note } from '@/core/notes';
-import { useSession } from '@/features/auth/session';
-import { useAuthActions } from '@/features/auth/useAuthActions';
-import { pageOf } from '@/lib/pages';
 import { cn } from '@/lib/utils';
 import { useNoteActions } from './useNotes';
-
-const PER_PAGE = 6;
-const LONG_NOTE = 320;
-
-type NotesPanelProps = { memorial: Memorial; notes: Note[]; loading: boolean };
-
-export function NotesPanel({ memorial, notes, loading }: NotesPanelProps) {
-  const { t } = useTranslation();
-  const session = useSession();
-  const [page, setPage] = useState(0);
-  const userId = session.status === 'signed-in' ? session.user.id : null;
-  const isOwner = userId !== null && userId === memorial.ownerId;
-  const slice = pageOf(notes, PER_PAGE, page);
-
-  return (
-    <div className="flex flex-1 flex-col gap-5">
-      {session.status === 'signed-in' ? (
-        <Composer memorialId={memorial.id} onSaved={() => setPage(0)} />
-      ) : session.status !== 'unavailable' ? (
-        <SignInPrompt />
-      ) : null}
-      <DrawerDescription className="text-muted-foreground leading-relaxed">
-        {loading
-          ? t('common.loading')
-          : notes.length === 0
-            ? t('memorial.objects.notes.empty')
-            : t('memorial.notes.intro')}
-      </DrawerDescription>
-      {slice.items.length > 0 ? (
-        <ul className="flex flex-col gap-3" data-notes="">
-          {slice.items.map((note) => (
-            <li key={note.id}>
-              <NoteCard
-                note={note}
-                memorialId={memorial.id}
-                mine={note.authorId === userId}
-                canHide={isOwner}
-              />
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      <Pager className="mt-auto" page={slice.page} pageCount={slice.pageCount} onPage={setPage} />
-    </div>
-  );
-}
-
-function SignInPrompt() {
-  const { t } = useTranslation();
-  const { signIn, pending } = useAuthActions();
-  return (
-    <div className="bg-muted flex flex-col items-start gap-3 rounded-lg p-4">
-      <p>{t('memorial.notes.signInPrompt')}</p>
-      <Button size="small" onClick={() => void signIn()} disabled={pending}>
-        {t('auth.signIn')}
-      </Button>
-    </div>
-  );
-}
 
 function noteErrorMessage(error: unknown, t: (key: string) => string): string {
   if (error instanceof NoteError && error.code === 'rate_limit')
@@ -91,7 +26,7 @@ type NoteFormProps = {
   autoFocus?: boolean;
 };
 
-function NoteForm({
+export function NoteForm({
   initial = '',
   submitLabel,
   pending,
@@ -127,7 +62,7 @@ function NoteForm({
       <Textarea
         id={id}
         value={body}
-        rows={4}
+        rows={5}
         maxLength={NOTE_MAX_LENGTH + 200}
         autoFocus={autoFocus}
         placeholder={t('memorial.notes.placeholder')}
@@ -161,63 +96,27 @@ function NoteForm({
   );
 }
 
-function Composer({ memorialId, onSaved }: { memorialId: string; onSaved: () => void }) {
-  const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
-  const { create } = useNoteActions(memorialId);
+type NoteCardProps = {
+  note: Note;
+  memorialId: string;
+  mine: boolean;
+  canHide: boolean;
+  author: string;
+  onDeleted: () => void;
+};
 
-  if (!open)
-    return (
-      <Button className="self-start" onClick={() => setOpen(true)}>
-        {t('memorial.notes.write')}
-      </Button>
-    );
-
-  return (
-    <NoteForm
-      autoFocus
-      submitLabel={t('memorial.notes.post')}
-      pending={create.isPending}
-      onCancel={() => setOpen(false)}
-      onSubmit={(body) =>
-        create.mutateAsync(body).then(() => {
-          setOpen(false);
-          onSaved();
-          toast(t('memorial.notes.posted'));
-        })
-      }
-    />
-  );
-}
-
-type NoteCardProps = { note: Note; memorialId: string; mine: boolean; canHide: boolean };
-
-function NoteCard({ note, memorialId, mine, canHide }: NoteCardProps) {
+export function NoteCard({ note, memorialId, mine, canHide, author, onDeleted }: NoteCardProps) {
   const { t } = useTranslation();
   const format = useDateFormat();
   const actions = useNoteActions(memorialId);
   const [mode, setMode] = useState<'read' | 'edit' | 'confirm-delete'>('read');
-  const [expanded, setExpanded] = useState(false);
   const hidden = note.status === 'hidden_by_owner';
-  const long = note.body.length > LONG_NOTE;
-  const author = mine ? t('memorial.notes.you') : (note.authorName ?? t('memorial.notes.someone'));
 
   const fail = () => toast.error(t('memorial.notes.saveFailed'));
 
   return (
-    <article
-      className={cn(
-        'border-border bg-card shadow-soft relative overflow-hidden rounded-lg border py-3 pr-4 pl-5',
-        hidden && 'opacity-70',
-      )}
-      data-note={note.id}
-      data-mine={mine || undefined}
-    >
-      <span
-        aria-hidden="true"
-        className={cn('absolute inset-y-0 left-0 w-1.5', mine ? 'bg-gold' : 'bg-stone')}
-      />
-      <header className="text-muted-foreground mb-1.5 flex flex-wrap items-baseline gap-x-2 text-sm">
+    <article className="flex flex-col gap-3" data-note-detail={note.id}>
+      <header className="text-muted-foreground flex flex-wrap items-baseline gap-x-2 text-sm">
         <span className="text-foreground font-medium">{author}</span>
         <time dateTime={note.createdAt}>{format.timestamp(note.createdAt)}</time>
         {note.editedAt ? (
@@ -242,40 +141,23 @@ function NoteCard({ note, memorialId, mine, canHide }: NoteCardProps) {
           }
         />
       ) : (
-        <>
-          <p
-            className={cn(
-              'leading-relaxed [overflow-wrap:anywhere] whitespace-pre-wrap',
-              long && !expanded && 'line-clamp-6',
-            )}
-          >
-            {note.body}
-          </p>
-          {long ? (
-            <Button
-              variant="ghost"
-              size="small"
-              className="mt-1 -ml-2"
-              aria-expanded={expanded}
-              onClick={() => setExpanded((value) => !value)}
-            >
-              {expanded ? t('memorial.notes.showLess') : t('memorial.notes.readMore')}
-            </Button>
-          ) : null}
-        </>
+        <p className="text-lg leading-relaxed [overflow-wrap:anywhere] whitespace-pre-wrap">
+          {note.body}
+        </p>
       )}
 
       {mode === 'confirm-delete' ? (
-        <div role="group" className="mt-3 flex flex-wrap items-center gap-2" aria-live="polite">
+        <div role="group" className="flex flex-wrap items-center gap-2" aria-live="polite">
           <p className="text-sm">{t('memorial.notes.confirmDelete')}</p>
           <Button
             variant="destructive"
             size="small"
             disabled={actions.remove.isPending}
             onClick={() =>
-              actions.remove
-                .mutateAsync(note.id)
-                .then(() => toast(t('memorial.notes.deleted')), fail)
+              actions.remove.mutateAsync(note.id).then(() => {
+                toast(t('memorial.notes.deleted'));
+                onDeleted();
+              }, fail)
             }
           >
             {t('memorial.notes.delete')}
@@ -287,7 +169,7 @@ function NoteCard({ note, memorialId, mine, canHide }: NoteCardProps) {
       ) : null}
 
       {mode === 'read' && (mine || canHide) ? (
-        <div className="mt-2 -ml-2 flex flex-wrap gap-1">
+        <div className="-ml-2 flex flex-wrap gap-1">
           {mine ? (
             <>
               <Button variant="ghost" size="small" onClick={() => setMode('edit')}>

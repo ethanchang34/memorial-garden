@@ -282,7 +282,9 @@ test.describe('memorial keepsakes', () => {
     );
   });
 
-  test('objects open drawers over the garden and return focus', async ({ page }, testInfo) => {
+  test('photos, notes and memos pull out on a string; the life story opens a drawer', async ({
+    page,
+  }, testInfo) => {
     await page.goto('/m/rosa-martinez-2024');
     const desktop = testInfo.project.name === 'desktop';
     const scope = page.locator(desktop ? '[data-object]' : '[data-toolbar]');
@@ -297,21 +299,26 @@ test.describe('memorial keepsakes', () => {
     ] as const) {
       const trigger = page.getByRole('button', { name, exact: true });
       await trigger.click();
-      const drawer = page.getByRole('dialog', { name });
-      await expect(drawer).toBeVisible();
-      await expect(drawer).toContainText(empty);
-      const box = await drawer.boundingBox();
-      const viewport = page.viewportSize()!;
-      if (desktop) expect(box!.width).toBeLessThanOrEqual(viewport.width * 0.41);
-      else expect(box!.height).toBeLessThanOrEqual(viewport.height * 0.71);
+      const string = page.getByRole('dialog', { name });
+      await expect(string).toBeVisible();
+      await expect(string).toContainText(empty);
+      await expect(string.locator('[data-string-track] li').first()).toBeInViewport();
+      if (process.env['GARDEN_SHOTS'] && name === 'Photos') {
+        await page.waitForTimeout(700);
+        await page.screenshot({ path: testInfo.outputPath('photos-string.png') });
+      }
       await page.keyboard.press('Escape');
-      await expect(drawer).toBeHidden();
+      await expect(string).toBeHidden();
       await expect(trigger).toBeFocused();
     }
 
     await page.getByRole('button', { name: 'Life story', exact: true }).click();
     const story = page.getByRole('dialog', { name: 'Life story' });
     await expect(story).toContainText('Always in our garden');
+    const box = await story.boundingBox();
+    const viewport = page.viewportSize()!;
+    if (desktop) expect(box!.width).toBeLessThanOrEqual(viewport.width * 0.41);
+    else expect(box!.height).toBeLessThanOrEqual(viewport.height * 0.71);
     if (process.env['GARDEN_SHOTS']) {
       await story.evaluate((el) => Promise.all(el.getAnimations().map((a) => a.finished)));
       await page.screenshot({ path: testInfo.outputPath('story-open.png') });

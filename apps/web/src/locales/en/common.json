@@ -101,7 +101,6 @@
       "failed": "The candle didn't light. Please try again."
     },
     "notes": {
-      "intro": "Notes from family and friends, newest first.",
       "write": "Write a note",
       "fieldLabel": "Your note",
       "placeholder": "Share a memory, or what you would tell them today.",
@@ -126,12 +125,12 @@
       "hiddenLabel": "Hidden by the family",
       "you": "You",
       "someone": "A member",
-      "readMore": "Read more",
-      "showLess": "Show less",
       "signInPrompt": "Sign in to leave a note. Your display name appears with it, never your email.",
       "rateLimit": "You’ve written a lot of notes this hour. Please try again a little later.",
       "newAccountLimit": "New accounts can post 5 notes on their first day. Please come back tomorrow.",
-      "saveFailed": "The note didn’t save. Please try again."
+      "saveFailed": "The note didn’t save. Please try again.",
+      "from": "A note from {{name}}",
+      "fromYou": "A note from you"
     },
     "stone": {
       "clean": "Clean the stone",

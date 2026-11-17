@@ -84,6 +84,9 @@
     }
   }
 
+  --animate-string-left: drawer-left 560ms var(--ease-soft);
+  --animate-string-right: drawer-right 560ms var(--ease-soft);
+
   --font-display: 'Fraunces', Georgia, serif;
   --font-sans: 'Nunito', ui-rounded, system-ui, sans-serif;
   --spacing-touch: 2.75rem;
@@ -576,5 +579,30 @@ h1 {
   .garden-moss-wipe,
   .garden-wipe-streak {
     display: none;
+  }
+}
+
+@keyframes keepsake-sway {
+  from {
+    transform: rotate(-1.2deg);
+  }
+  to {
+    transform: rotate(1.2deg);
+  }
+}
+
+.keepsake-sway {
+  transform-origin: 50% 0;
+  animation: keepsake-sway 5.5s ease-in-out infinite alternate;
+}
+
+.keepsake-sway:hover,
+.keepsake-sway:focus-within {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keepsake-sway {
+    animation: none !important;
   }
 }
