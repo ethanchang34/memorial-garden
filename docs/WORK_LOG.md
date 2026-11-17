@@ -111,6 +111,7 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 
 ### Reminders
 
+- `pnpm-workspace.yaml` ignores audit advisory GHSA-fc5q-39xc-vjpf (picomatch ReDoS, no patched version yet; only reached through `@sentry/cloudflare` → `vite` at build time, not in the Worker bundle). Remove the `auditConfig` entry once picomatch ships a fix.
 - When adding Turnstile, Stripe, or Cloudflare Web Analytics, extend the CSP in `apps/web/public/_headers`.
 - R2 (M1) needs a card on file; the $5 billing alert is already set under Notifications.
 - At launch, publish the Google OAuth app, add the production domain to Supabase's redirect URLs, and remove `X-Robots-Tag: noindex` from `apps/web/public/_headers` (see the NAMING.md rename checklist).
