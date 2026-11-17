@@ -99,8 +99,8 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 - [ ] The memorial page garden matches your local time of day (morning, day, golden hour, evening, night); refresh after the hour changes.
 - [ ] The garden fills the width and most of the screen on your phone and computer, with the path centered on the stone, the tree canopy across the top, and a few leaves falling.
 - [ ] In the evening (around 9 pm) a few fireflies blink; late at night (after 10:30 pm) more of them, brighter, blinking and moving between flashes. With Reduce Motion on (phone accessibility settings), they hold still.
-- [ ] On a computer, the photos, life story, notes and voice memos objects sit on the garden's left and right edges, lift when you hover over them, and open a drawer from that side; Escape or × closes it.
-- [ ] On a phone, the same four open from the bottom toolbar as a sheet that leaves the top of the garden visible.
+- [ ] On a computer, the photos, life story, notes and voice memos objects sit on the garden's left and right edges and lift when you hover over them. Photos, notes and voice memos pull out on a string from that side (items sway and stop when you point at them); the ‹ › arrows move along it. The life story opens a drawer. Escape or × closes either.
+- [ ] On a phone, the same four open from the bottom toolbar: one note or photo per screen on the string, swipe or use the arrows to move along; the life story opens as a sheet. Tap a note to read it in full; edit, delete and hide are there.
 - [ ] On a shared memorial in a private window: press and hold the candle until the ring fills; a flame appears, the label says "Your candle is lit", and the header still says "Sign in". A quick tap does nothing. Holding again the same day does nothing; the next day you can add another.
 - [ ] Notes: signed out, the Notes drawer asks you to sign in; after signing in, write a note with a blank line in it, edit it (shows "edited"), then delete it. On your own memorial, hide a note from a second account and check it disappears in a private window.
 - [ ] Light candles from two browsers (or a phone and a computer): the cluster shows both, and the glow spreads.
@@ -111,6 +111,7 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 
 ### Reminders
 
+- `pnpm-workspace.yaml` ignores audit advisory GHSA-fc5q-39xc-vjpf (picomatch ReDoS, no patched version yet; only reached through `@sentry/cloudflare` → `vite` at build time, not in the Worker bundle). Remove the `auditConfig` entry once picomatch ships a fix.
 - When adding Turnstile, Stripe, or Cloudflare Web Analytics, extend the CSP in `apps/web/public/_headers`.
 - R2 (M1) needs a card on file; the $5 billing alert is already set under Notifications.
 - At launch, publish the Google OAuth app, add the production domain to Supabase's redirect URLs, and remove `X-Robots-Tag: noindex` from `apps/web/public/_headers` (see the NAMING.md rename checklist).

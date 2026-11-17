@@ -2,12 +2,11 @@ import { useRef, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDateFormat } from '@/app/useDateFormat';
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer';
-import { Pager } from '@/components/ui/pager';
 import type { Memorial } from '@/core/memorial';
 import type { Note } from '@/core/notes';
-import { pageOf } from '@/lib/pages';
 import { cn } from '@/lib/utils';
-import { NotesPanel } from '../notes/NotesPanel';
+import { NotesString } from '../notes/NotesString';
+import { KeepsakeString, PaperSlip } from './KeepsakeString';
 import { ObjectArt, type ObjectKey } from './ObjectArt';
 
 export type ObjectCounts = Record<Exclude<ObjectKey, 'story'>, number>;
@@ -22,8 +21,6 @@ const PLACEMENTS: readonly Placement[] = [
 ];
 
 const TOOLBAR_ORDER: readonly ObjectKey[] = ['photos', 'notes', 'story', 'memos'];
-
-const PER_PAGE = 6;
 
 type MemorialObjectsProps = {
   memorial: Memorial;
@@ -111,28 +108,47 @@ export function MemorialObjects({ memorial, counts, notes, notesLoading }: Memor
         ))}
       </nav>
 
-      {PLACEMENTS.map(({ key, side }) => (
-        <Drawer key={key} open={open === key} onOpenChange={(next) => setOpen(next ? key : null)}>
-          <DrawerContent
-            side={side}
-            onCloseAutoFocus={(event) => {
-              event.preventDefault();
-              opener.current?.focus();
-            }}
-          >
-            <DrawerTitle className="font-display pr-10 text-2xl font-medium tracking-tight">
-              {t(`memorial.objects.${key}.title`)}
-            </DrawerTitle>
-            {key === 'story' ? (
+      {PLACEMENTS.map(({ key, side }) => {
+        const props = {
+          open: open === key,
+          onOpenChange: (next: boolean) => setOpen(next ? key : null),
+          side,
+          title: t(`memorial.objects.${key}.title`),
+          onCloseAutoFocus: (event: Event) => {
+            event.preventDefault();
+            opener.current?.focus();
+          },
+        };
+        if (key === 'notes')
+          return (
+            <NotesString
+              key={key}
+              {...props}
+              memorial={memorial}
+              notes={notes}
+              loading={notesLoading}
+            />
+          );
+        if (key === 'photos' || key === 'memos')
+          return (
+            <KeepsakeString
+              key={key}
+              {...props}
+              kind={key}
+              items={[{ key: 'empty', node: <EmptySlip kind={key} /> }]}
+            />
+          );
+        return (
+          <Drawer key={key} open={props.open} onOpenChange={props.onOpenChange}>
+            <DrawerContent side={side} onCloseAutoFocus={props.onCloseAutoFocus}>
+              <DrawerTitle className="font-display pr-10 text-2xl font-medium tracking-tight">
+                {props.title}
+              </DrawerTitle>
               <StoryBody memorial={memorial} />
-            ) : key === 'notes' ? (
-              <NotesPanel memorial={memorial} notes={notes} loading={notesLoading} />
-            ) : (
-              <ListBody kind={key} />
-            )}
-          </DrawerContent>
-        </Drawer>
-      ))}
+            </DrawerContent>
+          </Drawer>
+        );
+      })}
     </>
   );
 }
@@ -152,18 +168,14 @@ function StoryBody({ memorial }: { memorial: Memorial }) {
   );
 }
 
-function ListBody({ kind }: { kind: 'photos' | 'memos' }) {
+function EmptySlip({ kind }: { kind: 'photos' | 'memos' }) {
   const { t } = useTranslation();
-  const [page, setPage] = useState(0);
-  const slice = pageOf<never>([], PER_PAGE, page);
   return (
-    <div className="flex flex-1 flex-col gap-4">
-      {slice.items.length === 0 ? (
-        <DrawerDescription className="text-muted-foreground leading-relaxed">
-          {t(`memorial.objects.${kind}.empty`)}
-        </DrawerDescription>
+    <PaperSlip className={cn(kind === 'photos' ? 'pb-3' : 'items-center justify-center')}>
+      {kind === 'photos' ? (
+        <span aria-hidden="true" className="bg-muted block aspect-[4/3] w-full rounded-[2px]" />
       ) : null}
-      <Pager className="mt-auto" page={slice.page} pageCount={slice.pageCount} onPage={setPage} />
-    </div>
+      <p className="text-muted-foreground text-center">{t(`memorial.objects.${kind}.empty`)}</p>
+    </PaperSlip>
   );
 }
