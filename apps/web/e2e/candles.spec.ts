@@ -20,6 +20,26 @@ test.describe('lighting a candle', () => {
     );
   });
 
+  test('the candle appears as soon as the hold finishes, before the server answers', async ({
+    page,
+  }) => {
+    let answer: () => void = () => undefined;
+    const answered = new Promise<void>((resolve) => {
+      answer = resolve;
+    });
+    await page.route('**/rest/v1/rpc/light_candle', async (route) => {
+      await answered;
+      await route.fallback();
+    });
+    await page.goto(`/m/${SLUG}`);
+    await hold(page, page.getByRole('button', { name: 'Light a candle' }), 1500);
+
+    await expect(page.locator('[data-slot="candle"]')).toHaveAttribute('data-candles', '1');
+    await expect(page.getByText('Your candle is lit')).toBeVisible();
+    answer();
+    await expect(page.locator('[data-slot="candle"]')).toHaveAttribute('data-candles', '1');
+  });
+
   test('a visitor holds to light a candle without an account', async ({
     page,
     supabase,

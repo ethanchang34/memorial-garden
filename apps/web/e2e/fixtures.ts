@@ -369,6 +369,13 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
     if (url.pathname === '/auth/v1/logout' && method === 'POST') {
       return route.fulfill({ status: 204, headers });
     }
+    if (url.pathname === '/auth/v1/user/identities/authorize' && method === 'GET') {
+      const authorize = new URL(`${SUPABASE_URL}/auth/v1/authorize`);
+      authorize.searchParams.set('provider', url.searchParams.get('provider') ?? '');
+      authorize.searchParams.set('redirect_to', url.searchParams.get('redirect_to') ?? '');
+      authorize.searchParams.set('link', '1');
+      return json({ url: authorize.toString() });
+    }
     if (url.pathname === '/auth/v1/authorize' && method === 'GET') {
       return route.fulfill({
         status: 200,

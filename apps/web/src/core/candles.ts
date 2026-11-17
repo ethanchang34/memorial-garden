@@ -11,6 +11,17 @@ export type CandleState = {
 
 export const NO_CANDLES: CandleState = { lit: 0, litUntil: null, litToday: false };
 
+export const CANDLE_BURN_MS = 3 * 86_400_000;
+
+export function withNewCandle(state: CandleState, now: Date): CandleState {
+  const burning = state.litUntil !== null && Date.parse(state.litUntil) > now.getTime();
+  return {
+    lit: burning ? Math.min(CANDLE_CLUSTER_MAX, state.lit + 1) : 1,
+    litUntil: new Date(now.getTime() + CANDLE_BURN_MS).toISOString(),
+    litToday: true,
+  };
+}
+
 export type CandleErrorCode = 'daily_limit' | 'unknown';
 
 export class CandleError extends Error {

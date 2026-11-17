@@ -86,8 +86,11 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
           cleanedToday={stoneState.cleanedToday}
           pending={clean.isPending}
           onClean={() => {
-            const before = grime;
-            return clean.mutateAsync().then(() => setWipeFrom(before));
+            setWipeFrom(grime);
+            return clean.mutateAsync().catch((error: unknown) => {
+              setWipeFrom(null);
+              throw error;
+            });
           }}
         />
       ),
