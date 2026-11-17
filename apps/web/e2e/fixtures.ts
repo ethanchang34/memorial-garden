@@ -82,6 +82,7 @@ export type SupabaseMock = {
   signedIn: boolean;
   visitor: boolean;
   candles: { lit: number; litToday: boolean; failNext?: 'daily_limit' };
+  flowers: { types: string[]; placedToday: boolean; failNext?: 'daily_limit' };
   stone: { dirtySince: string | null; cleanedToday: boolean; failNext?: 'daily_limit' };
   notes: NoteRow[];
   noteFailNext?: 'note_rate_limit' | 'note_new_account_limit';
@@ -149,6 +150,7 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
     signedIn: false,
     visitor: false,
     candles: { lit: 0, litToday: false },
+    flowers: { types: [], placedToday: false },
     stone: { dirtySince: null, cleanedToday: false },
     notes: [],
     displayNames: {},
@@ -331,6 +333,39 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
       }
       mock.stone = { dirtySince: new Date().toISOString(), cleanedToday: true };
       return json(stoneRows());
+    }
+    const flowerRows = () => [
+      {
+        flower_types: mock.flowers.types,
+        bloom_until:
+          mock.flowers.types.length > 0
+            ? new Date(Date.now() + 14 * 86_400_000).toISOString()
+            : null,
+        placed_today: mock.flowers.placedToday,
+      },
+    ];
+    if (url.pathname === '/rest/v1/rpc/flower_state' && method === 'POST')
+      return json(flowerRows());
+    if (url.pathname === '/rest/v1/rpc/place_flower' && method === 'POST') {
+      if (!mock.signedIn && !mock.visitor) {
+        return json({ code: '42501', message: 'Not signed in', hint: null, details: null }, 401);
+      }
+      if (mock.flowers.placedToday || mock.flowers.failNext === 'daily_limit') {
+        delete mock.flowers.failNext;
+        return json(
+          {
+            code: 'P0001',
+            message: 'Already placed a flower here today',
+            hint: 'flower_daily_limit',
+            details: null,
+          },
+          400,
+        );
+      }
+      const chosen = String((request.postDataJSON() as { chosen_type?: string }).chosen_type);
+      if (mock.flowers.types.length < 15) mock.flowers.types = [...mock.flowers.types, chosen];
+      mock.flowers.placedToday = true;
+      return json(flowerRows());
     }
     const candleRows = () => [
       {

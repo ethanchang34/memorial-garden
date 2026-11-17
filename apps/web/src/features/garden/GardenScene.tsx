@@ -1,12 +1,14 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { blendForHour, dominantPhase, localHour, mixHex, mixRecord } from '@/core/timeOfDay';
 import { buildCanopy, type CanopyLeaf } from './canopy';
+import type { FlowerType } from '@/core/flowers';
 import { CandleCluster } from './CandleCluster';
+import { FlowerVases } from './FlowerVases';
 import { StoneWeathering } from './StoneWeathering';
 import { buildHedgeRow, type HedgeLobe } from './hedges';
 import { FallingLeaves } from './FallingLeaves';
 import { Fireflies } from './Fireflies';
-import { frontRing, seededRandom, smoothPath, vesselOutline, type Point } from './geometry';
+import { seededRandom, smoothPath, type Point } from './geometry';
 import { ORCHARD, type GardenPalette } from './palette';
 import { fitView, GROUND_Y, SCENE_SPAN, viewBox } from './view';
 
@@ -17,6 +19,8 @@ type GardenSceneProps = {
   now?: Date;
   candlesLit?: number;
   justLit?: boolean;
+  flowers?: readonly FlowerType[];
+  justPlaced?: boolean;
   grime?: number;
   seed?: string;
   wiping?: boolean;
@@ -33,17 +37,6 @@ export type SceneOverlay = {
 };
 
 export const STONE_PATH = 'M332 404 L332 246 Q332 188 400 188 Q468 188 468 246 L468 404Z';
-
-const VASE: Point[] = [
-  [416, 19],
-  [410, 24],
-  [394, 31],
-  [376, 30],
-  [360, 22],
-  [348, 14],
-  [340, 13],
-  [334, 17],
-];
 
 function stoneLines(name: string): { lines: string[]; size: number } {
   const words = name.split(' ');
@@ -176,6 +169,8 @@ export function GardenScene({
   now,
   candlesLit = 0,
   justLit = false,
+  flowers = [],
+  justPlaced = false,
   grime = 0,
   seed = name,
   wiping = false,
@@ -193,8 +188,6 @@ export function GardenScene({
   const { lines, size } = stoneLines(name);
   const lineHeight = size * 1.15;
   const nameTop = 276 - ((lines.length - 1) * lineHeight) / 2;
-  const vase = vesselOutline(300, VASE, 4, 3);
-  const lip = frontRing(300, vase.rimY, vase.rimRx, vase.rimRy, 13, 2.5);
   const view = fitView(aspect);
   const canopy = useMemo(() => buildCanopy(fitView(aspect)), [aspect]);
   const right = view.x + view.width;
@@ -262,11 +255,6 @@ export function GardenScene({
             <stop offset="0" stopColor={p.stoneShade} />
             <stop offset="0.6" stopColor={p.stone} />
             <stop offset="1" stopColor={p.stoneShade} />
-          </linearGradient>
-          <linearGradient id={id('clay')} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor={p.clayShade} />
-            <stop offset="0.65" stopColor={p.clay} />
-            <stop offset="1" stopColor={p.clayShade} />
           </linearGradient>
           <linearGradient id={id('wax')} x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stopColor={p.waxShade} />
@@ -351,21 +339,7 @@ export function GardenScene({
           id={id}
         />
 
-        <g aria-hidden="true" data-slot="vase">
-          <ellipse
-            cx="300"
-            cy="418"
-            rx="34"
-            ry="6"
-            fill={p.shadow}
-            opacity="0.2"
-            filter={url('soft')}
-          />
-          <path d={vase.body} fill={url('clay')} />
-          <ellipse cx="300" cy={vase.rimY} rx={vase.rimRx} ry={vase.rimRy + 3} fill={p.clay} />
-          <ellipse cx="300" cy={vase.rimY + 1} rx="13" ry="2.5" fill={p.clayShade} />
-          <path d={lip} fill={p.clay} />
-        </g>
+        <FlowerVases types={flowers} justPlaced={justPlaced} p={p} id={id} />
 
         <CandleCluster lit={candlesLit} justLit={justLit} p={p} glow={url('glow')} id={id} />
 
