@@ -4,6 +4,7 @@ import { createTurnstileCaptcha } from '@/adapters/turnstile';
 import type { AuthProvider } from '@/core/auth';
 import { noCaptcha, type CaptchaProvider } from '@/core/captcha';
 import type { CandleRepository } from '@/core/candles';
+import type { FlowerRepository } from '@/core/flowers';
 import type { MemorialRepository } from '@/core/memorial';
 import type { NoteRepository } from '@/core/notes';
 import type { ProfileRepository } from '@/core/profile';
@@ -14,6 +15,7 @@ export type AppServices = {
   profiles: ProfileRepository;
   memorials: MemorialRepository;
   candles: CandleRepository;
+  flowers: FlowerRepository;
   notes: NoteRepository;
   stone: StoneRepository;
   captcha: CaptchaProvider;

@@ -100,6 +100,27 @@
       "captchaFailed": "We couldn't check that you're a person. Please try again.",
       "failed": "The candle didn't light. Please try again."
     },
+    "flowers": {
+      "place": "Place a flower",
+      "placedToday": "You placed a flower today",
+      "title": "Place a flower",
+      "body": "Choose a flower for {{name}}. Flowers stay in bloom for 14 days, and each new one keeps the whole bouquet fresh.",
+      "full": "The vases are full. Your flower keeps every bloom fresh for another 14 days.",
+      "typeLabel": "Flower",
+      "types": {
+        "rose": "Rose",
+        "tulip": "Tulip",
+        "daisy": "Daisy",
+        "poppy": "Poppy"
+      },
+      "notNow": "Not now",
+      "confirm": "Place flower",
+      "placed": "Your flower is in the vase.",
+      "inBloom_one": "{{count}} flower is in bloom for {{name}}.",
+      "inBloom_other": "{{count}} flowers are in bloom for {{name}}.",
+      "dailyLimit": "You’ve already placed a flower here today. Come back tomorrow.",
+      "failed": "The flower wasn’t placed. Please try again."
+    },
     "notes": {
       "write": "Write a note",
       "fieldLabel": "Your note",

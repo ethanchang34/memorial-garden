@@ -1,3 +1,4 @@
+import type { FlowerType } from '@/core/flowers';
 import type { Phase } from '@/core/timeOfDay';
 
 export type GardenPalette = {
@@ -44,6 +45,7 @@ export type GardenPalette = {
   clayShade: string;
   wax: string;
   waxShade: string;
+  dusk: number;
 };
 
 const shared = {
@@ -71,6 +73,7 @@ const shared = {
 export const ORCHARD: Record<Phase, GardenPalette> = {
   morning: {
     ...shared,
+    dusk: 0,
     skyTop: '#e9d3b8',
     skyBottom: '#f6ead5',
     sun: '#fff0cf',
@@ -98,6 +101,7 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
   },
   day: {
     ...shared,
+    dusk: 0,
     skyTop: '#e2cfa6',
     skyBottom: '#f5ecd6',
     sun: '#fff6dc',
@@ -125,6 +129,7 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
   },
   golden: {
     ...shared,
+    dusk: 0.05,
     skyTop: '#eebd86',
     skyBottom: '#f7e1bd',
     sun: '#ffd88f',
@@ -152,6 +157,7 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
   },
   evening: {
     ...shared,
+    dusk: 0.35,
     clay: '#8a4e34',
     clayShade: '#5e2f1f',
     wax: '#d9cbb3',
@@ -183,6 +189,7 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
   },
   night: {
     ...shared,
+    dusk: 0.55,
     clay: '#5e3626',
     clayShade: '#3c2018',
     wax: '#b9ad99',
@@ -212,4 +219,20 @@ export const ORCHARD: Record<Phase, GardenPalette> = {
     fireflyMax: 16,
     fireflyGlow: 1,
   },
+};
+
+export type BloomColors = { deep: string; mid: string; light: string; center: string };
+
+export const FLOWER_COLORS: Record<FlowerType, BloomColors> = {
+  rose: { deep: '#8f2f36', mid: '#bf4a50', light: '#e07d7a', center: '#7a2530' },
+  tulip: { deep: '#b8506a', mid: '#dc7a8c', light: '#f3b1b5', center: '#9c3f58' },
+  daisy: { deep: '#d9cdb4', mid: '#f4eedf', light: '#fffcf3', center: '#d9a23a' },
+  poppy: { deep: '#a83c22', mid: '#d65a35', light: '#f08a5c', center: '#2f241d' },
+};
+
+export const STEM_COLORS = {
+  stem: '#6f7a3e',
+  light: '#a9ab5f',
+  leaf: '#7d8a45',
+  leafLight: '#b0a95a',
 };

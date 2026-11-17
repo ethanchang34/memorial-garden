@@ -59,7 +59,7 @@ Build only the core loop (one memorial page with the garden, a note, lighting a 
 Turn the `/dev/art` still life into reusable parts: scene slots, objects with attachment points (vase mouth, candle wick), parts (flowers, flame), four-layer drawing for vessels, scene lighting applied to all of it, then the honeyed orchard keyframes blended by local time.
 
 - Garden gestures are decided (DESIGN §6.3): candle cluster up to 15, 3 vases of 5 with visitor-chosen flower types, incense up to 3, shared refresh per type, one of each per visitor per day, no account for gestures (anonymous sign-in), calico cat by default.
-- Make the vase matte (owner feedback: too shiny).
+- [x] Vase and flowers (PR #55; migration `20261116000000_flowers`): visitors tap the vase, pick a rose, tulip, daisy or poppy, and place it; it grows in at once and sways gently (still with reduced motion). Up to 3 vases of 5, grouped left of the stone (vase 2 appears when vase 1 is full, then vase 3); one flower per visitor per memorial per local day; each flower refreshes the shared 14-day bloom, and the next one after it fades starts a fresh bouquet. No account needed (same anonymous sign-in as candles). Flowers are lit by the time of day (`features/garden/flowers.ts`, `FlowerVases.tsx`). The vase is matte now, with a clay grain. Deferred: Undo toast, a message on a flower, the "Flowers from Alex" credit.
 - Sky-inspired candle ritual: hold to light, spreading glow, rising embers (VISUAL_DIRECTION, Sky reference).
 
 ### After that
@@ -105,6 +105,7 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 - [ ] Notes: signed out, the Notes drawer asks you to sign in; after signing in, write a note with a blank line in it, edit it (shows "edited"), then delete it. On your own memorial, hide a note from a second account and check it disappears in a private window.
 - [ ] Light candles from two browsers (or a phone and a computer): the cluster shows both, and the glow spreads.
 - [ ] In a private window, holding the candle or confirming "Clean the stone" shows the flame or starts the wipe right away, with no pause.
+- [ ] Flowers: in a private window, tap the vase, pick a flower, and place it; it grows in right away and the header still says "Sign in". The same day the vase says "You placed a flower today". Check it looks right in the morning and at night.
 - [ ] Linking: in a private window, light a candle, then Sign in with a Google account that has never used the site. You come back signed in with that Google name, and the candle still shows "Your candle is lit". Doing the same with your usual Google account just signs you in to it.
 - [ ] Cleaning: a memorial shared more than a week ago shows moss on the stone (a newer one stays clean until then). In a private window, tap the stone, choose "Clean the stone", and the moss wipes away; the header still says "Sign in". Trying again the same day explains you've already cleaned it today; "Not now" leaves the stone as it is.
 - [ ] Locally (`pnpm dev`): `/dev/art` animation (swaying flowers, flickering flame, drifting petal), `/dev/palettes`, `/dev/directions`.
