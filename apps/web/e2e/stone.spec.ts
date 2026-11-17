@@ -77,6 +77,7 @@ test.describe('cleaning the stone', () => {
     await page.getByRole('button', { name: 'Clean the stone' }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Clean the stone' }).click();
     await expect(page.getByText('You’ve already cleaned this stone today.')).toBeVisible();
+    await expect(page.locator('[data-moss]')).not.toHaveAttribute('data-grime', '0.00');
   });
 
   test('the stone control fits every screen', async ({ page, supabase }) => {

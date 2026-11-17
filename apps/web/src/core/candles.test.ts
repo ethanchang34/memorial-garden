@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { lightCandle, type LightCandleDeps } from './candles';
+import { lightCandle, withNewCandle, type LightCandleDeps } from './candles';
 
 function deps(overrides: Partial<LightCandleDeps> = {}) {
   const calls: string[] = [];
@@ -62,5 +62,24 @@ describe('lightCandle', () => {
     });
     await expect(lightCandle(d, null, 'm1')).rejects.toThrow('captcha');
     expect(calls).toEqual([]);
+  });
+});
+
+describe('withNewCandle', () => {
+  const now = new Date('2026-11-16T12:00:00Z');
+
+  it('adds to a burning cluster and restarts the timer', () => {
+    const next = withNewCandle({ lit: 4, litUntil: '2026-11-17T00:00:00Z', litToday: false }, now);
+    expect(next).toEqual({ lit: 5, litUntil: '2026-11-19T12:00:00.000Z', litToday: true });
+  });
+
+  it('starts a new cluster once the candles have gone out', () => {
+    const next = withNewCandle({ lit: 9, litUntil: '2026-11-15T00:00:00Z', litToday: false }, now);
+    expect(next.lit).toBe(1);
+  });
+
+  it('never grows past the cluster limit', () => {
+    const next = withNewCandle({ lit: 15, litUntil: '2026-11-17T00:00:00Z', litToday: false }, now);
+    expect(next.lit).toBe(15);
   });
 });

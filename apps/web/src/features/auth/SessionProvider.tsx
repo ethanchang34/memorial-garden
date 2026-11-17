@@ -18,6 +18,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    if (!services) return;
+    services.auth.resumeSignIn(window.location.href).catch(() => undefined);
+  }, [services]);
+
+  useEffect(() => {
     if (!services) return undefined;
     return services.auth.onChange((user) => {
       setSession(
