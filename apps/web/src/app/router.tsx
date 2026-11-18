@@ -30,6 +30,12 @@ const uiPreviewRoutes: RouteObject[] =
           }),
         },
         {
+          path: 'dev/og',
+          lazy: async () => ({
+            Component: (await import('@/features/dev/og/OgImagePage')).OgImagePage,
+          }),
+        },
+        {
           path: 'dev/directions',
           lazy: async () => ({
             Component: (await import('@/features/dev/directions/DirectionsPage')).DirectionsPage,

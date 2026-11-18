@@ -19,7 +19,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/api/src/**/*.{ts,tsx}'],
+    files: ['apps/api/src/**/*.{ts,tsx}', 'functions/**/*.ts'],
     languageOptions: { globals: { ...globals.es2022, ...globals.serviceworker } },
   },
   prettier,
