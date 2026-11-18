@@ -63,34 +63,13 @@ export function NotesString({
       : (note.authorName ?? t('memorial.notes.someone'));
 
   const items: StringItem[] = [];
-  if (session.status === 'signed-in')
-    items.push({
-      key: 'write',
-      node: (
-        <button
-          type="button"
-          className={slipFocus}
-          onClick={(event) => {
-            remember(event);
-            setWriting(true);
-          }}
-        >
-          <PaperSlip className="border-stone-dark/50 can-hover:hover:bg-muted items-center justify-center border-2 border-dashed text-center">
-            <PenLine className="text-gold-deep size-7" aria-hidden="true" />
-            <span className="font-display text-lg">{t('memorial.notes.write')}</span>
-          </PaperSlip>
-        </button>
-      ),
-    });
-  else if (session.status !== 'unavailable') items.push({ key: 'sign-in', node: <SignInSlip /> });
-
   if (loading || notes.length === 0)
     items.push({
       key: 'empty',
       node: (
         <PaperSlip className="items-center justify-center text-center">
           <p className="text-muted-foreground">
-            {loading ? t('common.loading') : t('memorial.objects.notes.empty')}
+            {loading ? t('common.loading') : t('memorial.notes.emptyInvite')}
           </p>
         </PaperSlip>
       ),
@@ -147,25 +126,44 @@ export function NotesString({
       items={items}
       resetKey={posted}
       onCloseAutoFocus={onCloseAutoFocus}
+      showPager={notes.length > 0}
+      action={
+        session.status === 'unavailable' ? null : (
+          <Button
+            size="small"
+            onClick={(event) => {
+              remember(event);
+              setWriting(true);
+            }}
+          >
+            <PenLine className="size-4" aria-hidden="true" />
+            {t('memorial.notes.write')}
+          </Button>
+        )
+      }
     >
       <Dialog open={writing} onOpenChange={setWriting}>
         <DialogContent aria-describedby={undefined} onCloseAutoFocus={returnFocus}>
           <DialogHeader>
             <DialogTitle>{t('memorial.notes.write')}</DialogTitle>
           </DialogHeader>
-          <NoteForm
-            autoFocus
-            submitLabel={t('memorial.notes.post')}
-            pending={create.isPending}
-            onCancel={() => setWriting(false)}
-            onSubmit={(body) =>
-              create.mutateAsync(body).then(() => {
-                setWriting(false);
-                setPosted((count) => count + 1);
-                toast(t('memorial.notes.posted'));
-              })
-            }
-          />
+          {session.status !== 'signed-in' ? (
+            <SignInSlip />
+          ) : (
+            <NoteForm
+              autoFocus
+              submitLabel={t('memorial.notes.post')}
+              pending={create.isPending}
+              onCancel={() => setWriting(false)}
+              onSubmit={(body) =>
+                create.mutateAsync(body).then(() => {
+                  setWriting(false);
+                  setPosted((count) => count + 1);
+                  toast(t('memorial.notes.posted'));
+                })
+              }
+            />
+          )}
         </DialogContent>
       </Dialog>
 
@@ -201,11 +199,11 @@ function SignInSlip() {
   const { t } = useTranslation();
   const { signIn, pending } = useAuthActions();
   return (
-    <PaperSlip className="justify-center">
+    <div className="flex flex-col items-start gap-3">
       <p className="leading-relaxed">{t('memorial.notes.signInPrompt')}</p>
-      <Button size="small" className="self-start" onClick={() => void signIn()} disabled={pending}>
+      <Button onClick={() => void signIn()} disabled={pending}>
         {t('auth.signIn')}
       </Button>
-    </PaperSlip>
+    </div>
   );
 }
