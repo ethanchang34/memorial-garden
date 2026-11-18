@@ -8,7 +8,7 @@ import {
 import type { AppSupabaseClient } from './client';
 
 const COLUMNS =
-  'id, slug, owner_id, full_name, born_date, born_precision, died_date, died_precision, epitaph, status';
+  'id, slug, owner_id, full_name, born_date, born_precision, died_date, died_precision, epitaph, life_story, status';
 
 type MemorialRow = {
   id: string;
@@ -20,6 +20,7 @@ type MemorialRow = {
   died_date: string;
   died_precision: DatePrecision;
   epitaph: string | null;
+  life_story: string | null;
   status: MemorialStatus;
 };
 
@@ -35,6 +36,7 @@ function toMemorial(row: MemorialRow): Memorial {
         : null,
     died: { date: row.died_date, precision: row.died_precision },
     epitaph: row.epitaph,
+    lifeStory: row.life_story,
     status: row.status,
   };
 }
@@ -72,6 +74,17 @@ export function createSupabaseMemorials(client: AppSupabaseClient): MemorialRepo
       const { data, error } = await client
         .from('memorials')
         .update(toColumns(input))
+        .eq('id', id)
+        .select(COLUMNS)
+        .single();
+      if (error) throw toError(error);
+      return toMemorial(data);
+    },
+
+    async updateLifeStory(id, story) {
+      const { data, error } = await client
+        .from('memorials')
+        .update({ life_story: story })
         .eq('id', id)
         .select(COLUMNS)
         .single();

@@ -2,6 +2,7 @@ import { createBrowserRouter, type RouteObject } from 'react-router';
 import { RootLayout } from '@/app/RootLayout';
 import { HomePage } from '@/features/home/HomePage';
 import { CreateMemorialPage } from '@/features/memorials/CreateMemorialPage';
+import { EditMemorialPage } from '@/features/memorials/EditMemorialPage';
 import { MemorialPage } from '@/features/memorials/MemorialPage';
 import { MyGardensPage } from '@/features/memorials/MyGardensPage';
 import { NotFoundPage } from '@/features/not-found/NotFoundPage';
@@ -46,6 +47,7 @@ export const router = createBrowserRouter([
       { path: 'memorials', element: <MyGardensPage /> },
       { path: 'memorials/new', element: <CreateMemorialPage /> },
       { path: 'm/:slug', element: <MemorialPage /> },
+      { path: 'm/:slug/edit', element: <EditMemorialPage /> },
       ...uiPreviewRoutes,
       { path: '*', element: <NotFoundPage /> },
     ],

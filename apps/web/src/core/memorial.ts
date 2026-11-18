@@ -10,6 +10,7 @@ export type Memorial = {
   born: MemorialDate | null;
   died: MemorialDate;
   epitaph: string | null;
+  lifeStory: string | null;
   status: MemorialStatus;
 };
 
@@ -24,6 +25,7 @@ export class MemorialError extends Error {
 export interface MemorialRepository {
   create(ownerId: string, input: MemorialInput): Promise<Memorial>;
   update(id: string, input: MemorialInput): Promise<Memorial>;
+  updateLifeStory(id: string, story: string | null): Promise<Memorial>;
   getBySlug(slug: string): Promise<Memorial | null>;
   listMine(ownerId: string): Promise<Memorial[]>;
   publish(id: string): Promise<string>;

@@ -13,3 +13,10 @@ export function toMemorialDate(field: DateFieldValue): MemorialDate | null | und
     return /^\d{4}-\d{2}$/.test(value) ? { date: `${value}-01`, precision: 'month' } : undefined;
   return /^\d{4}$/.test(value) ? { date: `${value}-01-01`, precision: field.precision } : undefined;
 }
+
+export function fromMemorialDate(date: MemorialDate | null): DateFieldValue {
+  if (!date) return { precision: 'unknown', value: '' };
+  if (date.precision === 'day') return { precision: 'day', value: date.date };
+  if (date.precision === 'month') return { precision: 'month', value: date.date.slice(0, 7) };
+  return { precision: date.precision, value: date.date.slice(0, 4) };
+}
