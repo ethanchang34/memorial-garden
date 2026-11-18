@@ -3,6 +3,7 @@ export type MyProfile = {
   displayName: string;
   timeZone: string;
   locale: string;
+  isAdmin: boolean;
 };
 
 export interface ProfileRepository {

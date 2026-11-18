@@ -132,6 +132,28 @@ export type Database = {
         Args: { target_memorial: string; chosen_type: string; note?: string };
         Returns: { flower_types: string[]; bloom_until: string | null; placed_today: boolean }[];
       };
+      admin_report_queue: {
+        Args: Record<string, never>;
+        Returns: {
+          note_id: string;
+          note_body: string;
+          note_status: string;
+          note_created_at: string;
+          author_id: string | null;
+          author_name: string | null;
+          author_status: string | null;
+          memorial_slug: string;
+          memorial_name: string;
+          report_count: number;
+          reasons: string[];
+          details: string[];
+          first_reported_at: string;
+        }[];
+      };
+      admin_resolve_note_reports: {
+        Args: { target_note: string; decision: string; reason: string };
+        Returns: number;
+      };
       report_content: {
         Args: { target_type: string; target_id: string; reason: string; details?: string };
         Returns: string;

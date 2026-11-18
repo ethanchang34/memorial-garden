@@ -1,5 +1,6 @@
 import { createBrowserRouter, type RouteObject } from 'react-router';
 import { RootLayout } from '@/app/RootLayout';
+import { AdminReportsPage } from '@/features/admin/AdminReportsPage';
 import { HomePage } from '@/features/home/HomePage';
 import { CreateMemorialPage } from '@/features/memorials/CreateMemorialPage';
 import { EditMemorialPage } from '@/features/memorials/EditMemorialPage';
@@ -54,6 +55,7 @@ export const router = createBrowserRouter([
       { path: 'memorials/new', element: <CreateMemorialPage /> },
       { path: 'm/:slug', element: <MemorialPage /> },
       { path: 'm/:slug/edit', element: <EditMemorialPage /> },
+      { path: 'admin/reports', element: <AdminReportsPage /> },
       ...uiPreviewRoutes,
       { path: '*', element: <NotFoundPage /> },
     ],

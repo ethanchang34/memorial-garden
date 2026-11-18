@@ -53,7 +53,8 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Filing-cabinet note stack: hover lift, date tooltip, All/Mine toggle, "mine" tabs
 - [x] Owner hide/unhide
 - [x] Report button on notes (`reports`, `report_content()`; one per person per note, 20/day)
-- [ ] Admin report queue `/admin/reports` (dismiss, hide, remove, suspend; `admin_actions` audit) + email alerts via Resend
+- [x] Admin report queue `/admin/reports` (dismiss, remove, remove + suspend; append-only `admin_actions` audit)
+- [ ] Email alerts for new reports via Resend
 - [ ] Report display names, memorials, memos and photos
 - [ ] Display name change limit (5/day per user) enforced in the database, with pgTAP tests
 - [ ] Turnstile on submit
@@ -95,7 +96,7 @@ Model: [MONETIZATION.md](MONETIZATION.md) (no coins).
 
 - [ ] Donation checkout
 - [ ] Admin (behind Cloudflare Access): report queue (incl. ownership requests), user lookup + suspend/ban/coin adjust, payments + refunds, catalog editor, support inbox, stats dashboard
-- [ ] `admin_actions` audit log (append-only) for every admin action
+- [x] `admin_actions` audit log (append-only) for every admin action (started with report decisions)
 - [ ] Contact form (`support_requests` + Cloudflare Email Workers forwarding) + Help/FAQ page
 - [ ] 4–6 guides under `/guides` (MDX)
 - [ ] Account deletion: orphan memorials (`owner_id` → NULL)

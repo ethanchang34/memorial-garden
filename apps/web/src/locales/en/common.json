@@ -315,5 +315,46 @@
     "previous": "Previous page",
     "next": "Next page",
     "position": "Page {{page}} of {{total}}"
+  },
+  "admin": {
+    "menuLink": "Reports",
+    "reports": {
+      "heading": "Reports",
+      "empty": "No open reports. All caught up.",
+      "count_one": "{{count}} note waiting for review.",
+      "count_other": "{{count}} notes waiting for review.",
+      "loadFailed": "We couldn’t load the reports. Please refresh the page.",
+      "reportCount_one": "{{count}} report",
+      "reportCount_other": "{{count}} reports",
+      "on": "On {{name}}’s garden",
+      "by": "Written by {{name}}",
+      "authorStatus": {
+        "suspended": "suspended",
+        "banned": "banned"
+      },
+      "noteStatus": {
+        "hidden_by_owner": "The family has already hidden this note.",
+        "removed": "This note has already been removed."
+      },
+      "reasons": "Reasons:",
+      "decisionLabel": "Decision",
+      "decisions": {
+        "dismiss": "Keep the note (dismiss the reports)",
+        "remove": "Remove the note",
+        "remove_and_suspend": "Remove the note and suspend the writer"
+      },
+      "chooseDecision": "Choose a decision.",
+      "reasonLabel": "Why? (kept in the audit log)",
+      "reasonHelp": "A short note for the record, like “Harassment” or “Kind memory, not spam”.",
+      "reasonRequired": "Write a short reason.",
+      "submit": "Save decision",
+      "done": {
+        "dismiss": "Reports dismissed. The note stays up.",
+        "remove": "Note removed.",
+        "remove_and_suspend": "Note removed and writer suspended."
+      },
+      "failed": "That didn’t save. Please try again.",
+      "openGarden": "Open {{name}}’s garden"
+    }
   }
 }

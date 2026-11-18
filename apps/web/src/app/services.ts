@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
 import { createSupabaseServices } from '@/adapters/supabase';
 import { createTurnstileCaptcha } from '@/adapters/turnstile';
+import type { AdminRepository } from '@/core/admin';
 import type { AuthProvider } from '@/core/auth';
 import { noCaptcha, type CaptchaProvider } from '@/core/captcha';
 import type { CandleRepository } from '@/core/candles';
@@ -14,6 +15,7 @@ import type { StoneRepository } from '@/core/stone';
 
 export type AppServices = {
   auth: AuthProvider;
+  admin: AdminRepository;
   profiles: ProfileRepository;
   reports: ReportRepository;
   memorials: MemorialRepository;
