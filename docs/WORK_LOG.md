@@ -98,21 +98,21 @@ Already done: Supabase redirect URLs (`http://localhost:5173/**`, `https://memor
 
 On https://memorial-garden-2ub.pages.dev unless noted:
 
-- [ ] Sign in with Google; the header shows your display name (no photo).
-- [ ] Profile settings: rejected names (`Free $$$`, `Admin`, an emoji) show the right message; a valid name saves and the header updates.
-- [ ] Sign out from Profile settings lands on the home page with no flash of the settings page.
+- [x] Sign in with Google; the header shows your display name (no photo).
+- [x] Profile settings: rejected names (`Free $$$`, `Admin`, an emoji) show the right message; a valid name saves and the header updates.
+- [x] Sign out from Profile settings lands on the home page with no flash of the settings page.
 - [ ] Create a memorial from the home page: try Year, Around, and Not sure; the stone shows e.g. "1932 – 2024" or "c. 1890 – 1952".
 - [ ] A third draft is refused with the 2-draft message.
 - [ ] Your gardens (account menu) lists drafts; "Share this garden" publishes (you are admin).
 - [ ] Open a shared memorial in a private window (signed out): it shows without the draft notice or Edit memorial link (the Share button is there for everyone); a draft's link shows "This path leads nowhere".
 - [ ] On a phone: the form and memorial page fit without sideways scrolling.
-- [ ] The memorial page garden matches your local time of day (morning, day, golden hour, evening, night); refresh after the hour changes.
-- [ ] The garden fills the width and most of the screen on your phone and computer, with the path centered on the stone, the tree canopy across the top, and a few leaves falling.
-- [ ] In the evening (around 9 pm) a few fireflies blink; late at night (after 10:30 pm) more of them, brighter, blinking and moving between flashes. With Reduce Motion on (phone accessibility settings), they hold still.
-- [ ] On a computer, the photos, life story, notes and voice memos objects sit on the garden's left and right edges and lift when you hover over them. Photos, notes and voice memos pull out on a string from that side (items sway and stop when you point at them); the ‹ › arrows move along it. The life story opens a drawer. Escape or × closes either.
-- [ ] On a phone, the same four open from the bottom toolbar: one note or photo per screen on the string, swipe or use the arrows to move along; the life story opens as a sheet. Tap a note to read it in full; edit, delete and hide are there.
+- [x] The memorial page garden matches your local time of day (morning, day, golden hour, evening, night); refresh after the hour changes.
+- [x] The garden fills the width and most of the screen on your phone and computer, with the path centered on the stone, the tree canopy across the top, and a few leaves falling.
+- [x] In the evening (around 9 pm) a few fireflies blink; late at night (after 10:30 pm) more of them, brighter, blinking and moving between flashes. With Reduce Motion on (phone accessibility settings), they hold still.
+- [x] On a computer, the photos, life story, notes and voice memos objects sit on the garden's left and right edges and lift when you hover over them. Photos, notes and voice memos pull out on a string from that side (items sway and stop when you point at them); the ‹ › arrows move along it. The life story opens a drawer. Escape or × closes either.
+- [ ] (Owner feedback 2026-11-18: with one note, the phone string opens on the "Write a note" paper instead of the note; redesign pending.) On a phone, the same four open from the bottom toolbar: one note or photo per screen on the string, swipe or use the arrows to move along; the life story opens as a sheet. Tap a note to read it in full; edit, delete and hide are there.
 - [ ] On a shared memorial in a private window: press and hold the candle until the ring fills; a flame appears, the label says "Your candle is lit", and the header still says "Sign in". A quick tap does nothing. Holding again the same day does nothing; the next day you can add another.
-- [ ] Notes: signed out, the Notes drawer asks you to sign in; after signing in, write a note with a blank line in it, edit it (shows "edited"), then delete it. On your own memorial, hide a note from a second account and check it disappears in a private window.
+- [x] Notes: signed out, the Notes drawer asks you to sign in; after signing in, write a note with a blank line in it, edit it (shows "edited"), then delete it. On your own memorial, hide a note from a second account and check it disappears in a private window.
 - [ ] Light candles from two browsers (or a phone and a computer): the cluster shows both, and the glow spreads.
 - [ ] In a private window, holding the candle or confirming "Clean the stone" shows the flame or starts the wipe right away, with no pause.
 - [ ] Editing: on your own memorial, tap "Edit memorial" under the name, change the epitaph and save. Open the Life story drawer, write a few paragraphs, save, and check a private window shows them. On a draft, fix the name and see the address change with it.
@@ -120,9 +120,9 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 - [ ] Link preview: text yourself a shared memorial's link (iMessage, WhatsApp, or Slack). The preview shows the name, years, epitaph and a garden picture. A draft's link shows the plain site preview.
 - [ ] Incense: in a private window, press and hold the bowl in front of the stone until the ring fills; a stick appears with a glowing tip and smoke. Holding again the same day does nothing.
 - [ ] Flower extras: place a flower and tap Undo in the toast; it comes back out. Signed in, add a short message; tap the vase again to see "from you" with the message. On your own memorial, hide someone else's message.
-- [ ] Reporting: with a second account, open one of your notes, tap Report, choose a reason and send it. Then check the `reports` table in the Supabase dashboard (Table Editor) shows it.
+- [x] Reporting: with a second account, open one of your notes, tap Report, choose a reason and send it. Then check the `reports` table in the Supabase dashboard (Table Editor) shows it.
 - [ ] Flowers: in a private window, tap the vase, pick a flower, and place it; it grows in right away and the header still says "Sign in". The same day the vase says "You placed a flower today". Check it looks right in the morning and at night.
-- [ ] Linking: in a private window, light a candle, then Sign in with a Google account that has never used the site. You come back signed in with that Google name, and the candle still shows "Your candle is lit". Doing the same with your usual Google account just signs you in to it.
+- [x] Linking: in a private window, light a candle, then Sign in with a Google account that has never used the site. You come back signed in with that Google name, and the candle still shows "Your candle is lit". Doing the same with your usual Google account just signs you in to it.
 - [ ] Cleaning: a memorial shared more than a week ago shows moss on the stone (a newer one stays clean until then). In a private window, tap the stone, choose "Clean the stone", and the moss wipes away; the header still says "Sign in". Trying again the same day explains you've already cleaned it today; "Not now" leaves the stone as it is.
 - [ ] Locally (`pnpm dev`): `/dev/art` animation (swaying flowers, flickering flame, drifting petal), `/dev/palettes`, `/dev/directions`.
 
