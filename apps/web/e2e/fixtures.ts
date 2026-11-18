@@ -32,6 +32,22 @@ export type FlowerCreditRow = {
   mine: boolean;
 };
 
+export type AdminQueueRow = {
+  note_id: string;
+  note_body: string;
+  note_status: string;
+  note_created_at: string;
+  author_id: string | null;
+  author_name: string | null;
+  author_status: string | null;
+  memorial_slug: string;
+  memorial_name: string;
+  report_count: number;
+  reasons: string[];
+  details: string[];
+  first_reported_at: string;
+};
+
 export type NoteRow = {
   id: string;
   memorial_id: string;
@@ -109,6 +125,8 @@ export type SupabaseMock = {
   memorialFailNext?: boolean;
   reports: { target_id: string; reason: string; details: string | null }[];
   reportFailNext?: 'report_rate_limit';
+  reportQueue: AdminQueueRow[];
+  adminActions: { note: string; decision: string; reason: string }[];
   displayNames: Record<string, string>;
   calls: { method: string; path: string; body: unknown }[];
   unexpected: string[];
@@ -179,6 +197,8 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
     notes: [],
     displayNames: {},
     reports: [],
+    reportQueue: [],
+    adminActions: [],
     async signIn(profile = {}) {
       mock.signedIn = true;
       Object.assign(mock.profile, profile);
@@ -207,7 +227,8 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
         body: JSON.stringify(data),
       });
 
-    if (url.pathname === '/rest/v1/profiles' && method === 'GET') return json(mock.profile);
+    if (url.pathname === '/rest/v1/profiles' && method === 'GET')
+      return json({ ...mock.profile, is_admin: mock.isAdmin });
     if (url.pathname === '/rest/v1/profiles' && method === 'PATCH') {
       Object.assign(mock.profile, body as Partial<ProfileRow>);
       return json(mock.profile);
@@ -482,6 +503,27 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
       mock.flowers.placedToday = true;
       mock.flowers.lastPlacedAt = Date.now();
       return json(flowerRows());
+    }
+    if (url.pathname.startsWith('/rest/v1/rpc/admin_') && (!mock.signedIn || !mock.isAdmin))
+      return json({ code: '42501', message: 'Admins only', hint: null, details: null }, 403);
+    if (url.pathname === '/rest/v1/rpc/admin_report_queue' && method === 'POST')
+      return json(mock.reportQueue);
+    if (url.pathname === '/rest/v1/rpc/admin_resolve_note_reports' && method === 'POST') {
+      const input = request.postDataJSON() as {
+        target_note: string;
+        decision: string;
+        reason: string;
+      };
+      const row = mock.reportQueue.find((item) => item.note_id === input.target_note);
+      if (!row)
+        return json({ code: 'P0002', message: 'Note not found', hint: null, details: null }, 404);
+      mock.reportQueue = mock.reportQueue.filter((item) => item !== row);
+      mock.adminActions.push({
+        note: input.target_note,
+        decision: input.decision,
+        reason: input.reason,
+      });
+      return json(row.report_count);
     }
     if (url.pathname === '/rest/v1/rpc/report_content' && method === 'POST') {
       const input = request.postDataJSON() as {

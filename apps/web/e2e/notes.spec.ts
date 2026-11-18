@@ -190,7 +190,7 @@ test.describe('notes', () => {
     await expect(form.getByText('Choose a reason.')).toBeVisible();
     expect(supabase.calls.some((call) => call.path === '/rest/v1/rpc/report_content')).toBe(false);
 
-    await form.getByRole('radio', { name: 'Shares someone’s private information' }).check();
+    await form.getByText('Shares someone’s private information', { exact: true }).click();
     await form
       .getByLabel('Anything else we should know? (optional)')
       .fill('  It has a phone number.  ');
@@ -203,7 +203,7 @@ test.describe('notes', () => {
     await expect(detail.getByText('Something unkind')).toBeVisible();
 
     await detail.getByRole('button', { name: 'Report' }).click();
-    await form.getByRole('radio', { name: 'Spam or advertising' }).check();
+    await form.getByText('Spam or advertising', { exact: true }).click();
     await form.getByRole('button', { name: 'Send report' }).click();
     await expect(page.getByText('You’ve already reported this note.')).toBeVisible();
   });

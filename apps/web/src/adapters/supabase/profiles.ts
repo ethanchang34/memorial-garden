@@ -1,13 +1,14 @@
 import type { MyProfile, ProfileRepository } from '@/core/profile';
 import type { AppSupabaseClient } from './client';
 
-const MY_PROFILE_COLUMNS = 'id, display_name, time_zone, locale';
+const MY_PROFILE_COLUMNS = 'id, display_name, time_zone, locale, is_admin';
 
 type MyProfileRow = {
   id: string;
   display_name: string;
   time_zone: string;
   locale: string;
+  is_admin: boolean;
 };
 
 function toMyProfile(row: MyProfileRow): MyProfile {
@@ -16,6 +17,7 @@ function toMyProfile(row: MyProfileRow): MyProfile {
     displayName: row.display_name,
     timeZone: row.time_zone,
     locale: row.locale,
+    isAdmin: row.is_admin,
   };
 }
 

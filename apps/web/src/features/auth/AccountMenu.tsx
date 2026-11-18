@@ -1,4 +1,4 @@
-import { ChevronDown, Flower2, LogOut, UserRound } from 'lucide-react';
+import { ChevronDown, Flag, Flower2, LogOut, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { Button } from '@/components/ui/button';
@@ -56,6 +56,14 @@ export function AccountMenu() {
             {t('profile.settingsLink')}
           </Link>
         </DropdownMenuItem>
+        {profile.data?.isAdmin ? (
+          <DropdownMenuItem asChild>
+            <Link to="/admin/reports">
+              <Flag aria-hidden="true" />
+              {t('admin.menuLink')}
+            </Link>
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuSeparator />
         <DropdownMenuItem disabled={pending} onSelect={() => void signOut()}>
           <LogOut aria-hidden="true" />

@@ -294,7 +294,11 @@ function ReportForm({ noteId, onDone }: { noteId: string; onDone: () => void }) 
               value={value}
               checked={reason === value}
               onChange={() => setReason(value)}
-              className="accent-primary size-5"
+              className="peer sr-only"
+            />
+            <span
+              aria-hidden="true"
+              className="border-input peer-checked:border-primary peer-checked:bg-primary peer-focus-visible:outline-ring peer-checked:after:bg-primary-foreground grid size-5 shrink-0 place-items-center rounded-full border-2 peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 after:size-2 after:rounded-full after:bg-transparent"
             />
             <span>{t(`memorial.report.reasons.${value}`)}</span>
           </label>

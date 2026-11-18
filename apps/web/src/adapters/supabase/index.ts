@@ -1,3 +1,4 @@
+import type { AdminRepository } from '@/core/admin';
 import type { AuthProvider } from '@/core/auth';
 import type { CandleRepository } from '@/core/candles';
 import type { FlowerRepository } from '@/core/flowers';
@@ -7,6 +8,7 @@ import type { NoteRepository } from '@/core/notes';
 import type { ProfileRepository } from '@/core/profile';
 import type { ReportRepository } from '@/core/reports';
 import type { StoneRepository } from '@/core/stone';
+import { createSupabaseAdmin } from './admin';
 import { createSupabaseAuth } from './auth';
 import { createSupabaseCandles } from './candles';
 import { createSupabaseClient } from './client';
@@ -23,6 +25,7 @@ export function createSupabaseServices(
   publishableKey: string,
 ): {
   auth: AuthProvider;
+  admin: AdminRepository;
   profiles: ProfileRepository;
   reports: ReportRepository;
   memorials: MemorialRepository;
@@ -35,6 +38,7 @@ export function createSupabaseServices(
   const client = createSupabaseClient(url, publishableKey);
   return {
     auth: createSupabaseAuth(client),
+    admin: createSupabaseAdmin(client),
     profiles: createSupabaseProfiles(client),
     reports: createSupabaseReports(client),
     memorials: createSupabaseMemorials(client),
