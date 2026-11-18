@@ -21,6 +21,7 @@ import { useCandles, useLightCandle } from './candles/useCandles';
 import { PlaceFlower } from './flowers/PlaceFlower';
 import { useFlowers, usePlaceFlower } from './flowers/useFlowers';
 import { useNotes } from './notes/useNotes';
+import { ShareMemorial } from './ShareMemorial';
 import { CleanStone, SHOW_HINT_AT } from './stone/CleanStone';
 import { useCleanStone, useStone } from './stone/useStone';
 import { MemorialObjects } from './objects/MemorialObjects';
@@ -66,6 +67,8 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
   const canPlaceFlower =
     memorial.status === 'published' && session.status !== 'unavailable' && flowers.isSuccess;
   const vase = nextVase(flowerState.types.length);
+  const [sharing, setSharing] = useState(false);
+  const [justShared, setJustShared] = useState(false);
   const [now] = useState(() => new Date());
   const stone = useStone(memorial.id);
   const clean = useCleanStone(memorial.id);
@@ -139,7 +142,10 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
 
   function onShare() {
     publish.mutate(memorial.id, {
-      onSuccess: () => toast(t('memorial.page.published')),
+      onSuccess: () => {
+        setJustShared(true);
+        setSharing(true);
+      },
       onError: (error) =>
         toast.error(
           error instanceof MemorialError && error.code === 'sharing_closed'
@@ -191,10 +197,25 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
         {memorial.epitaph ? (
           <p className="max-w-prose text-lg leading-relaxed">{memorial.epitaph}</p>
         ) : null}
-        {isOwner ? (
-          <Button asChild variant="ghost" size="small" className="mt-2">
-            <Link to={`/m/${memorial.slug}/edit`}>{t('memorial.edit.link')}</Link>
-          </Button>
+        {memorial.status === 'published' || isOwner ? (
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+            {memorial.status === 'published' ? (
+              <ShareMemorial
+                memorial={memorial}
+                open={sharing}
+                justShared={justShared}
+                onOpenChange={(open) => {
+                  setSharing(open);
+                  if (!open) setJustShared(false);
+                }}
+              />
+            ) : null}
+            {isOwner ? (
+              <Button asChild variant="ghost" size="small">
+                <Link to={`/m/${memorial.slug}/edit`}>{t('memorial.edit.link')}</Link>
+              </Button>
+            ) : null}
+          </div>
         ) : null}
       </header>
     </article>

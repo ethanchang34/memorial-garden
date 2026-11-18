@@ -98,11 +98,23 @@
     "page": {
       "draftNotice": "This is a draft. Only you can see it.",
       "share": "Share this garden",
-      "published": "Your garden is shared",
       "sharingClosed": "Sharing opens soon. Your draft is saved.",
       "publishFailed": "We couldn’t share the garden. Please try again.",
       "loadFailed": "We couldn’t load this memorial. Please refresh the page.",
-      "gardenLabel": "The garden for {{name}}: a gravestone engraved with their name, an empty vase, and an unlit candle"
+      "gardenLabel": "The garden for {{name}}: a gravestone engraved with their name, with a vase and candles beside it"
+    },
+    "share": {
+      "button": "Share",
+      "title": "Share this garden",
+      "sharedTitle": "Your garden is shared",
+      "body": "Send this link to family and friends. Anyone with it can visit, light a candle, place a flower, and leave a note.",
+      "linkLabel": "Link to this garden",
+      "copy": "Copy link",
+      "copiedButton": "Copied",
+      "copied": "Link copied.",
+      "copyManually": "Select the link and copy it.",
+      "native": "Share…",
+      "text": "A garden to remember {{name}}."
     },
     "mine": {
       "heading": "Your gardens",
