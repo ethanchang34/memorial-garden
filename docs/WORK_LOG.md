@@ -104,7 +104,7 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 - [ ] Create a memorial from the home page: try Year, Around, and Not sure; the stone shows e.g. "1932 – 2024" or "c. 1890 – 1952".
 - [ ] A third draft is refused with the 2-draft message.
 - [ ] Your gardens (account menu) lists drafts; "Share this garden" publishes (you are admin).
-- [ ] Open a shared memorial in a private window (signed out): it shows without the draft notice or Share button; a draft's link shows "This path leads nowhere".
+- [ ] Open a shared memorial in a private window (signed out): it shows without the draft notice or Edit memorial link (the Share button is there for everyone); a draft's link shows "This path leads nowhere".
 - [ ] On a phone: the form and memorial page fit without sideways scrolling.
 - [ ] The memorial page garden matches your local time of day (morning, day, golden hour, evening, night); refresh after the hour changes.
 - [ ] The garden fills the width and most of the screen on your phone and computer, with the path centered on the stone, the tree canopy across the top, and a few leaves falling.
