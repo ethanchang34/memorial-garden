@@ -1,5 +1,5 @@
 import type { FlowerType } from '@/core/flowers';
-import type { Phase } from '@/core/timeOfDay';
+import { mixHex, type Phase } from '@/core/timeOfDay';
 
 export type GardenPalette = {
   skyTop: string;
@@ -236,3 +236,18 @@ export const STEM_COLORS = {
   leaf: '#7d8a45',
   leafLight: '#b0a95a',
 };
+
+export const INCENSE_COLORS = {
+  bowl: '#a8813f',
+  bowlShade: '#6e5226',
+  bowlLight: '#d9b46a',
+  sand: '#d8c8a6',
+  stick: '#7a4a2e',
+  ash: '#cfc6b8',
+  ember: '#ff8a3d',
+  smoke: '#f1ece3',
+};
+
+export function sceneLit(hex: string, p: GardenPalette): string {
+  return mixHex(mixHex(hex, p.sun, 0.15 * p.sunGlow), p.shadow, p.dusk);
+}

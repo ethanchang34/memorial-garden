@@ -4,6 +4,7 @@ import { buildCanopy, type CanopyLeaf } from './canopy';
 import type { FlowerType } from '@/core/flowers';
 import { CandleCluster } from './CandleCluster';
 import { FlowerVases } from './FlowerVases';
+import { IncenseBurner } from './IncenseBurner';
 import { StoneWeathering } from './StoneWeathering';
 import { buildHedgeRow, type HedgeLobe } from './hedges';
 import { FallingLeaves } from './FallingLeaves';
@@ -21,6 +22,8 @@ type GardenSceneProps = {
   justLit?: boolean;
   flowers?: readonly FlowerType[];
   justPlaced?: boolean;
+  incenseLit?: number;
+  justLitIncense?: boolean;
   grime?: number;
   seed?: string;
   wiping?: boolean;
@@ -171,6 +174,8 @@ export function GardenScene({
   justLit = false,
   flowers = [],
   justPlaced = false,
+  incenseLit = 0,
+  justLitIncense = false,
   grime = 0,
   seed = name,
   wiping = false,
@@ -342,6 +347,7 @@ export function GardenScene({
         <FlowerVases types={flowers} justPlaced={justPlaced} p={p} id={id} />
 
         <CandleCluster lit={candlesLit} justLit={justLit} p={p} glow={url('glow')} id={id} />
+        <IncenseBurner lit={incenseLit} justLit={justLitIncense} p={p} id={id} />
 
         <g aria-hidden="true" data-canopy="">
           <Leaves leaves={canopy.leaves.filter((leaf) => leaf.layer === 0)} p={p} />

@@ -172,7 +172,7 @@ select throws_ok(
 reset role;
 
 select throws_ok(
-  $$insert into public.gesture_timers (memorial_id, kind, started_at, expires_at) values ((select shared from ids), 'incense', now(), now() + interval '1 day')$$,
+  $$insert into public.gesture_timers (memorial_id, kind, started_at, expires_at) values ((select shared from ids), 'lantern', now(), now() + interval '1 day')$$,
   '23514', null, 'timers only exist for known gestures'
 );
 

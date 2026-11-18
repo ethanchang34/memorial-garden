@@ -116,6 +116,14 @@ export type Database = {
         Args: { target_memorial: string };
         Returns: { lit_count: number; lit_until: string | null; lit_today: boolean }[];
       };
+      incense_state: {
+        Args: { target_memorial: string };
+        Returns: { lit_count: number; lit_until: string | null; lit_today: boolean }[];
+      };
+      light_incense: {
+        Args: { target_memorial: string };
+        Returns: { lit_count: number; lit_until: string | null; lit_today: boolean }[];
+      };
       flower_state: {
         Args: { target_memorial: string };
         Returns: { flower_types: string[]; bloom_until: string | null; placed_today: boolean }[];

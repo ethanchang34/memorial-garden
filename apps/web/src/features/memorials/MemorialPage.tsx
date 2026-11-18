@@ -6,6 +6,7 @@ import { useDateFormat } from '@/app/useDateFormat';
 import { Button } from '@/components/ui/button';
 import { NO_CANDLES } from '@/core/candles';
 import { NO_FLOWERS } from '@/core/flowers';
+import { NO_INCENSE } from '@/core/incense';
 import { MemorialError, type Memorial } from '@/core/memorial';
 import { visibleCount } from '@/core/notes';
 import { UNKNOWN_STONE } from '@/core/stone';
@@ -13,6 +14,7 @@ import { grimeLevel } from '@/core/weathering';
 import { useSession } from '@/features/auth/session';
 import { CLUSTER_CENTER } from '@/features/garden/candleSlots';
 import { nextVase } from '@/features/garden/flowers';
+import { BURNER } from '@/features/garden/incense';
 import { GardenScene, type SceneOverlay } from '@/features/garden/GardenScene';
 import { STONE } from '@/features/garden/moss';
 import { NotFoundPage } from '@/features/not-found/NotFoundPage';
@@ -20,6 +22,8 @@ import { LightCandle } from './candles/LightCandle';
 import { useCandles, useLightCandle } from './candles/useCandles';
 import { PlaceFlower } from './flowers/PlaceFlower';
 import { useFlowers, usePlaceFlower } from './flowers/useFlowers';
+import { LightIncense } from './incense/LightIncense';
+import { useIncense, useLightIncense } from './incense/useIncense';
 import { useNotes } from './notes/useNotes';
 import { ShareMemorial } from './ShareMemorial';
 import { CleanStone, SHOW_HINT_AT } from './stone/CleanStone';
@@ -67,6 +71,11 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
   const canPlaceFlower =
     memorial.status === 'published' && session.status !== 'unavailable' && flowers.isSuccess;
   const vase = nextVase(flowerState.types.length);
+  const incense = useIncense(memorial.id);
+  const lightIncense = useLightIncense(memorial.id);
+  const incenseState = incense.data ?? NO_INCENSE;
+  const canLightIncense =
+    memorial.status === 'published' && session.status !== 'unavailable' && incense.isSuccess;
   const [sharing, setSharing] = useState(false);
   const [justShared, setJustShared] = useState(false);
   const [now] = useState(() => new Date());
@@ -124,6 +133,20 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
         />
       ),
     });
+  if (canLightIncense)
+    overlays.push({
+      key: 'incense',
+      x: BURNER.x,
+      y: BURNER.base - 22,
+      children: (
+        <LightIncense
+          name={memorial.fullName}
+          state={incenseState}
+          pending={lightIncense.isPending}
+          onLight={() => lightIncense.mutateAsync()}
+        />
+      ),
+    });
   if (canLight)
     overlays.push({
       key: 'candle',
@@ -177,6 +200,8 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
           justLit={light.isSuccess}
           flowers={flowerState.types}
           justPlaced={placeFlower.isPending || placeFlower.isSuccess}
+          incenseLit={incenseState.lit}
+          justLitIncense={lightIncense.isPending || lightIncense.isSuccess}
           grime={wipeFrom ?? grime}
           wiping={wipeFrom !== null}
           seed={memorial.id}
