@@ -159,6 +159,15 @@
       "dailyLimit": "You’ve already placed a flower here today. Come back tomorrow.",
       "failed": "The flower wasn’t placed. Please try again."
     },
+    "incense": {
+      "light": "Light incense",
+      "hold": "Hold to light incense",
+      "litToday": "Your incense is lit",
+      "burning_one": "{{count}} stick of incense is burning for {{name}}.",
+      "burning_other": "{{count}} sticks of incense are burning for {{name}}.",
+      "dailyLimit": "You’ve already lit incense here today. Come back tomorrow.",
+      "failed": "The incense didn’t light. Please try again."
+    },
     "notes": {
       "write": "Write a note",
       "fieldLabel": "Your note",

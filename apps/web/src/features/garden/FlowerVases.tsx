@@ -9,7 +9,13 @@ import {
   type Stem,
 } from './flowers';
 import { frontRing, leafPath, petalPath, vesselOutline, type Point } from './geometry';
-import { FLOWER_COLORS, STEM_COLORS, type BloomColors, type GardenPalette } from './palette';
+import {
+  FLOWER_COLORS,
+  sceneLit,
+  STEM_COLORS,
+  type BloomColors,
+  type GardenPalette,
+} from './palette';
 
 const VASE_PROFILE: Point[] = [
   [416, 19],
@@ -35,7 +41,7 @@ type FlowerVasesProps = {
 export function FlowerVases({ types, justPlaced, p, id }: FlowerVasesProps) {
   const stems = bouquet(types);
   const newest = justPlaced ? stems.length - 1 : -1;
-  const lit = (hex: string) => mixHex(mixHex(hex, p.sun, 0.15 * p.sunGlow), p.shadow, p.dusk);
+  const lit = (hex: string) => sceneLit(hex, p);
   const url = (key: string) => `url(#${id(key)})`;
 
   return (

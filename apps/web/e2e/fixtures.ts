@@ -85,6 +85,7 @@ export type SupabaseMock = {
   visitor: boolean;
   candles: { lit: number; litToday: boolean; failNext?: 'daily_limit' };
   flowers: { types: string[]; placedToday: boolean; failNext?: 'daily_limit' };
+  incense: { lit: number; litToday: boolean; failNext?: 'daily_limit' };
   stone: { dirtySince: string | null; cleanedToday: boolean; failNext?: 'daily_limit' };
   notes: NoteRow[];
   noteFailNext?: 'note_rate_limit' | 'note_new_account_limit';
@@ -154,6 +155,7 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
     visitor: false,
     candles: { lit: 0, litToday: false },
     flowers: { types: [], placedToday: false },
+    incense: { lit: 0, litToday: false },
     stone: { dirtySince: null, cleanedToday: false },
     notes: [],
     displayNames: {},
@@ -358,6 +360,35 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
       }
       mock.stone = { dirtySince: new Date().toISOString(), cleanedToday: true };
       return json(stoneRows());
+    }
+    const incenseRows = () => [
+      {
+        lit_count: mock.incense.lit,
+        lit_until: mock.incense.lit > 0 ? new Date(Date.now() + 86_400_000).toISOString() : null,
+        lit_today: mock.incense.litToday,
+      },
+    ];
+    if (url.pathname === '/rest/v1/rpc/incense_state' && method === 'POST')
+      return json(incenseRows());
+    if (url.pathname === '/rest/v1/rpc/light_incense' && method === 'POST') {
+      if (!mock.signedIn && !mock.visitor) {
+        return json({ code: '42501', message: 'Not signed in', hint: null, details: null }, 401);
+      }
+      if (mock.incense.litToday || mock.incense.failNext === 'daily_limit') {
+        delete mock.incense.failNext;
+        return json(
+          {
+            code: 'P0001',
+            message: 'Already lit incense here today',
+            hint: 'incense_daily_limit',
+            details: null,
+          },
+          400,
+        );
+      }
+      mock.incense.lit = Math.min(3, mock.incense.lit + 1);
+      mock.incense.litToday = true;
+      return json(incenseRows());
     }
     const flowerRows = () => [
       {
