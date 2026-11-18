@@ -132,6 +132,10 @@ export type Database = {
         Args: { target_memorial: string; chosen_type: string; note?: string };
         Returns: { flower_types: string[]; bloom_until: string | null; placed_today: boolean }[];
       };
+      report_content: {
+        Args: { target_type: string; target_id: string; reason: string; details?: string };
+        Returns: string;
+      };
       undo_flower: {
         Args: { target_memorial: string };
         Returns: { flower_types: string[]; bloom_until: string | null; placed_today: boolean }[];

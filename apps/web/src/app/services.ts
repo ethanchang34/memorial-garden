@@ -9,11 +9,13 @@ import type { IncenseRepository } from '@/core/incense';
 import type { MemorialRepository } from '@/core/memorial';
 import type { NoteRepository } from '@/core/notes';
 import type { ProfileRepository } from '@/core/profile';
+import type { ReportRepository } from '@/core/reports';
 import type { StoneRepository } from '@/core/stone';
 
 export type AppServices = {
   auth: AuthProvider;
   profiles: ProfileRepository;
+  reports: ReportRepository;
   memorials: MemorialRepository;
   candles: CandleRepository;
   flowers: FlowerRepository;

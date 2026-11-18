@@ -107,6 +107,8 @@ export type SupabaseMock = {
   notes: NoteRow[];
   noteFailNext?: 'note_rate_limit' | 'note_new_account_limit';
   memorialFailNext?: boolean;
+  reports: { target_id: string; reason: string; details: string | null }[];
+  reportFailNext?: 'report_rate_limit';
   displayNames: Record<string, string>;
   calls: { method: string; path: string; body: unknown }[];
   unexpected: string[];
@@ -176,6 +178,7 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
     stone: { dirtySince: null, cleanedToday: false },
     notes: [],
     displayNames: {},
+    reports: [],
     async signIn(profile = {}) {
       mock.signedIn = true;
       Object.assign(mock.profile, profile);
@@ -479,6 +482,28 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
       mock.flowers.placedToday = true;
       mock.flowers.lastPlacedAt = Date.now();
       return json(flowerRows());
+    }
+    if (url.pathname === '/rest/v1/rpc/report_content' && method === 'POST') {
+      const input = request.postDataJSON() as {
+        target_id: string;
+        reason: string;
+        details?: string;
+      };
+      const fail = (status: number, message: string, hint: string | null, code = 'P0001') =>
+        json({ code, message, hint, details: null }, status);
+      if (!mock.signedIn) return fail(403, 'Sign in to report', 'report_needs_account', '42501');
+      if (mock.reportFailNext) {
+        delete mock.reportFailNext;
+        return fail(400, 'Report limit reached', 'report_rate_limit');
+      }
+      if (mock.reports.some((report) => report.target_id === input.target_id))
+        return fail(400, 'Already reported', 'already_reported');
+      mock.reports.push({
+        target_id: input.target_id,
+        reason: input.reason,
+        details: input.details ?? null,
+      });
+      return json(`report-${mock.reports.length}`);
     }
     if (url.pathname === '/rest/v1/rpc/undo_flower' && method === 'POST') {
       const credits = flowerCredits();

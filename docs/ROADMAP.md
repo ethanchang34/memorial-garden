@@ -52,7 +52,8 @@ Each milestone is shippable on its own. Check items off as you go.
 - [x] `notes` table + RLS + rate limit; author edit ("edited" label) + delete
 - [ ] Filing-cabinet note stack: hover lift, date tooltip, All/Mine toggle, "mine" tabs
 - [x] Owner hide/unhide
-- [ ] Report button (notes and display names)
+- [x] Report button on notes (`reports`, `report_content()`; one per person per note, 20/day)
+- [ ] Report display names, memorials, memos and photos; admin report queue
 - [ ] Display name change limit (5/day per user) enforced in the database, with pgTAP tests
 - [ ] Turnstile on submit
 - [x] New-account limits (first 24h): 5 notes (memorial and memo limits come with those features)

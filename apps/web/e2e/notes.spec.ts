@@ -170,6 +170,63 @@ test.describe('notes', () => {
     await expect(detail).not.toContainText('Hidden by the family');
   });
 
+  test('a member reports someone else’s note', async ({ page, supabase }) => {
+    const memorial = seed(supabase);
+    supabase.notes.push(
+      noteRow({ memorial_id: memorial.id, author_id: OTHER, body: 'Something unkind' }),
+    );
+    await supabase.signIn();
+    await page.goto(`/m/${SLUG}`);
+    const string = await openNotes(page);
+    const detail = await openNote(page, string, 'Something unkind', 'Maria L.');
+    await detail.getByRole('button', { name: 'Report' }).click();
+    const form = detail.getByRole('form', { name: 'Report this note' });
+    await form.getByRole('button', { name: 'Send report' }).click();
+    await expect(form.getByText('Choose a reason.')).toBeVisible();
+    expect(supabase.calls.some((call) => call.path === '/rest/v1/rpc/report_content')).toBe(false);
+
+    await form.getByRole('radio', { name: 'Shares someone’s private information' }).check();
+    await form
+      .getByLabel('Anything else we should know? (optional)')
+      .fill('  It has a phone number.  ');
+    await form.getByRole('button', { name: 'Send report' }).click();
+    await expect(page.getByText('Thank you. We’ll take a look.')).toBeVisible();
+    await expect(form).toBeHidden();
+    expect(supabase.reports).toEqual([
+      { target_id: supabase.notes[0]!.id, reason: 'private', details: 'It has a phone number.' },
+    ]);
+    await expect(detail.getByText('Something unkind')).toBeVisible();
+
+    await detail.getByRole('button', { name: 'Report' }).click();
+    await form.getByRole('radio', { name: 'Spam or advertising' }).check();
+    await form.getByRole('button', { name: 'Send report' }).click();
+    await expect(page.getByText('You’ve already reported this note.')).toBeVisible();
+  });
+
+  test('your own notes have no Report button, and visitors are asked to sign in', async ({
+    page,
+    supabase,
+  }) => {
+    const memorial = seed(supabase);
+    supabase.notes.push(
+      noteRow({ memorial_id: memorial.id, author_id: OTHER, body: 'Something unkind' }),
+      noteRow({ memorial_id: memorial.id, author_id: TEST_USER_ID, body: 'Mine' }),
+    );
+    await page.goto(`/m/${SLUG}`);
+    let string = await openNotes(page);
+    const detail = await openNote(page, string, 'Something unkind', 'Maria L.');
+    await detail.getByRole('button', { name: 'Report' }).click();
+    await expect(detail.getByText('Sign in to report a note', { exact: false })).toBeVisible();
+    expect(supabase.calls.some((call) => call.path === '/rest/v1/rpc/report_content')).toBe(false);
+
+    await supabase.signIn();
+    await page.goto(`/m/${SLUG}`);
+    string = await openNotes(page);
+    const mine = await openNote(page, string, 'Mine', 'you');
+    await expect(mine.getByRole('button', { name: 'Edit' })).toBeVisible();
+    await expect(mine.getByRole('button', { name: 'Report' })).toHaveCount(0);
+  });
+
   test('limits from the database are explained', async ({ page, supabase }) => {
     seed(supabase);
     supabase.noteFailNext = 'note_rate_limit';
