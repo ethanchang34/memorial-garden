@@ -129,8 +129,29 @@ export type Database = {
         Returns: { flower_types: string[]; bloom_until: string | null; placed_today: boolean }[];
       };
       place_flower: {
-        Args: { target_memorial: string; chosen_type: string };
+        Args: { target_memorial: string; chosen_type: string; note?: string };
         Returns: { flower_types: string[]; bloom_until: string | null; placed_today: boolean }[];
+      };
+      undo_flower: {
+        Args: { target_memorial: string };
+        Returns: { flower_types: string[]; bloom_until: string | null; placed_today: boolean }[];
+      };
+      flower_credits: {
+        Args: { target_memorial: string };
+        Returns: {
+          stem: number;
+          flower_id: string;
+          flower_type: string;
+          giver_name: string | null;
+          placed_at: string;
+          message: string | null;
+          message_hidden: boolean;
+          mine: boolean;
+        }[];
+      };
+      set_flower_message_hidden: {
+        Args: { target_flower: string; hidden: boolean };
+        Returns: boolean;
       };
     };
     Enums: { [_ in never]: never };

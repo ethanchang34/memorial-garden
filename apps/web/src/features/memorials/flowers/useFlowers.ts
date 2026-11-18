@@ -19,6 +19,12 @@ function placeKey(memorialId: string) {
   return ['flowers', memorialId, 'place'] as const;
 }
 
+function creditsKey(memorialId: string) {
+  return ['flower-credits', memorialId] as const;
+}
+
+export type PlaceFlowerInput = { type: FlowerType; message: string | null };
+
 export function useFlowers(memorialId: string) {
   const services = useServices();
   const session = useSession();
@@ -48,7 +54,7 @@ export function usePlaceFlower(memorialId: string) {
 
   return useMutation({
     mutationKey: placeKey(memorialId),
-    mutationFn: (type: FlowerType) => {
+    mutationFn: ({ type, message }: PlaceFlowerInput) => {
       if (!services) throw new Error('Services unavailable');
       return placeFlower(
         {
@@ -61,9 +67,10 @@ export function usePlaceFlower(memorialId: string) {
         sessionUser(session),
         memorialId,
         type,
+        message,
       );
     },
-    onMutate: async (type: FlowerType) => {
+    onMutate: async ({ type }: PlaceFlowerInput) => {
       await queryClient.cancelQueries({ queryKey: flowerKey(memorialId) });
       const before = queryClient.getQueryData<FlowerState>(flowerKey(memorialId));
       queryClient.setQueryData(
@@ -78,6 +85,46 @@ export function usePlaceFlower(memorialId: string) {
     onSuccess: async (state: FlowerState) => {
       await queryClient.cancelQueries({ queryKey: flowerKey(memorialId) });
       queryClient.setQueryData(flowerKey(memorialId), state);
+      void queryClient.invalidateQueries({ queryKey: creditsKey(memorialId) });
     },
+  });
+}
+
+export function useUndoFlower(memorialId: string) {
+  const services = useServices();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => {
+      if (!services) throw new Error('Services unavailable');
+      return services.flowers.undo(memorialId);
+    },
+    onSuccess: (state: FlowerState) => {
+      queryClient.setQueryData(flowerKey(memorialId), state);
+      void queryClient.invalidateQueries({ queryKey: creditsKey(memorialId) });
+    },
+  });
+}
+
+export function useFlowerCredits(memorialId: string, enabled: boolean) {
+  const services = useServices();
+  const session = useSession();
+  const userId = sessionUser(session)?.id ?? null;
+  return useQuery({
+    queryKey: [...creditsKey(memorialId), userId],
+    queryFn: () => (services ? services.flowers.credits(memorialId) : []),
+    enabled: Boolean(services) && enabled && session.status !== 'loading',
+    staleTime: 60_000,
+  });
+}
+
+export function useSetFlowerMessageHidden(memorialId: string) {
+  const services = useServices();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, hidden }: { id: string; hidden: boolean }) => {
+      if (!services) throw new Error('Services unavailable');
+      return services.flowers.setMessageHidden(id, hidden);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: creditsKey(memorialId) }),
   });
 }

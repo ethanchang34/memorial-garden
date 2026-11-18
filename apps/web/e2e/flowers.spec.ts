@@ -1,4 +1,4 @@
-import type { Locator } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { expect, memorialRow, TEST_USER_ID, test } from './fixtures';
 import { expectResponsiveLayout } from './responsive';
 import { TEST_VIEWPORTS } from './viewports';
@@ -62,11 +62,8 @@ test.describe('placing flowers', () => {
     await expect(page.getByRole('status').filter({ hasText: 'in bloom' })).toHaveText(
       '1 flower is in bloom for Rosa Martínez.',
     );
-    await expect(page.getByRole('button', { name: 'Place a flower' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
-    );
-    await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Place a flower' })).toHaveCount(0);
+    await expect(page.getByRole('banner').getByRole('button', { name: 'Sign in' })).toBeVisible();
 
     const calls = supabase.calls.map((call) => `${call.method} ${call.path}`);
     expect(calls.indexOf('POST /auth/v1/signup')).toBeGreaterThanOrEqual(0);
@@ -77,8 +74,11 @@ test.describe('placing flowers', () => {
       supabase.calls.find((call) => call.path === '/rest/v1/rpc/place_flower')?.body,
     ).toMatchObject({ chosen_type: 'tulip' });
 
-    await page.getByRole('button', { name: 'Place a flower' }).click({ force: true });
-    await expect(page.getByRole('dialog', { name: 'Place a flower' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'See the flowers' }).click();
+    const today = page.getByRole('dialog', { name: 'Flowers' });
+    await expect(today).toContainText('You placed a flower today.');
+    await expect(today.getByRole('button', { name: 'Place flower' })).toHaveCount(0);
+    await expect(today.locator('[data-credit="tulip"]')).toContainText('Tulip from you');
   });
 
   test('the flower appears as soon as it is placed, before the server answers', async ({
@@ -209,4 +209,151 @@ test('owners previewing a draft see the vase but cannot place flowers yet', asyn
   await expect(page.getByText('Draft Person').first()).toBeVisible();
   await expect(page.locator('[data-vase="0"]')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Place a flower' })).toHaveCount(0);
+});
+
+test.describe('flower extras', () => {
+  test.beforeEach(({ supabase }) => {
+    supabase.memorials.push(
+      memorialRow({
+        slug: SLUG,
+        full_name: 'Rosa Martínez',
+        died_date: '2024-07-19',
+        owner_id: '00000000-0000-4000-8000-0000000000aa',
+      }),
+    );
+  });
+
+  async function placeOne(page: Page) {
+    await page.getByRole('button', { name: 'Place a flower' }).click();
+    const sheet = page.getByRole('dialog', { name: 'Place a flower' });
+    await sheet.getByRole('button', { name: 'Place flower' }).click();
+  }
+
+  test('Undo takes the flower back and lets you choose again', async ({ page, supabase }) => {
+    await page.goto(`/m/${SLUG}`);
+    await placeOne(page);
+    await expect(page.locator('[data-slot="vase"]')).toHaveAttribute('data-flowers', '1');
+    await page.getByRole('button', { name: 'Undo' }).click();
+    await expect(page.getByText('Your flower was taken back.')).toBeVisible();
+    await expect(page.locator('[data-slot="vase"]')).toHaveAttribute('data-flowers', '0');
+    await expect(page.getByRole('button', { name: 'Place a flower' })).toBeVisible();
+    expect(supabase.calls.filter((call) => call.path === '/rest/v1/rpc/undo_flower')).toHaveLength(
+      1,
+    );
+  });
+
+  test('visitors without an account are invited to sign in for a message', async ({ page }) => {
+    await page.goto(`/m/${SLUG}`);
+    await page.getByRole('button', { name: 'Place a flower' }).click();
+    const sheet = page.getByRole('dialog', { name: 'Place a flower' });
+    await expect(sheet.getByText('Sign in to leave a message with your flower.')).toBeVisible();
+    await expect(sheet.getByLabel('Add a message (optional)')).toHaveCount(0);
+  });
+
+  test('a member leaves a short message with their flower', async ({ page, supabase }) => {
+    await supabase.signIn();
+    await page.goto(`/m/${SLUG}`);
+    await page.getByRole('button', { name: 'Place a flower' }).click();
+    const sheet = page.getByRole('dialog', { name: 'Place a flower' });
+    const field = sheet.getByLabel('Add a message (optional)');
+    await field.fill('a'.repeat(141));
+    await sheet.getByRole('button', { name: 'Place flower' }).click();
+    await expect(sheet.getByText('Messages can be up to 140 characters.')).toBeVisible();
+    expect(supabase.calls.some((call) => call.path === '/rest/v1/rpc/place_flower')).toBe(false);
+
+    await field.fill('  Miss you,\n Rosa  ');
+    await sheet.getByText('Daisy').click();
+    await sheet.getByRole('button', { name: 'Place flower' }).click();
+    await expect(page.getByText('Your flower is in the vase.')).toBeVisible();
+    expect(
+      supabase.calls.find((call) => call.path === '/rest/v1/rpc/place_flower')?.body,
+    ).toMatchObject({ chosen_type: 'daisy', note: 'Miss you, Rosa' });
+
+    await page.getByRole('button', { name: 'See the flowers' }).click();
+    const vases = page.getByRole('dialog', { name: 'Flowers' });
+    await expect(vases.locator('[data-credit="daisy"]')).toContainText('Daisy from you');
+    await expect(vases.locator('[data-credit="daisy"]')).toContainText('“Miss you, Rosa”');
+  });
+
+  test('the vases show who left flowers and when they fade', async ({
+    page,
+    supabase,
+  }, testInfo) => {
+    supabase.flowers = {
+      types: ['rose', 'tulip', 'poppy', 'daisy'],
+      placedToday: false,
+      credits: (
+        [
+          ['rose', 'Sam R.', 'Thinking of you'],
+          ['tulip', 'Jo P.', null],
+          ['poppy', null, null],
+          ['daisy', 'Lee K.', null],
+        ] as const
+      ).map(([type, giver, message], index) => ({
+        stem: index + 1,
+        flower_id: `flower-${index + 1}`,
+        flower_type: type,
+        giver_name: giver,
+        placed_at: new Date(Date.UTC(2026, 10, 3 + index, 12)).toISOString(),
+        message,
+        message_hidden: false,
+        mine: false,
+      })),
+    };
+    await page.goto(`/m/${SLUG}`);
+    const button = page.getByRole('button', { name: 'Place a flower' });
+    await expect(button).toHaveAttribute(
+      'aria-description',
+      'Flowers from Sam R., Jo P. and 2 more',
+    );
+    if (testInfo.project.name === 'desktop') {
+      await button.hover();
+      await expect(page.locator('[data-flower-summary]')).toHaveCSS('opacity', '1');
+    }
+    await button.click();
+    const sheet = page.getByRole('dialog', { name: 'Place a flower' });
+    const credits = sheet.locator('[data-flower-credits]');
+    await expect(credits).toContainText('In bloom for 14 more days');
+    await expect(credits.locator('li')).toHaveCount(4);
+    await expect(credits.locator('[data-credit="rose"]')).toContainText('Rose from Sam R.');
+    await expect(credits.locator('[data-credit="rose"]')).toContainText('“Thinking of you”');
+    await expect(credits.locator('[data-credit="poppy"]')).toContainText('Poppy from a visitor');
+    await expect(sheet.getByRole('button', { name: 'Hide message' })).toHaveCount(0);
+    if (process.env['GARDEN_SHOTS']) {
+      await page.waitForTimeout(500);
+      await page.screenshot({ path: testInfo.outputPath('flower-credits.png') });
+    }
+  });
+
+  test('the owner hides and shows a message', async ({ page, supabase }) => {
+    supabase.memorials[0]!.owner_id = TEST_USER_ID;
+    supabase.flowers = {
+      types: ['rose'],
+      placedToday: false,
+      credits: [
+        {
+          stem: 1,
+          flower_id: 'flower-1',
+          flower_type: 'rose',
+          giver_name: 'Sam R.',
+          placed_at: new Date(Date.UTC(2026, 10, 3, 12)).toISOString(),
+          message: 'Something unkind',
+          message_hidden: false,
+          mine: false,
+        },
+      ],
+    };
+    await supabase.signIn();
+    await page.goto(`/m/${SLUG}`);
+    await page.getByRole('button', { name: 'Place a flower' }).click();
+    const sheet = page.getByRole('dialog', { name: 'Place a flower' });
+    await sheet.getByRole('button', { name: 'Hide message' }).click();
+    await expect(page.getByText('Message hidden from visitors.')).toBeVisible();
+    await expect(sheet.locator('[data-credit="rose"]')).toContainText('Hidden by the family');
+    expect(
+      supabase.calls.find((call) => call.path === '/rest/v1/rpc/set_flower_message_hidden')?.body,
+    ).toEqual({ target_flower: 'flower-1', hidden: true });
+    await sheet.getByRole('button', { name: 'Show message' }).click();
+    await expect(sheet.locator('[data-credit="rose"]')).not.toContainText('Hidden by the family');
+  });
 });

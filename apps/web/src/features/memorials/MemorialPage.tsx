@@ -126,10 +126,12 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
       height: 160 * vase.scale,
       children: (
         <PlaceFlower
+          memorialId={memorial.id}
+          ownerId={memorial.ownerId}
           name={memorial.fullName}
           state={flowerState}
           pending={placeFlower.isPending}
-          onPlace={(type) => placeFlower.mutateAsync(type)}
+          onPlace={(input) => placeFlower.mutateAsync(input)}
         />
       ),
     });

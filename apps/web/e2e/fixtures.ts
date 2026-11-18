@@ -21,6 +21,17 @@ export type MemorialRow = {
   status: 'draft' | 'published' | 'hidden' | 'removed';
 };
 
+export type FlowerCreditRow = {
+  stem: number;
+  flower_id: string;
+  flower_type: string;
+  giver_name: string | null;
+  placed_at: string;
+  message: string | null;
+  message_hidden: boolean;
+  mine: boolean;
+};
+
 export type NoteRow = {
   id: string;
   memorial_id: string;
@@ -84,7 +95,13 @@ export type SupabaseMock = {
   signedIn: boolean;
   visitor: boolean;
   candles: { lit: number; litToday: boolean; failNext?: 'daily_limit' };
-  flowers: { types: string[]; placedToday: boolean; failNext?: 'daily_limit' };
+  flowers: {
+    types: string[];
+    placedToday: boolean;
+    failNext?: 'daily_limit';
+    credits?: FlowerCreditRow[];
+    lastPlacedAt?: number;
+  };
   incense: { lit: number; litToday: boolean; failNext?: 'daily_limit' };
   stone: { dirtySince: string | null; cleanedToday: boolean; failNext?: 'daily_limit' };
   notes: NoteRow[];
@@ -390,6 +407,19 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
       mock.incense.litToday = true;
       return json(incenseRows());
     }
+    const flowerCredits = (): FlowerCreditRow[] => {
+      mock.flowers.credits ??= mock.flowers.types.map((type, index) => ({
+        stem: index + 1,
+        flower_id: `flower-${index + 1}`,
+        flower_type: type,
+        giver_name: null,
+        placed_at: new Date(Date.UTC(2026, 10, 3, 12)).toISOString(),
+        message: null,
+        message_hidden: false,
+        mine: false,
+      }));
+      return mock.flowers.credits;
+    };
     const flowerRows = () => [
       {
         flower_types: mock.flowers.types,
@@ -418,10 +448,66 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
           400,
         );
       }
-      const chosen = String((request.postDataJSON() as { chosen_type?: string }).chosen_type);
-      if (mock.flowers.types.length < 15) mock.flowers.types = [...mock.flowers.types, chosen];
+      const input = request.postDataJSON() as { chosen_type?: string; note?: string };
+      if (input.note && !mock.signedIn) {
+        return json(
+          {
+            code: '42501',
+            message: 'Sign in to add a message',
+            hint: 'flower_message_needs_account',
+            details: null,
+          },
+          403,
+        );
+      }
+      const chosen = String(input.chosen_type);
+      const credits = flowerCredits();
+      if (mock.flowers.types.length < 15) {
+        mock.flowers.types = [...mock.flowers.types, chosen];
+        credits.push({
+          stem: credits.length + 1,
+          flower_id: `flower-${credits.length + 1}`,
+          flower_type: chosen,
+          giver_name: mock.signedIn ? mock.profile.display_name : null,
+          placed_at: new Date().toISOString(),
+          message: input.note ?? null,
+          message_hidden: false,
+          mine: true,
+        });
+      }
+      mock.flowers.credits = credits;
       mock.flowers.placedToday = true;
+      mock.flowers.lastPlacedAt = Date.now();
       return json(flowerRows());
+    }
+    if (url.pathname === '/rest/v1/rpc/undo_flower' && method === 'POST') {
+      const credits = flowerCredits();
+      const last = credits[credits.length - 1];
+      if (
+        !last?.mine ||
+        !mock.flowers.lastPlacedAt ||
+        Date.now() - mock.flowers.lastPlacedAt > 120_000
+      )
+        return json(
+          { code: 'P0002', message: 'Nothing to undo', hint: 'flower_undo_expired', details: null },
+          404,
+        );
+      credits.pop();
+      mock.flowers.credits = credits;
+      mock.flowers.types = mock.flowers.types.slice(0, -1);
+      mock.flowers.placedToday = false;
+      delete mock.flowers.lastPlacedAt;
+      return json(flowerRows());
+    }
+    if (url.pathname === '/rest/v1/rpc/flower_credits' && method === 'POST')
+      return json(flowerCredits());
+    if (url.pathname === '/rest/v1/rpc/set_flower_message_hidden' && method === 'POST') {
+      const input = request.postDataJSON() as { target_flower: string; hidden: boolean };
+      const credit = flowerCredits().find((row) => row.flower_id === input.target_flower);
+      if (!credit)
+        return json({ code: 'P0002', message: 'Flower not found', hint: null, details: null }, 404);
+      credit.message_hidden = input.hidden;
+      return json(input.hidden);
     }
     const candleRows = () => [
       {

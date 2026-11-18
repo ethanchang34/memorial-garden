@@ -29,8 +29,8 @@ grant select on ids to anon, authenticated;
 
 select ok(has_function_privilege('anon', 'public.flower_state(uuid)', 'execute'), 'visitors can read flower state');
 select ok(has_function_privilege('authenticated', 'public.flower_state(uuid)', 'execute'), 'signed-in users can read flower state');
-select ok(has_function_privilege('authenticated', 'public.place_flower(uuid, text)', 'execute'), 'signed-in users can place flowers');
-select ok(not has_function_privilege('anon', 'public.place_flower(uuid, text)', 'execute'), 'signed-out visitors cannot place flowers');
+select ok(has_function_privilege('authenticated', 'public.place_flower(uuid, text, text)', 'execute'), 'signed-in users can place flowers');
+select ok(not has_function_privilege('anon', 'public.place_flower(uuid, text, text)', 'execute'), 'signed-out visitors cannot place flowers');
 select ok(not has_function_privilege('authenticated', 'private.flower_state(uuid, uuid)', 'execute'), 'the internal state function is private');
 select ok(has_table_privilege('authenticated', 'public.flowers', 'select'), 'visitors can read their own flowers');
 select ok(not has_table_privilege('authenticated', 'public.flowers', 'insert'), 'flowers are only placed through place_flower');
