@@ -36,6 +36,7 @@ Each milestone is shippable on its own. Check items off as you go.
 - [ ] Free classic stone style + slot template
 - [ ] R2 photo upload through signed URLs (API route); public photos served from a Cloudflare-proxied `media.` custom domain
 - [ ] Browse + search by name (memorial cards linking to each garden)
+- [x] Edit a memorial (`/m/:slug/edit`) and write the life story (`memorials.life_story`); drafts' slugs follow the name
 - [ ] Share screen after publishing + Share button (native share sheet on phones)
 - [ ] Home page: hero, Find someone, Recently tended, New gardens, How it works, Your gardens
 - [x] Time-of-day lighting: honeyed orchard keyframes (morning, day, golden hour, evening, night) blended by local time at page load

@@ -17,6 +17,7 @@ export type MemorialRow = {
   died_date: string;
   died_precision: string;
   epitaph: string | null;
+  life_story: string | null;
   status: 'draft' | 'published' | 'hidden' | 'removed';
 };
 
@@ -57,6 +58,7 @@ export function memorialRow(
     born_precision: null,
     died_precision: 'day',
     epitaph: null,
+    life_story: null,
     status: 'published',
     ...overrides,
   };
@@ -86,6 +88,7 @@ export type SupabaseMock = {
   stone: { dirtySince: string | null; cleanedToday: boolean; failNext?: 'daily_limit' };
   notes: NoteRow[];
   noteFailNext?: 'note_rate_limit' | 'note_new_account_limit';
+  memorialFailNext?: boolean;
   displayNames: Record<string, string>;
   calls: { method: string; path: string; body: unknown }[];
   unexpected: string[];
@@ -224,6 +227,28 @@ async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
       });
       mock.memorials.push(row);
       return json(row, 201);
+    }
+    if (url.pathname === '/rest/v1/memorials' && method === 'PATCH') {
+      const id = url.searchParams.get('id')?.replace(/^eq\./, '');
+      const row = mock.memorials.find((item) => item.id === id);
+      if (!row || !mock.signedIn || row.owner_id !== TEST_USER_ID)
+        return json({ code: 'PGRST116', message: 'No rows', hint: null, details: null }, 406);
+      if (mock.memorialFailNext) {
+        delete mock.memorialFailNext;
+        return json({ code: '23514', message: 'check violation', hint: null, details: null }, 400);
+      }
+      const changes = body as Partial<MemorialRow>;
+      const renamed =
+        (changes.full_name !== undefined && changes.full_name !== row.full_name) ||
+        (changes.died_date !== undefined && changes.died_date !== row.died_date);
+      Object.assign(row, changes);
+      if (renamed && row.status === 'draft')
+        row.slug = slugFor(
+          row.full_name,
+          row.died_date,
+          mock.memorials.filter((item) => item !== row),
+        );
+      return json(row);
     }
     if (url.pathname === '/rest/v1/rpc/publish_memorial' && method === 'POST') {
       if (!mock.isAdmin) {

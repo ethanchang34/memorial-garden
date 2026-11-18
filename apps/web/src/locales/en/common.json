@@ -46,6 +46,32 @@
       "saveFailed": "We couldn’t save the memorial. Please try again.",
       "draftLimit": "You already have 2 drafts. Share or finish one before starting another."
     },
+    "edit": {
+      "heading": "Edit memorial",
+      "signInPrompt": "Sign in to edit this memorial.",
+      "addressKept": "This garden is already shared, so its web address stays the same even if you change the name.",
+      "save": "Save changes",
+      "saved": "Changes saved.",
+      "saveFailed": "We couldn’t save your changes. Please try again.",
+      "link": "Edit memorial",
+      "details": "Edit name and dates"
+    },
+    "story": {
+      "about": "The life story of {{name}}.",
+      "ownerEmpty": "Tell visitors who {{name}} was: where they grew up, what they loved, the stories your family still tells.",
+      "write": "Write the life story",
+      "edit": "Edit the life story",
+      "label": "Life story",
+      "placeholder": "Where {{name}} grew up, the work they did, the people and places they loved…",
+      "counter": "{{count}} / {{max}}",
+      "save": "Save",
+      "saved": "Life story saved.",
+      "failed": "The life story didn’t save. Please try again.",
+      "problem": {
+        "too_long": "The life story can be up to {{max}} characters.",
+        "characters": "Remove the unusual characters and try again."
+      }
+    },
     "form": {
       "fullName": "Their full name",
       "born": "Born",

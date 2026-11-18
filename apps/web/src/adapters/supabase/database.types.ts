@@ -31,6 +31,7 @@ export type Database = {
           died_date: string;
           died_precision: 'day' | 'month' | 'year' | 'circa';
           epitaph: string | null;
+          life_story: string | null;
           kind: 'person' | 'pet';
           visibility: 'public';
           status: 'draft' | 'published' | 'hidden' | 'removed';
@@ -56,6 +57,7 @@ export type Database = {
           died_date?: string;
           died_precision?: 'day' | 'month' | 'year' | 'circa';
           epitaph?: string | null;
+          life_story?: string | null;
         };
         Relationships: [];
       };

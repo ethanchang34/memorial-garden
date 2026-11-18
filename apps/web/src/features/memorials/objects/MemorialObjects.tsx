@@ -1,12 +1,12 @@
 import { useRef, useState, type MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDateFormat } from '@/app/useDateFormat';
-import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from '@/components/ui/drawer';
+import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
 import type { Memorial } from '@/core/memorial';
 import type { Note } from '@/core/notes';
 import { cn } from '@/lib/utils';
 import { NotesString } from '../notes/NotesString';
 import { KeepsakeString, PaperSlip } from './KeepsakeString';
+import { LifeStory } from './LifeStory';
 import { ObjectArt, type ObjectKey } from './ObjectArt';
 
 export type ObjectCounts = Record<Exclude<ObjectKey, 'story'>, number>;
@@ -144,27 +144,12 @@ export function MemorialObjects({ memorial, counts, notes, notesLoading }: Memor
               <DrawerTitle className="font-display pr-10 text-2xl font-medium tracking-tight">
                 {props.title}
               </DrawerTitle>
-              <StoryBody memorial={memorial} />
+              <LifeStory memorial={memorial} />
             </DrawerContent>
           </Drawer>
         );
       })}
     </>
-  );
-}
-
-function StoryBody({ memorial }: { memorial: Memorial }) {
-  const { t } = useTranslation();
-  const format = useDateFormat();
-  return (
-    <div className="flex flex-col gap-3">
-      <p className="font-display text-xl">{memorial.fullName}</p>
-      <p className="text-muted-foreground">{format.lifespan(memorial.born, memorial.died)}</p>
-      {memorial.epitaph ? <p className="text-lg leading-relaxed">{memorial.epitaph}</p> : null}
-      <DrawerDescription className="text-muted-foreground leading-relaxed">
-        {t('memorial.objects.story.empty')}
-      </DrawerDescription>
-    </div>
   );
 }
 

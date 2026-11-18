@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
+import { Link, useParams } from 'react-router';
 import { toast } from 'sonner';
 import { useDateFormat } from '@/app/useDateFormat';
 import { Button } from '@/components/ui/button';
@@ -190,6 +190,11 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
         </p>
         {memorial.epitaph ? (
           <p className="max-w-prose text-lg leading-relaxed">{memorial.epitaph}</p>
+        ) : null}
+        {isOwner ? (
+          <Button asChild variant="ghost" size="small" className="mt-2">
+            <Link to={`/m/${memorial.slug}/edit`}>{t('memorial.edit.link')}</Link>
+          </Button>
         ) : null}
       </header>
     </article>
