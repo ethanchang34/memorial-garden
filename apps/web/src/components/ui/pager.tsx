@@ -28,7 +28,7 @@ const arrowClass =
 
 export function Pager({ page, pageCount, onPage, className }: PagerProps) {
   const { t } = useTranslation();
-  if (pageCount < 2) return null;
+  if (pageCount < 1) return null;
 
   return (
     <nav

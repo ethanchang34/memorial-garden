@@ -19,6 +19,8 @@ type KeepsakeStringProps = {
   items: readonly StringItem[];
   resetKey?: unknown;
   onCloseAutoFocus: (event: Event) => void;
+  action?: ReactNode;
+  showPager?: boolean;
   children?: ReactNode;
 };
 
@@ -76,6 +78,8 @@ export function KeepsakeString({
   items,
   resetKey,
   onCloseAutoFocus,
+  action,
+  showPager,
   children,
 }: KeepsakeStringProps) {
   const { t } = useTranslation();
@@ -137,11 +141,12 @@ export function KeepsakeString({
             )}
           >
             <div className="px-safe flex items-center justify-between gap-3">
-              <DialogPrimitive.Title className="bg-card/90 text-foreground font-display rounded-full px-4 py-1.5 text-xl font-medium tracking-tight shadow-sm">
+              <DialogPrimitive.Title className="bg-card/90 text-foreground font-display min-w-0 truncate rounded-full px-4 py-1.5 text-xl font-medium tracking-tight shadow-sm">
                 {title}
               </DialogPrimitive.Title>
+              {action ? <div className="ml-auto shrink-0">{action}</div> : null}
               <DialogPrimitive.Close
-                className="size-touch bg-card/90 text-foreground focus-visible:outline-ring can-hover:hover:bg-card grid place-items-center rounded-full shadow-sm transition-colors focus-visible:outline-3 focus-visible:outline-offset-3"
+                className="size-touch bg-card/90 text-foreground focus-visible:outline-ring can-hover:hover:bg-card grid shrink-0 place-items-center rounded-full shadow-sm transition-colors focus-visible:outline-3 focus-visible:outline-offset-3"
                 aria-label={t('common.close')}
               >
                 <X className="size-5" aria-hidden="true" />
@@ -181,7 +186,7 @@ export function KeepsakeString({
               ))}
             </ul>
 
-            {pageCount > 1 ? (
+            {(showPager ?? pageCount > 1) ? (
               <div className="px-safe flex justify-center">
                 <Pager
                   className="bg-card/90 w-full max-w-xs rounded-full px-1 shadow-sm"

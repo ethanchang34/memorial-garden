@@ -70,7 +70,12 @@ test.describe('notes', () => {
     await expect(string.getByText('She taught me to bake.')).toBeVisible();
     await expect(string.getByText('Maria L.')).toBeVisible();
     await expect(string.getByText('Hidden one')).toHaveCount(0);
-    await expect(string.getByText('Sign in to leave a note.', { exact: false })).toBeVisible();
+    await string.getByRole('button', { name: 'Write a note' }).click();
+    const prompt = page.getByRole('dialog', { name: 'Write a note' });
+    await expect(prompt.getByText('Sign in to leave a note.', { exact: false })).toBeVisible();
+    await expect(prompt.getByLabel('Your note')).toHaveCount(0);
+    await page.keyboard.press('Escape');
+    await expect(prompt).toBeHidden();
 
     const detail = await openNote(page, string, 'She taught me to bake.', 'Maria L.');
     await expect(detail).toBeVisible();
@@ -267,11 +272,12 @@ test.describe('notes', () => {
     if (testInfo.project.name === 'mobile') {
       const first = (await string.locator('li').first().boundingBox())!;
       expect(Math.round(first.width)).toBe(viewport.width);
-      await expect(string.getByText('Page 1 of 9')).toBeVisible();
+      await expect(string.getByText('Page 1 of 8')).toBeVisible();
+      await expect(string.locator('[data-note]').first()).toBeInViewport({ ratio: 0.9 });
       await string.getByRole('button', { name: 'Next page' }).click();
-      await expect(string.getByText('Page 2 of 9')).toBeVisible();
-      const long = string.locator('[data-note]').first();
-      await expect(long).toBeInViewport({ ratio: 0.9 });
+      await expect(string.getByText('Page 2 of 8')).toBeVisible();
+      await expect(string.locator('[data-note]').nth(1)).toBeInViewport({ ratio: 0.9 });
+      await string.getByRole('button', { name: 'Previous page' }).click();
     } else {
       await expect(string.getByText('Page 1 of 2')).toBeVisible();
     }
@@ -295,6 +301,40 @@ test.describe('notes', () => {
       await page.waitForTimeout(700);
       await page.screenshot({ path: testInfo.outputPath('notes-paged.png') });
     }
+  });
+
+  test('one note opens straight on that note, with writing in the header', async ({
+    page,
+    supabase,
+  }) => {
+    const memorial = seed(supabase);
+    supabase.notes.push(
+      noteRow({ memorial_id: memorial.id, author_id: OTHER, body: 'She taught me to bake.' }),
+    );
+    await supabase.signIn();
+    await page.goto(`/m/${SLUG}`);
+    const string = await openNotes(page);
+    await expect(string.locator('[data-string-track] li:not([aria-hidden])')).toHaveCount(1);
+    await expect(string.locator('[data-note]')).toBeInViewport({ ratio: 0.9 });
+    await expect(string.getByText('Page 1 of 1')).toBeVisible();
+    await expect(string.getByText('No notes yet', { exact: false })).toHaveCount(0);
+    const write = string.getByRole('button', { name: 'Write a note' });
+    const title = (await string.getByRole('heading', { name: 'Notes' }).boundingBox())!;
+    const box = (await write.boundingBox())!;
+    expect(Math.abs(box.y + box.height / 2 - (title.y + title.height / 2))).toBeLessThan(12);
+    await write.click();
+    await expect(
+      page.getByRole('dialog', { name: 'Write a note' }).getByLabel('Your note'),
+    ).toBeFocused();
+  });
+
+  test('an empty string invites the first note', async ({ page, supabase }) => {
+    seed(supabase);
+    await page.goto(`/m/${SLUG}`);
+    const string = await openNotes(page);
+    await expect(string.getByText('No notes yet. Be the first.')).toBeVisible();
+    await expect(string.getByText(/^Page \d+ of \d+$/)).toHaveCount(0);
+    await expect(string.getByRole('button', { name: 'Write a note' })).toBeVisible();
   });
 
   test('swiping the string sideways moves the page count along', async ({ page, supabase }) => {
@@ -333,7 +373,8 @@ test.describe('notes', () => {
       for (const button of await string.getByRole('button').all()) {
         if (!(await button.isVisible())) continue;
         const box = (await button.boundingBox())!;
-        expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(44);
+        const label = (await button.getAttribute('aria-label')) ?? (await button.innerText());
+        expect(Math.min(box.width, box.height), label).toBeGreaterThanOrEqual(44);
       }
       await string.getByRole('button', { name: 'Write a note' }).click();
       const composer = page.getByRole('dialog', { name: 'Write a note' });

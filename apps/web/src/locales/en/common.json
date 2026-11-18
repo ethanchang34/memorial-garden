@@ -228,7 +228,8 @@
       "newAccountLimit": "New accounts can post 5 notes on their first day. Please come back tomorrow.",
       "saveFailed": "The note didn’t save. Please try again.",
       "from": "A note from {{name}}",
-      "fromYou": "A note from you"
+      "fromYou": "A note from you",
+      "emptyInvite": "No notes yet. Be the first."
     },
     "report": {
       "button": "Report",
