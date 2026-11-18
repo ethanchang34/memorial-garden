@@ -142,7 +142,10 @@ test.describe('signed in', () => {
 
     supabase.isAdmin = true;
     await page.getByRole('button', { name: 'Share this garden' }).click();
-    await expect(page.getByText('Your garden is shared')).toBeVisible();
+    const shared = page.getByRole('dialog', { name: 'Your garden is shared' });
+    await expect(shared).toBeVisible();
+    await expect(shared.getByLabel('Link to this garden')).toHaveValue(/\/m\/rosa-2024$/);
+    await page.keyboard.press('Escape');
     await expect(page.getByText('This is a draft. Only you can see it.')).toHaveCount(0);
   });
 

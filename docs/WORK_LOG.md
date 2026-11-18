@@ -54,6 +54,8 @@ Build free, pay once to share ($20 to start, test $29); visitors never pay; no c
 
 1. [x] Edit a memorial and write the life story (PR #57; migration `20261117000000_memorial_editing`). Owners get an "Edit memorial" link under the name, which opens `/m/<slug>/edit` with the create form filled in (name, dates with their precision, epitaph). A draft's address follows its name, so fixing a typo before sharing fixes the URL too; a shared memorial keeps its address. The life story drawer shows the story in paragraphs; the owner writes and edits it there (up to 10,000 characters, shared rules in `packages/shared/src/lifeStory.ts`), and an empty story invites them to write one.
 2. [ ] Share button, then link previews.
+   - [x] Share button (PR #58): under the name on every shared memorial. On phones (and computers with a system share menu) it opens the share sheet with the name, a short line and the link; otherwise a dialog shows the link with Copy link. Publishing a draft now opens that dialog ("Your garden is shared") instead of a toast.
+   - [ ] Link previews (needs the API Worker deployed).
 3. [ ] Incense.
 4. [ ] Flower extras: Undo, "Flowers from Alex" credit, a message on a flower.
 5. [ ] Report button on notes.
@@ -114,6 +116,7 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 - [ ] Light candles from two browsers (or a phone and a computer): the cluster shows both, and the glow spreads.
 - [ ] In a private window, holding the candle or confirming "Clean the stone" shows the flame or starts the wipe right away, with no pause.
 - [ ] Editing: on your own memorial, tap "Edit memorial" under the name, change the epitaph and save. Open the Life story drawer, write a few paragraphs, save, and check a private window shows them. On a draft, fix the name and see the address change with it.
+- [ ] Share: on your phone, tap Share under the name; the share sheet opens with the link. On a computer, Share shows the link and Copy link works.
 - [ ] Flowers: in a private window, tap the vase, pick a flower, and place it; it grows in right away and the header still says "Sign in". The same day the vase says "You placed a flower today". Check it looks right in the morning and at night.
 - [ ] Linking: in a private window, light a candle, then Sign in with a Google account that has never used the site. You come back signed in with that Google name, and the candle still shows "Your candle is lit". Doing the same with your usual Google account just signs you in to it.
 - [ ] Cleaning: a memorial shared more than a week ago shows moss on the stone (a newer one stays clean until then). In a private window, tap the stone, choose "Clean the stone", and the moss wipes away; the header still says "Sign in". Trying again the same day explains you've already cleaned it today; "Not now" leaves the stone as it is.
