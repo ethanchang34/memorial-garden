@@ -35,7 +35,8 @@ export function vasesShown(count: number): number {
   return Math.min(VASE_COUNT, Math.floor(Math.max(0, count) / STEMS_PER_VASE) + 1);
 }
 
-export type FlowerErrorCode = 'daily_limit' | 'unknown';
+export type FlowerErrorCode =
+  'daily_limit' | 'message_needs_account' | 'message_invalid' | 'undo_expired' | 'unknown';
 
 export class FlowerError extends Error {
   constructor(readonly code: FlowerErrorCode) {
@@ -43,9 +44,37 @@ export class FlowerError extends Error {
   }
 }
 
+export type FlowerCredit = {
+  stem: number;
+  id: string;
+  type: FlowerType;
+  giverName: string | null;
+  placedAt: string;
+  message: string | null;
+  messageHidden: boolean;
+  mine: boolean;
+};
+
 export interface FlowerRepository {
   getState(memorialId: string): Promise<FlowerState>;
-  place(memorialId: string, type: FlowerType): Promise<FlowerState>;
+  place(memorialId: string, type: FlowerType, message: string | null): Promise<FlowerState>;
+  undo(memorialId: string): Promise<FlowerState>;
+  credits(memorialId: string): Promise<FlowerCredit[]>;
+  setMessageHidden(flowerId: string, hidden: boolean): Promise<boolean>;
+}
+
+export const UNDO_WINDOW_MS = 10_000;
+
+export type CreditSummary = { names: string[]; others: number; visitors: number };
+
+export function creditSummary(credits: readonly FlowerCredit[], shown = 2): CreditSummary {
+  const names: string[] = [];
+  let visitors = 0;
+  for (const credit of credits) {
+    if (credit.giverName === null) visitors += 1;
+    else if (!names.includes(credit.giverName)) names.push(credit.giverName);
+  }
+  return { names: names.slice(0, shown), others: Math.max(0, names.length - shown), visitors };
 }
 
 export type PlaceFlowerDeps = VisitorDeps & { flowers: Pick<FlowerRepository, 'place'> };
@@ -55,7 +84,8 @@ export async function placeFlower(
   user: AuthUser | null,
   memorialId: string,
   type: FlowerType,
+  message: string | null = null,
 ): Promise<FlowerState> {
   await ensureVisitor(deps, user);
-  return deps.flowers.place(memorialId, type);
+  return deps.flowers.place(memorialId, type, message);
 }

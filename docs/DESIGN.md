@@ -402,7 +402,7 @@ Layout, top to bottom:
 - Empty slots are drawn as faint outlines (an empty pot, an unlit candle holder, an incense stand, a light hook).
 - **Hover/focus:** a soft glow ring and the label "Place flowers".
 - **Click:** a **placing sheet** (not a payment prompt) shows a live preview, how long it lasts, and for flowers a choice of flower type; signed-in visitors can add a short message. One button places it; `place_decoration()` runs and the fill animation plays. A toast offers **Undo** for about 10 seconds. Candles are lit by **press and hold**. Free for visitors, one of each per visitor per memorial per day (see "Garden gestures" below).
-- Filled slot hover: "Flowers from Alex · Nov 3 · fades in 9 days".
+- Filled slot hover: "Flowers from Alex · Nov 3 · fades in 9 days". **Built for flowers (2026-11-18):** the vase's hover shows "Flowers from Alex, Sam and 2 more"; the sheet lists each flower with giver, date and message, plus "In bloom for N more days". Undo lasts 10 seconds in the toast (the database allows 2 minutes). `flower_credits()`, `undo_flower()`, `set_flower_message_hidden()`; `place_flower()` takes an optional `note` (members only, 1–140 characters).
 - **Renewal:** refreshing a fading decoration resets its timer; the cluster rules (who can add or refresh, timers, the cap of 5) are open, see §12 item 6.
 - When a decoration expires it fades out (handled visually on the client; the server is the source of truth through `expires_at`).
 - Slot layouts come from `stone_style` templates (JSON: `[{position_key, slot_kind, x, y}]`), so a new stone style means a new template.

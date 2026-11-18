@@ -1,4 +1,5 @@
 export * from './dates';
+export * from './flowers';
 export * from './lifeStory';
 export * from './linkPreview';
 export * from './memorial';

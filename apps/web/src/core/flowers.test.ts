@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { FLOWER_MAX, isFlowerType, vasesShown, withNewFlower } from './flowers';
+import {
+  creditSummary,
+  FLOWER_MAX,
+  isFlowerType,
+  vasesShown,
+  withNewFlower,
+  type FlowerCredit,
+} from './flowers';
 
 const now = new Date('2026-11-16T12:00:00Z');
 
@@ -48,5 +55,24 @@ describe('isFlowerType', () => {
   it('accepts only the flowers the garden can draw', () => {
     expect(isFlowerType('rose')).toBe(true);
     expect(isFlowerType('cactus')).toBe(false);
+  });
+});
+
+describe('creditSummary', () => {
+  const credit = (giverName: string | null): FlowerCredit => ({
+    stem: 1,
+    id: 'f',
+    type: 'rose',
+    giverName,
+    placedAt: '2026-11-03T12:00:00Z',
+    message: null,
+    messageHidden: false,
+    mine: false,
+  });
+
+  it('names the first givers once each and counts the rest', () => {
+    expect(
+      creditSummary(['Alex C.', 'Sam R.', 'Alex C.', 'Jo P.', null, null].map(credit)),
+    ).toEqual({ names: ['Alex C.', 'Sam R.'], others: 1, visitors: 2 });
   });
 });

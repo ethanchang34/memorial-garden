@@ -69,7 +69,7 @@ Each milestone is shippable on its own. Check items off as you go.
 Model: [MONETIZATION.md](MONETIZATION.md) (no coins).
 
 - [ ] `decoration_types`, `memorial_slots`, `decorations` (candle cluster to 15, 3 vases of 5, incense to 3; shared expiry per type) + RLS + pgTAP
-- [ ] Placing sheet: ~~flower type choice~~ (done with flowers), Undo toast, message on a flower (account required), "Flowers from Alex" credit on hover
+- [x] Placing sheet: flower type choice, Undo toast, message on a flower (account required), "Flowers from Alex" credits (sheet list + hover summary), owner hides messages
 - [x] Incense: up to 3 sticks, shared 24-hour timer, 1 per visitor per memorial per day enforced in the database (`incense_sticks`, `light_incense()`, `incense_state()`)
 - [x] Flowers: up to 3 vases of 5 (next vase appears when one is full), visitor picks rose, tulip, daisy or poppy; shared 14-day bloom timer; 1 per visitor per memorial per day enforced in the database (`flowers`, `place_flower()`, `flower_state()`)
 - [x] Press-and-hold candles: cluster to 15, shared 3-day timer, 1 per visitor per memorial per day enforced in the database (`candles`, `gesture_timers`, `light_candle()`)
