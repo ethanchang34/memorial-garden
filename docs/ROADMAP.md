@@ -42,7 +42,8 @@ Each milestone is shippable on its own. Check items off as you go.
 - [x] Time-of-day lighting: honeyed orchard keyframes (morning, day, golden hour, evening, night) blended by local time at page load
 - [ ] Setting to pin a time-of-day look
 - [ ] Slot and object system: scene slots, objects with attachment points, parts; code-drawn vase, flowers, and candle as the first objects
-- [ ] Link-preview + SEO Worker for `/m/:slug` (title, description, OG image, structured data), `sitemap.xml`, `robots.txt`
+- [x] Link previews for `/m/:slug` (title, description, shared OG image) via a Pages Function
+- [ ] SEO: per-memorial OG image, structured data, `sitemap.xml`, `robots.txt` (with the launch domain)
 - [x] Sign in with Google / sign out; account menu with display name only
 - [x] Profiles: editable display name (default "First L.") at `/settings/profile`; browser time zone sent to `set_time_zone()` after sign-in; `public_display_names()` for showing other users' names
 

@@ -164,6 +164,16 @@ importers:
         specifier: ^8.3.6
         version: 8.3.6(@types/node@22.20.5)(esbuild@0.28.2)(jiti@2.7.0)
 
+  functions:
+    dependencies:
+      '@memorial-garden/shared':
+        specifier: workspace:*
+        version: link:../packages/shared
+    devDependencies:
+      '@cloudflare/workers-types':
+        specifier: ^5.20261109.1
+        version: 5.20261109.1
+
   packages/shared:
     dependencies:
       zod:
