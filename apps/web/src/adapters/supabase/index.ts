@@ -5,6 +5,7 @@ import type { IncenseRepository } from '@/core/incense';
 import type { MemorialRepository } from '@/core/memorial';
 import type { NoteRepository } from '@/core/notes';
 import type { ProfileRepository } from '@/core/profile';
+import type { ReportRepository } from '@/core/reports';
 import type { StoneRepository } from '@/core/stone';
 import { createSupabaseAuth } from './auth';
 import { createSupabaseCandles } from './candles';
@@ -14,6 +15,7 @@ import { createSupabaseIncense } from './incense';
 import { createSupabaseMemorials } from './memorials';
 import { createSupabaseNotes } from './notes';
 import { createSupabaseProfiles } from './profiles';
+import { createSupabaseReports } from './reports';
 import { createSupabaseStone } from './stone';
 
 export function createSupabaseServices(
@@ -22,6 +24,7 @@ export function createSupabaseServices(
 ): {
   auth: AuthProvider;
   profiles: ProfileRepository;
+  reports: ReportRepository;
   memorials: MemorialRepository;
   candles: CandleRepository;
   flowers: FlowerRepository;
@@ -33,6 +36,7 @@ export function createSupabaseServices(
   return {
     auth: createSupabaseAuth(client),
     profiles: createSupabaseProfiles(client),
+    reports: createSupabaseReports(client),
     memorials: createSupabaseMemorials(client),
     candles: createSupabaseCandles(client),
     flowers: createSupabaseFlowers(client),

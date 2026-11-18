@@ -6,3 +6,4 @@ export * from './memorial';
 export * from './notes';
 export * from './observability';
 export * from './profile';
+export * from './reports';

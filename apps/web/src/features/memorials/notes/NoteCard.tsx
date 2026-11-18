@@ -1,4 +1,13 @@
-import { NOTE_MAX_LENGTH, noteBodyProblem, normalizeNoteBody } from '@memorial-garden/shared';
+import {
+  NOTE_MAX_LENGTH,
+  noteBodyProblem,
+  normalizeNoteBody,
+  normalizeReportDetails,
+  REPORT_DETAILS_MAX_LENGTH,
+  REPORT_REASONS,
+  reportDetailsProblem,
+  type ReportReason,
+} from '@memorial-garden/shared';
 import { useId, useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -6,8 +15,12 @@ import { useDateFormat } from '@/app/useDateFormat';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { NoteError, type Note } from '@/core/notes';
+import { ReportError } from '@/core/reports';
+import { useSession } from '@/features/auth/session';
+import { useAuthActions } from '@/features/auth/useAuthActions';
 import { cn } from '@/lib/utils';
 import { useNoteActions } from './useNotes';
+import { useReportNote } from './useReportNote';
 
 function noteErrorMessage(error: unknown, t: (key: string) => string): string {
   if (error instanceof NoteError && error.code === 'rate_limit')
@@ -109,7 +122,7 @@ export function NoteCard({ note, memorialId, mine, canHide, author, onDeleted }:
   const { t } = useTranslation();
   const format = useDateFormat();
   const actions = useNoteActions(memorialId);
-  const [mode, setMode] = useState<'read' | 'edit' | 'confirm-delete'>('read');
+  const [mode, setMode] = useState<'read' | 'edit' | 'confirm-delete' | 'report'>('read');
   const hidden = note.status === 'hidden_by_owner';
 
   const fail = () => toast.error(t('memorial.notes.saveFailed'));
@@ -168,7 +181,9 @@ export function NoteCard({ note, memorialId, mine, canHide, author, onDeleted }:
         </div>
       ) : null}
 
-      {mode === 'read' && (mine || canHide) ? (
+      {mode === 'report' ? <ReportForm noteId={note.id} onDone={() => setMode('read')} /> : null}
+
+      {mode === 'read' ? (
         <div className="-ml-2 flex flex-wrap gap-1">
           {mine ? (
             <>
@@ -197,8 +212,128 @@ export function NoteCard({ note, memorialId, mine, canHide, author, onDeleted }:
               {hidden ? t('memorial.notes.unhide') : t('memorial.notes.hide')}
             </Button>
           ) : null}
+          {mine ? null : (
+            <Button variant="ghost" size="small" onClick={() => setMode('report')}>
+              {t('memorial.report.button')}
+            </Button>
+          )}
         </div>
       ) : null}
     </article>
+  );
+}
+
+function ReportForm({ noteId, onDone }: { noteId: string; onDone: () => void }) {
+  const { t } = useTranslation();
+  const session = useSession();
+  const { signIn, pending: signingIn } = useAuthActions();
+  const report = useReportNote();
+  const groupId = useId();
+  const detailsId = useId();
+  const [reason, setReason] = useState<ReportReason | null>(null);
+  const [details, setDetails] = useState('');
+  const [touched, setTouched] = useState(false);
+  const problem = reportDetailsProblem(details);
+
+  if (session.status !== 'signed-in')
+    return (
+      <div className="bg-muted flex flex-col items-start gap-2 rounded-lg p-4" role="group">
+        <p className="text-sm">{t('memorial.report.signIn')}</p>
+        <div className="flex gap-2">
+          <Button size="small" onClick={() => void signIn()} disabled={signingIn}>
+            {t('auth.signIn')}
+          </Button>
+          <Button variant="ghost" size="small" onClick={onDone}>
+            {t('common.cancel')}
+          </Button>
+        </div>
+      </div>
+    );
+
+  function submit(event: FormEvent) {
+    event.preventDefault();
+    setTouched(true);
+    if (!reason || problem) return;
+    const text = normalizeReportDetails(details);
+    report.mutate(
+      { noteId, reason, details: text === '' ? null : text },
+      {
+        onSuccess: () => {
+          toast(t('memorial.report.sent'));
+          onDone();
+        },
+        onError: (error) => {
+          if (error instanceof ReportError && error.code === 'already_reported') {
+            toast(t('memorial.report.already'));
+            onDone();
+          } else if (error instanceof ReportError && error.code === 'rate_limit')
+            toast.error(t('memorial.report.rateLimit'));
+          else toast.error(t('memorial.report.failed'));
+        },
+      },
+    );
+  }
+
+  return (
+    <form
+      onSubmit={submit}
+      noValidate
+      className="border-border flex flex-col gap-3 rounded-lg border p-4"
+      aria-labelledby={`${groupId}-title`}
+    >
+      <p id={`${groupId}-title`} className="font-medium">
+        {t('memorial.report.title')}
+      </p>
+      <fieldset className="flex flex-col gap-1">
+        <legend className="sr-only">{t('memorial.report.reasonLabel')}</legend>
+        {REPORT_REASONS.map((value) => (
+          <label key={value} className="min-h-touch flex cursor-pointer items-center gap-3">
+            <input
+              type="radio"
+              name={groupId}
+              value={value}
+              checked={reason === value}
+              onChange={() => setReason(value)}
+              className="accent-primary size-5"
+            />
+            <span>{t(`memorial.report.reasons.${value}`)}</span>
+          </label>
+        ))}
+        {touched && !reason ? (
+          <p className="text-destructive text-sm" role="alert">
+            {t('memorial.report.chooseReason')}
+          </p>
+        ) : null}
+      </fieldset>
+      <label htmlFor={detailsId} className="text-sm font-medium">
+        {t('memorial.report.detailsLabel')}
+      </label>
+      <Textarea
+        id={detailsId}
+        rows={3}
+        value={details}
+        maxLength={REPORT_DETAILS_MAX_LENGTH + 100}
+        aria-invalid={(touched && problem !== null) || undefined}
+        aria-describedby={`${detailsId}-help`}
+        onChange={(event) => setDetails(event.target.value)}
+      />
+      <p
+        id={`${detailsId}-help`}
+        className={cn('text-sm', touched && problem ? 'text-destructive' : 'text-muted-foreground')}
+        aria-live="polite"
+      >
+        {touched && problem
+          ? t(`memorial.report.problem.${problem}`, { max: REPORT_DETAILS_MAX_LENGTH })
+          : t('memorial.report.privacy')}
+      </p>
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button type="button" variant="ghost" size="small" onClick={onDone}>
+          {t('common.cancel')}
+        </Button>
+        <Button type="submit" size="small" disabled={report.isPending}>
+          {t('memorial.report.submit')}
+        </Button>
+      </div>
+    </form>
   );
 }

@@ -230,6 +230,31 @@
       "from": "A note from {{name}}",
       "fromYou": "A note from you"
     },
+    "report": {
+      "button": "Report",
+      "title": "Report this note",
+      "reasonLabel": "Why are you reporting it?",
+      "reasons": {
+        "hurtful": "Hurtful, hateful or harassing",
+        "spam": "Spam or advertising",
+        "private": "Shares someone’s private information",
+        "not_about": "Not about this person",
+        "other": "Something else"
+      },
+      "chooseReason": "Choose a reason.",
+      "detailsLabel": "Anything else we should know? (optional)",
+      "privacy": "Only the site’s moderators see reports. The writer and the family aren’t told who reported.",
+      "problem": {
+        "too_long": "Use up to {{max}} characters.",
+        "characters": "Remove the unusual characters and try again."
+      },
+      "submit": "Send report",
+      "sent": "Thank you. We’ll take a look.",
+      "already": "You’ve already reported this note.",
+      "rateLimit": "You’ve sent a lot of reports today. Please try again tomorrow.",
+      "failed": "The report didn’t send. Please try again.",
+      "signIn": "Sign in to report a note, so we can follow up if needed."
+    },
     "stone": {
       "clean": "Clean the stone",
       "cleanedToday": "You cleaned the stone today",
