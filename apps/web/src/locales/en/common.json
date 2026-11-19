@@ -314,7 +314,9 @@
     "label": "Pages",
     "previous": "Previous page",
     "next": "Next page",
-    "position": "Page {{page}} of {{total}}"
+    "position": "Page {{page}} of {{total}}",
+    "item": "{{index}} of {{total}}",
+    "range": "{{from}}–{{to}} of {{total}}"
   },
   "admin": {
     "menuLink": "Reports",

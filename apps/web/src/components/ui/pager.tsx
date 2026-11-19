@@ -6,6 +6,7 @@ type PagerProps = {
   pageCount: number;
   onPage: (page: number) => void;
   className?: string;
+  label?: string;
 };
 
 function Chevron({ direction }: { direction: 'left' | 'right' }) {
@@ -26,7 +27,7 @@ function Chevron({ direction }: { direction: 'left' | 'right' }) {
 const arrowClass =
   'size-touch text-foreground focus-visible:outline-ring can-hover:hover:bg-accent grid place-items-center rounded-full transition-colors focus-visible:outline-3 focus-visible:outline-offset-3 disabled:opacity-30';
 
-export function Pager({ page, pageCount, onPage, className }: PagerProps) {
+export function Pager({ page, pageCount, onPage, className, label }: PagerProps) {
   const { t } = useTranslation();
   if (pageCount < 1) return null;
 
@@ -45,7 +46,7 @@ export function Pager({ page, pageCount, onPage, className }: PagerProps) {
         <Chevron direction="left" />
       </button>
       <p className="text-muted-foreground text-sm" aria-live="polite">
-        {t('pager.position', { page: page + 1, total: pageCount })}
+        {label ?? t('pager.position', { page: page + 1, total: pageCount })}
       </p>
       <button
         type="button"

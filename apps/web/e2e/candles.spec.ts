@@ -80,9 +80,12 @@ test.describe('lighting a candle', () => {
 
   test('a short tap does not light the candle', async ({ page, supabase }) => {
     await page.goto(`/m/${SLUG}`);
+    const hint = page.locator('[data-overlay="candle"] [data-garden-hint]');
+    await expect(hint).toHaveCSS('opacity', '0');
     await hold(page, page.getByRole('button', { name: 'Light a candle' }), 300);
+    await expect(hint).toHaveCSS('opacity', '1');
+    await expect(hint).toHaveText('Hold to light a candle');
     await page.waitForTimeout(1200);
-    await expect(page.getByText('Hold to light a candle')).toBeVisible();
     expect(supabase.calls.some((call) => call.path === '/rest/v1/rpc/light_candle')).toBe(false);
   });
 
@@ -114,7 +117,38 @@ test.describe('lighting a candle', () => {
     supabase.candles = { lit: 2, litToday: false, failNext: 'daily_limit' };
     await page.goto(`/m/${SLUG}`);
     await hold(page, page.getByRole('button', { name: 'Light a candle' }), 1500);
-    await expect(page.getByText("You've already lit a candle here today")).toBeVisible();
+    const hint = page.locator('[data-overlay="candle"] [data-garden-hint]');
+    await expect(hint).toHaveText("You've already lit a candle here today. Come back tomorrow.");
+    await expect(hint).toHaveCSS('opacity', '1');
+    await expect(page.locator('[data-sonner-toast]')).toHaveCount(0);
+  });
+
+  test('after lighting today, a press gently says so and the hint hides again', async ({
+    page,
+    supabase,
+  }) => {
+    supabase.candles = { lit: 3, litToday: true };
+    await page.goto(`/m/${SLUG}`);
+    const hint = page.locator('[data-overlay="candle"] [data-garden-hint]');
+    await expect(hint).toHaveCSS('opacity', '0');
+    await hold(page, page.getByRole('button', { name: 'Light a candle' }), 200);
+    await expect(hint).toHaveText("You've already lit a candle here today. Come back tomorrow.");
+    await page.mouse.move(5, 5);
+    await expect(hint).toHaveCSS('opacity', '0', { timeout: 5000 });
+    expect(supabase.calls.some((call) => call.path === '/rest/v1/rpc/light_candle')).toBe(false);
+  });
+
+  test('pointing at the candle lifts it and shows the hint', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'hover needs a mouse');
+    await page.goto(`/m/${SLUG}`);
+    const slot = page.locator('[data-slot="candle"]');
+    await expect(slot).toHaveCSS('transform', 'none');
+    await page.getByRole('button', { name: 'Light a candle' }).hover();
+    await expect(page.locator('[data-overlay="candle"] [data-garden-hint]')).toHaveCSS(
+      'opacity',
+      '1',
+    );
+    await expect(slot).not.toHaveCSS('transform', 'none');
   });
 
   test('the candle control fits every screen and clears the toolbar', async ({ page }) => {

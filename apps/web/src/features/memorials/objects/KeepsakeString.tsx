@@ -88,6 +88,13 @@ export function KeepsakeString({
   const [page, setPage] = useState(0);
   const pageCount = Math.max(1, Math.ceil(items.length / perView));
   const fillers = (perView - (items.length % perView)) % perView;
+  const shownPage = Math.min(page, pageCount - 1);
+  const first = shownPage * perView + 1;
+  const last = Math.min(items.length, first + perView - 1);
+  const positionLabel =
+    first === last
+      ? t('pager.item', { index: first, total: items.length })
+      : t('pager.range', { from: first, to: last, total: items.length });
   const firstReset = useRef(true);
 
   useEffect(() => {
@@ -134,14 +141,14 @@ export function KeepsakeString({
         >
           <div
             className={cn(
-              'pointer-events-auto relative flex w-full flex-col gap-3 py-4',
+              'pointer-events-auto relative flex w-[92%] flex-col gap-3 py-4 md:w-3/4',
               side === 'left'
-                ? 'group-data-[state=open]:animate-string-left'
-                : 'group-data-[state=open]:animate-string-right',
+                ? 'group-data-[state=open]:animate-string-left mr-auto'
+                : 'group-data-[state=open]:animate-string-right ml-auto',
             )}
           >
             <div className="px-safe flex items-center justify-between gap-3">
-              <DialogPrimitive.Title className="bg-card/90 text-foreground font-display min-w-0 truncate rounded-full px-4 py-1.5 text-xl font-medium tracking-tight shadow-sm">
+              <DialogPrimitive.Title className="garden-label font-display min-w-0 truncate px-1 text-2xl font-medium tracking-tight">
                 {title}
               </DialogPrimitive.Title>
               {action ? <div className="ml-auto shrink-0">{action}</div> : null}
@@ -153,38 +160,53 @@ export function KeepsakeString({
               </DialogPrimitive.Close>
             </div>
 
-            <ul
-              ref={setTrack}
-              onScroll={sync}
-              style={{ '--per-view': perView } as CSSProperties}
-              className="flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overscroll-x-contain [&::-webkit-scrollbar]:hidden"
-              data-string-track=""
-            >
-              {items.map((item, index) => (
-                <li
-                  key={item.key}
-                  className="relative w-[calc(100%/var(--per-view))] shrink-0 snap-start px-3 pt-5 pb-6"
-                >
-                  <Twine />
-                  <Clothespin />
-                  <div
-                    className="keepsake-sway relative mx-auto w-full max-w-[min(17rem,82vw)]"
-                    style={{ animationDelay: `${-((index * 1.7) % 5.5)}s` }}
+            <div className="relative">
+              <span
+                aria-hidden="true"
+                className={cn(
+                  'bg-wood border-gold-deep absolute top-0 z-10 size-3 -translate-y-1/3 rounded-full border',
+                  side === 'left' ? '-right-1' : '-left-1',
+                )}
+              />
+              <ul
+                ref={setTrack}
+                onScroll={sync}
+                style={{ '--per-view': perView } as CSSProperties}
+                className="flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto overscroll-x-contain [&::-webkit-scrollbar]:hidden"
+                data-string-track=""
+              >
+                {items.map((item, index) => (
+                  <li
+                    key={item.key}
+                    className="keepsake-follow relative w-[calc(100%/var(--per-view))] shrink-0 snap-start px-3 pt-5 pb-6"
+                    style={
+                      {
+                        animationDelay: `${Math.min(index, 6) * 70}ms`,
+                        '--follow-from': side === 'left' ? '-56px' : '56px',
+                      } as CSSProperties
+                    }
                   >
-                    {item.node}
-                  </div>
-                </li>
-              ))}
-              {Array.from({ length: fillers }, (_, index) => (
-                <li
-                  key={`filler-${index}`}
-                  aria-hidden="true"
-                  className="relative w-[calc(100%/var(--per-view))] shrink-0"
-                >
-                  <Twine />
-                </li>
-              ))}
-            </ul>
+                    <Twine />
+                    <Clothespin />
+                    <div
+                      className="keepsake-sway relative mx-auto w-full max-w-[min(17rem,82vw)]"
+                      style={{ animationDelay: `${-((index * 1.7) % 5.5)}s` }}
+                    >
+                      {item.node}
+                    </div>
+                  </li>
+                ))}
+                {Array.from({ length: fillers }, (_, index) => (
+                  <li
+                    key={`filler-${index}`}
+                    aria-hidden="true"
+                    className="relative w-[calc(100%/var(--per-view))] shrink-0"
+                  >
+                    <Twine />
+                  </li>
+                ))}
+              </ul>
+            </div>
 
             {(showPager ?? pageCount > 1) ? (
               <div className="px-safe flex justify-center">
@@ -193,6 +215,7 @@ export function KeepsakeString({
                   page={Math.min(page, pageCount - 1)}
                   pageCount={pageCount}
                   onPage={goTo}
+                  label={positionLabel}
                 />
               </div>
             ) : null}

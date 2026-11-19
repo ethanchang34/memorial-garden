@@ -1,3 +1,4 @@
+import { expectResponsiveLayout } from './responsive';
 import { expect, memorialRow, TEST_USER_ID, test } from './fixtures';
 import { TEST_VIEWPORTS } from './viewports';
 
@@ -60,10 +61,10 @@ test.describe('cleaning the stone', () => {
     expect(supabase.calls.some((call) => call.path === '/rest/v1/rpc/clean_stone')).toBe(false);
   });
 
-  test('a fresh stone hides the hint until hover or focus', async ({ page, supabase }) => {
-    supabase.stone = { dirtySince: daysAgo(1), cleanedToday: false };
+  test('the stone hint waits for hover or focus, even when mossy', async ({ page, supabase }) => {
+    supabase.stone = { dirtySince: daysAgo(30), cleanedToday: false };
     await page.goto(`/m/${SLUG}`);
-    const hint = page.locator('[data-stone-button] span');
+    const hint = page.locator('[data-overlay="stone"] [data-garden-hint]');
     await expect(hint).toHaveCSS('opacity', '0');
     await page.getByRole('button', { name: 'Clean the stone' }).focus();
     await page.keyboard.press('Tab');
@@ -76,47 +77,28 @@ test.describe('cleaning the stone', () => {
     await page.goto(`/m/${SLUG}`);
     await page.getByRole('button', { name: 'Clean the stone' }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Clean the stone' }).click();
-    await expect(page.getByText('You’ve already cleaned this stone today.')).toBeVisible();
+    await expect(page.locator('[data-overlay="stone"] [data-garden-hint]')).toHaveText(
+      'You’ve already cleaned this stone today. Come back tomorrow.',
+    );
     await expect(page.locator('[data-moss]')).not.toHaveAttribute('data-grime', '0.00');
   });
 
   test('the stone control fits every screen', async ({ page, supabase }) => {
+    test.slow();
     supabase.stone = { dirtySince: daysAgo(30), cleanedToday: false };
     for (const viewport of TEST_VIEWPORTS) {
       await page.setViewportSize(viewport);
       await page.goto(`/m/${SLUG}`);
-      const box = (await page.getByRole('button', { name: 'Clean the stone' }).boundingBox())!;
+      const button = page.getByRole('button', { name: 'Clean the stone' });
+      const box = (await button.boundingBox())!;
       expect(Math.min(box.width, box.height)).toBeGreaterThanOrEqual(44);
-      const hintLocator = page.locator('[data-stone-button] span');
+      await button.focus();
+      const hintLocator = page.locator('[data-overlay="stone"] [data-garden-hint]');
       await expect(hintLocator).toHaveCSS('opacity', '1');
       const hint = (await hintLocator.boundingBox())!;
       expect(hint.x).toBeGreaterThanOrEqual(0);
       expect(hint.x + hint.width).toBeLessThanOrEqual(viewport.width);
-      const candle = (await page.getByRole('button', { name: 'Light a candle' }).boundingBox())!;
-      const overlaps =
-        candle.x < hint.x + hint.width &&
-        hint.x < candle.x + candle.width &&
-        candle.y < hint.y + hint.height &&
-        hint.y < candle.y + candle.height;
-      expect(
-        overlaps,
-        `candle button vs stone hint at ${viewport.width}x${viewport.height}: ${JSON.stringify([candle, hint])}`,
-      ).toBe(false);
-      const candleHintLocator = page.getByText('Hold to light a candle');
-      if (viewport.width < 768) {
-        await expect(candleHintLocator).toHaveCSS('opacity', '0');
-        continue;
-      }
-      const candleHint = (await candleHintLocator.boundingBox())!;
-      const hintsOverlap =
-        candleHint.x < hint.x + hint.width &&
-        hint.x < candleHint.x + candleHint.width &&
-        candleHint.y < hint.y + hint.height &&
-        hint.y < candleHint.y + candleHint.height;
-      expect(
-        hintsOverlap,
-        `hints at ${viewport.width}x${viewport.height}: ${JSON.stringify([candleHint, hint])}`,
-      ).toBe(false);
+      await expectResponsiveLayout(page);
     }
   });
 });

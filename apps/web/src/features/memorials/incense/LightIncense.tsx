@@ -5,6 +5,8 @@ import { HoldButton } from '@/components/ui/hold-button';
 import { CaptchaError } from '@/core/captcha';
 import { IncenseError, type IncenseState } from '@/core/incense';
 import { cn } from '@/lib/utils';
+import { GardenHint } from '../GardenHint';
+import { useFlash } from '../useFlash';
 
 type LightIncenseProps = {
   name: string;
@@ -17,11 +19,12 @@ export function LightIncense({ name, state, pending, onLight }: LightIncenseProp
   const { t } = useTranslation();
   const hintId = useId();
   const done = state.litToday;
+  const [flash, showFlash] = useFlash();
 
   function light() {
     onLight().catch((error: unknown) => {
       if (error instanceof IncenseError && error.code === 'daily_limit')
-        toast(t('memorial.incense.dailyLimit'));
+        showFlash(t('memorial.incense.dailyLimit'));
       else if (error instanceof CaptchaError) toast.error(t('memorial.candles.captchaFailed'));
       else toast.error(t('memorial.incense.failed'));
     });
@@ -32,12 +35,15 @@ export function LightIncense({ name, state, pending, onLight }: LightIncenseProp
       <HoldButton
         className={cn(
           'peer focus-visible:outline-ring absolute top-0 left-0 grid size-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2',
-          !done && 'can-hover:hover:bg-card/15 cursor-pointer',
+          'cursor-pointer',
         )}
         aria-label={t('memorial.incense.light')}
         aria-describedby={hintId}
         inactive={done || pending}
         onHoldComplete={light}
+        onTap={() =>
+          showFlash(done ? t('memorial.incense.dailyLimit') : t('memorial.incense.hold'))
+        }
         data-incense-button=""
       >
         <svg viewBox="0 0 64 64" className="size-full -rotate-90" aria-hidden="true">
@@ -52,15 +58,12 @@ export function LightIncense({ name, state, pending, onLight }: LightIncenseProp
           />
         </svg>
       </HoldButton>
-      <span
+      <GardenHint
         id={hintId}
-        className={cn(
-          'bg-card/85 text-foreground pointer-events-none absolute bottom-9 left-0 -translate-x-1/2 rounded-full px-3 py-0.5 text-sm whitespace-nowrap shadow-sm transition-opacity',
-          'max-sm:opacity-0 max-sm:peer-focus-visible:opacity-100',
-        )}
-      >
-        {done ? t('memorial.incense.litToday') : t('memorial.incense.hold')}
-      </span>
+        flash={flash}
+        text={done ? t('memorial.incense.litToday') : t('memorial.incense.hold')}
+        className="bottom-9 left-0 -translate-x-1/2"
+      />
       <span role="status" className="sr-only">
         {state.lit > 0 ? t('memorial.incense.burning', { count: state.lit, name }) : ''}
       </span>

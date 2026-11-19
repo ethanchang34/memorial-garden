@@ -69,9 +69,9 @@ test.describe('lighting incense', () => {
     supabase.incense = { lit: 1, litToday: false, failNext: 'daily_limit' };
     await page.goto(`/m/${SLUG}`);
     await hold(page, page.getByRole('button', { name: 'Light incense' }), 1500);
-    await expect(
-      page.getByText('You’ve already lit incense here today. Come back tomorrow.'),
-    ).toBeVisible();
+    await expect(page.locator('[data-overlay="incense"] [data-garden-hint]')).toHaveText(
+      'You’ve already lit incense here today. Come back tomorrow.',
+    );
     await expect(page.locator('[data-stick]')).toHaveCount(1);
   });
 
@@ -148,16 +148,13 @@ test('owners previewing a draft see the burner but cannot light it yet', async (
   await expect(page.getByRole('button', { name: 'Light incense' })).toHaveCount(0);
 });
 
-test('on narrow phones the incense label waits for focus, beside the candle label', async ({
-  page,
-  supabase,
-}) => {
+test('the incense label waits for focus', async ({ page, supabase }) => {
   supabase.memorials.push(
     memorialRow({ slug: SLUG, full_name: 'Rosa Martínez', died_date: '2024-07-19' }),
   );
   await page.setViewportSize({ width: 320, height: 640 });
   await page.goto(`/m/${SLUG}`);
-  const hint = page.getByText('Hold to light incense', { exact: true });
+  const hint = page.locator('[data-overlay="incense"] [data-garden-hint]');
   await expect(hint).toHaveCSS('opacity', '0');
   await page.getByRole('button', { name: 'Light incense' }).focus();
   await page.keyboard.press('Shift+Tab');
