@@ -271,10 +271,7 @@ test.describe('notes', () => {
 
     if (testInfo.project.name === 'mobile') {
       const first = (await string.locator('li').first().boundingBox())!;
-      const trackBox = (await track.boundingBox())!;
-      expect(Math.round(first.width)).toBe(Math.round(trackBox.width));
-      expect(trackBox.width).toBeGreaterThan(viewport.width * 0.88);
-      expect(trackBox.width).toBeLessThan(viewport.width * 0.95);
+      expect(Math.round(first.width)).toBe(viewport.width);
       await expect(string.getByText('1 of 8', { exact: true })).toBeVisible();
       await expect(string.locator('[data-note]').first()).toBeInViewport({ ratio: 0.9 });
       await string.getByRole('button', { name: 'Next page' }).click();
@@ -338,6 +335,58 @@ test.describe('notes', () => {
     await expect(string.getByText('No notes yet. Be the first.')).toBeVisible();
     await expect(string.getByText(/^\d+(–\d+)? of \d+$/)).toHaveCount(0);
     await expect(string.getByRole('button', { name: 'Write a note' })).toBeVisible();
+  });
+
+  test('arrow keys and the mouse wheel move one note at a time', async ({ page, supabase }) => {
+    const memorial = seed(supabase);
+    supabase.notes.push(
+      ...Array.from({ length: 12 }, (_, index) =>
+        noteRow({ memorial_id: memorial.id, author_id: OTHER, body: `Note ${index + 1}` }),
+      ),
+    );
+    await page.goto(`/m/${SLUG}`);
+    const string = await openNotes(page);
+    const track = string.locator('[data-string-track]');
+    const cell = await track.evaluate((el) => el.firstElementChild!.getBoundingClientRect().width);
+    const left = () => track.evaluate((el) => Math.round(el.scrollLeft));
+
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(left).toBe(Math.round(cell));
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(left).toBe(Math.round(cell * 2));
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(left).toBe(Math.round(cell));
+
+    const box = (await track.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.wheel(0, 120);
+    await expect.poll(left).toBe(Math.round(cell * 2));
+    await page.waitForTimeout(400);
+    await page.mouse.wheel(0, -120);
+    await expect.poll(left).toBe(Math.round(cell));
+    await expect(string).toBeVisible();
+  });
+
+  test('clicking outside the notes pulls the string back in', async ({ page, supabase }) => {
+    const memorial = seed(supabase);
+    supabase.notes.push(noteRow({ memorial_id: memorial.id, author_id: OTHER, body: 'Hello.' }));
+    await page.goto(`/m/${SLUG}`);
+    let string = await openNotes(page);
+    await page.locator('[data-note]').click();
+    const detail = page.getByRole('dialog', { name: 'A note from Maria L.' });
+    await detail.getByText('Hello.').click();
+    await expect(detail).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(string).toBeVisible();
+
+    const viewport = page.viewportSize()!;
+    await page.mouse.click(viewport.width / 2, 8);
+    await expect(string).toBeHidden();
+
+    string = await openNotes(page);
+    const box = (await string.locator('[data-string-track]').boundingBox())!;
+    await page.mouse.click(box.x + 4, box.y + box.height - 4);
+    await expect(string).toBeHidden();
   });
 
   test('swiping the string sideways moves the page count along', async ({ page, supabase }) => {

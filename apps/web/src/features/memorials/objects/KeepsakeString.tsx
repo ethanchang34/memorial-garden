@@ -120,6 +120,38 @@ export function KeepsakeString({
     setPage(Math.round(track.scrollLeft / track.clientWidth));
   }
 
+  function step(direction: 1 | -1) {
+    if (!track) return;
+    track.scrollBy({
+      left: (direction * track.clientWidth) / perView,
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    });
+  }
+
+  useEffect(() => {
+    if (!track) return undefined;
+    let pending = 0;
+    let lockedUntil = 0;
+    const onWheel = (event: WheelEvent) => {
+      if (event.ctrlKey) return;
+      const sideways = Math.abs(event.deltaX) > Math.abs(event.deltaY);
+      if (sideways) return;
+      if (event.deltaY === 0) return;
+      event.preventDefault();
+      const now = performance.now();
+      pending += event.deltaY;
+      if (now < lockedUntil || Math.abs(pending) < 30) return;
+      track.scrollBy({
+        left: (Math.sign(pending) * track.clientWidth) / Math.max(1, perView),
+        behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      });
+      pending = 0;
+      lockedUntil = now + 260;
+    };
+    track.addEventListener('wheel', onWheel, { passive: false });
+    return () => track.removeEventListener('wheel', onWheel);
+  }, [track, perView]);
+
   function goTo(next: number) {
     if (!track) return;
     track.scrollTo({
@@ -132,19 +164,36 @@ export function KeepsakeString({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="bg-ink/40 data-[state=open]:animate-fade-in fixed inset-0 z-50" />
+        <DialogPrimitive.Overlay
+          className="bg-ink/40 data-[state=open]:animate-fade-in fixed inset-0 z-50"
+          data-string-backdrop=""
+        />
         <DialogPrimitive.Content
           aria-describedby={undefined}
           onCloseAutoFocus={onCloseAutoFocus}
+          onClick={(event) => {
+            const target = event.target as HTMLElement;
+            if (!event.currentTarget.contains(target)) return;
+            if (target.closest('button, a, input, textarea, [data-keep-open]')) return;
+            onOpenChange(false);
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+            const target = event.target as HTMLElement;
+            if (target.closest('input, textarea, [contenteditable]')) return;
+            if (target.closest('[role="dialog"]') !== event.currentTarget) return;
+            event.preventDefault();
+            step(event.key === 'ArrowRight' ? 1 : -1);
+          }}
           className="group pointer-events-none fixed inset-0 z-50 flex flex-col justify-center overflow-y-auto outline-none"
           data-string={kind}
         >
           <div
             className={cn(
-              'pointer-events-auto relative flex w-[92%] flex-col gap-3 py-4 md:w-3/4',
+              'pointer-events-auto relative flex w-full flex-col gap-3 py-4',
               side === 'left'
-                ? 'group-data-[state=open]:animate-string-left mr-auto'
-                : 'group-data-[state=open]:animate-string-right ml-auto',
+                ? 'group-data-[state=open]:animate-string-left'
+                : 'group-data-[state=open]:animate-string-right',
             )}
           >
             <div className="px-safe flex items-center justify-between gap-3">
@@ -161,13 +210,6 @@ export function KeepsakeString({
             </div>
 
             <div className="relative">
-              <span
-                aria-hidden="true"
-                className={cn(
-                  'bg-wood border-gold-deep absolute top-0 z-10 size-3 -translate-y-1/3 rounded-full border',
-                  side === 'left' ? '-right-1' : '-left-1',
-                )}
-              />
               <ul
                 ref={setTrack}
                 onScroll={sync}
@@ -211,6 +253,7 @@ export function KeepsakeString({
             {(showPager ?? pageCount > 1) ? (
               <div className="px-safe flex justify-center">
                 <Pager
+                  data-keep-open=""
                   className="bg-card/90 w-full max-w-xs rounded-full px-1 shadow-sm"
                   page={Math.min(page, pageCount - 1)}
                   pageCount={pageCount}
@@ -234,6 +277,7 @@ export function PaperSlip({
 }: { className?: string; children: ReactNode } & Record<`data-${string}`, unknown>) {
   return (
     <div
+      data-keep-open=""
       className={cn(
         'bg-card text-card-foreground shadow-lift relative flex min-h-44 flex-col gap-2 rounded-sm px-4 pt-5 pb-4',
         className,

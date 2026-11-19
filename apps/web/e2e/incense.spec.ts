@@ -75,6 +75,26 @@ test.describe('lighting incense', () => {
     await expect(page.locator('[data-stick]')).toHaveCount(1);
   });
 
+  test('pointing anywhere on the bowl or sticks lifts the incense', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'hover needs a mouse');
+    await page.goto(`/m/${SLUG}`);
+    const slot = page.locator('[data-slot="incense"]');
+    const bowl = (await slot.locator('path').first().boundingBox())!;
+    await page.mouse.move(bowl.x + bowl.width / 2, bowl.y + bowl.height - 1);
+    await expect(slot).not.toHaveCSS('transform', 'none');
+    await expect(page.locator('[data-overlay="incense"] [data-garden-hint]')).toHaveCSS(
+      'opacity',
+      '1',
+    );
+  });
+
+  test('the bowl sits beside the path, not on it', async ({ page }) => {
+    await page.goto(`/m/${SLUG}`);
+    const bowl = (await page.locator('[data-slot="incense"] path').first().boundingBox())!;
+    const stone = (await page.locator('[data-slot="stone"] > path').first().boundingBox())!;
+    expect(bowl.x).toBeGreaterThan(stone.x + stone.width / 2 + 8);
+  });
+
   test('smoke drifts up and holds still with reduced motion', async ({ page, supabase }) => {
     supabase.incense = { lit: 2, litToday: false };
     await page.goto(`/m/${SLUG}`);

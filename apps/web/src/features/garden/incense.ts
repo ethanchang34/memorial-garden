@@ -1,13 +1,15 @@
 import { INCENSE_MAX } from '@/core/incense';
 
-export const BURNER = { x: 400, base: 428, rx: 15, ry: 4 };
+export const BURNER = { x: 436, base: 424, rx: 15, ry: 4 };
+
+export const INCENSE_AREA = { x: BURNER.x - 20, y: BURNER.base - 56, width: 40, height: 66 };
 
 export type StickSlot = { index: number; x: number; lean: number; height: number };
 
 const SLOTS: readonly StickSlot[] = [
-  { index: 0, x: 400, lean: 0, height: 36 },
-  { index: 1, x: 394, lean: -5, height: 32 },
-  { index: 2, x: 406, lean: 5, height: 34 },
+  { index: 0, x: BURNER.x, lean: 0, height: 36 },
+  { index: 1, x: BURNER.x - 6, lean: -5, height: 32 },
+  { index: 2, x: BURNER.x + 6, lean: 5, height: 34 },
 ];
 
 export function burningSticks(lit: number): StickSlot[] {

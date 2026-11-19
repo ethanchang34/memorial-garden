@@ -14,7 +14,7 @@ import { grimeLevel } from '@/core/weathering';
 import { useSession } from '@/features/auth/session';
 import { CLUSTER_CENTER } from '@/features/garden/candleSlots';
 import { nextVase } from '@/features/garden/flowers';
-import { BURNER } from '@/features/garden/incense';
+import { INCENSE_AREA } from '@/features/garden/incense';
 import { GardenScene, type SceneOverlay } from '@/features/garden/GardenScene';
 import { STONE } from '@/features/garden/moss';
 import { NotFoundPage } from '@/features/not-found/NotFoundPage';
@@ -138,8 +138,7 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
   if (canLightIncense)
     overlays.push({
       key: 'incense',
-      x: BURNER.x,
-      y: BURNER.base - 22,
+      ...INCENSE_AREA,
       children: (
         <LightIncense
           name={memorial.fullName}

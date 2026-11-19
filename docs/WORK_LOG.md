@@ -65,10 +65,15 @@ Build free, pay once to share ($20 to start, test $29); visitors never pay; no c
 9. [x] Garden polish (PR #69, owner feedback 2026-11-18):
    - Hovering (or keyboard focus on) the stone, vase, candle or incense lifts that object slightly toward you with a soft shadow, instead of a white box; with Reduce Motion it brightens instead.
    - No more white oval labels. Hints ("Hold to light a candle", "Place a flower", "Clean the stone", "Hold to light incense") are soft-shadowed text that appears only on hover or focus. A quick tap shows the hint for a moment (how phones discover "hold"). Trying again after today's gesture shows a gentle temporary "You've already … today" in the garden instead of a toast. Keepsake labels and the string title use the same plain text.
-   - Strings slide out over 75% of the width on computers and tablets (92% on phones) from the keepsake's side, with a slow-fast-slow (ease-in-out) pull, 650 ms on phones and 800 ms on larger screens; each item follows a moment after the one before. The open end of the twine has a small peg.
+   - Strings slide out from the keepsake's side with a slow-fast-slow (ease-in-out) pull, 650 ms on phones and 800 ms on larger screens; each item follows a moment after the one before. (They first covered 75% of the width; item 10 put them back to the full width.)
    - The counter shows what you're looking at: "4–6 of 8" when several fit, "3 of 8" on phones.
    - Notes on the string lift slightly when you point at them, so they read as tappable.
    - Bushes now sit on the grass: each hedge row has a shaded base down to the ground, so there's no gap under them.
+10. [x] Incense and string fixes (owner feedback 2026-11-18):
+    - The incense bowl moved off the path to the grass between the path and the candles. Pointing anywhere on the sticks, smoke or bowl (down to the bowl's foot) lifts it and shows its hint.
+    - Strings stretch across the full width of the garden again.
+    - While a string is open, the left and right arrow keys move one note at a time; scrolling the mouse wheel over it moves left and right, one note per notch.
+    - Clicking or tapping anywhere outside the notes (above, below, or between them) pulls the string back in. Clicking a note, a button or the counter keeps it open.
 
 ### Before building further: core-loop test
 
@@ -133,7 +138,8 @@ On https://memorial-garden-2ub.pages.dev unless noted:
 - [ ] Flower extras: place a flower and tap Undo in the toast; it comes back out. Signed in, add a short message; tap the vase again to see "from you" with the message. On your own memorial, hide someone else's message.
 - [x] Reporting: with a second account, open one of your notes, tap Report, choose a reason and send it. Then check the `reports` table in the Supabase dashboard (Table Editor) shows it.
 - [ ] Report review: after reporting a note from a second account, open **Reports** in your account menu, choose Keep the note, write a reason and save; the queue empties. Report again from a third account (or dismiss later) to try Remove.
-- [ ] Garden polish: point at the stone, vase, candle and incense on a computer; each lifts a little and shows its hint, with no white box. On a phone, tap the candle quickly; "Hold to light a candle" appears for a moment. After lighting, holding again shows "You've already lit a candle here today" briefly. Open Notes; the string comes in from the right over most of the screen, notes lift when you point at them, and the counter reads like "1–3 of 8".
+- [ ] Garden polish: point at the stone, vase, candle and incense on a computer; each lifts a little and shows its hint, with no white box. On a phone, tap the candle quickly; "Hold to light a candle" appears for a moment. After lighting, holding again shows "You've already lit a candle here today" briefly. Open Notes; the string comes in from the right across the whole screen, notes lift when you point at them, and the counter reads like "1–3 of 8".
+- [ ] Incense and strings: the incense bowl sits on the grass beside the path, and pointing at its lower half still lifts it. With 4 or more notes, open Notes on a computer: the arrow keys and the mouse wheel each move one note; clicking above or below the notes pulls the string back in.
 - [ ] Flowers: in a private window, tap the vase, pick a flower, and place it; it grows in right away and the header still says "Sign in". The same day the vase says "You placed a flower today". Check it looks right in the morning and at night.
 - [x] Linking: in a private window, light a candle, then Sign in with a Google account that has never used the site. You come back signed in with that Google name, and the candle still shows "Your candle is lit". Doing the same with your usual Google account just signs you in to it.
 - [ ] Cleaning: a memorial shared more than a week ago shows moss on the stone (a newer one stays clean until then). In a private window, tap the stone, choose "Clean the stone", and the moss wipes away; the header still says "Sign in". Trying again the same day explains you've already cleaned it today; "Not now" leaves the stone as it is.
