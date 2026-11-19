@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 type HoldButtonProps = Omit<ComponentProps<'button'>, 'onClick'> & {
   holdMs?: number;
   onHoldComplete: () => void;
+  onTap?: () => void;
   inactive?: boolean;
 };
 
@@ -20,6 +21,7 @@ const HOLD_KEYS = new Set([' ', 'Enter']);
 export function HoldButton({
   holdMs = 1200,
   onHoldComplete,
+  onTap,
   inactive = false,
   className,
   children,
@@ -29,15 +31,21 @@ export function HoldButton({
   const [holding, setHolding] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   const complete = useRef(onHoldComplete);
+  const tap = useRef(onTap);
 
   useEffect(() => {
     complete.current = onHoldComplete;
-  }, [onHoldComplete]);
+    tap.current = onTap;
+  }, [onHoldComplete, onTap]);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   function start() {
-    if (inactive || timer.current !== undefined) return;
+    if (inactive) {
+      tap.current?.();
+      return;
+    }
+    if (timer.current !== undefined) return;
     setHolding(true);
     timer.current = window.setTimeout(() => {
       timer.current = undefined;
@@ -47,9 +55,11 @@ export function HoldButton({
   }
 
   function stop() {
+    const early = timer.current !== undefined;
     window.clearTimeout(timer.current);
     timer.current = undefined;
     setHolding(false);
+    if (early) tap.current?.();
   }
 
   function onKeyDown(event: KeyboardEvent<HTMLButtonElement>) {

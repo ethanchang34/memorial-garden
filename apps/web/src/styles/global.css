@@ -84,8 +84,9 @@
     }
   }
 
-  --animate-string-left: drawer-left 560ms var(--ease-soft);
-  --animate-string-right: drawer-right 560ms var(--ease-soft);
+  --ease-pull: cubic-bezier(0.65, 0, 0.35, 1);
+  --animate-string-left: drawer-left 650ms var(--ease-pull);
+  --animate-string-right: drawer-right 650ms var(--ease-pull);
 
   --font-display: 'Fraunces', Georgia, serif;
   --font-sans: 'Nunito', ui-rounded, system-ui, sans-serif;
@@ -702,5 +703,93 @@ h1 {
 
   .garden-ember {
     animation: none !important;
+  }
+}
+
+.garden-hint {
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  color: var(--color-card);
+  text-shadow:
+    0 1px 2px color-mix(in srgb, var(--color-ink) 85%, transparent),
+    0 0 10px color-mix(in srgb, var(--color-ink) 55%, transparent);
+  transition: opacity 220ms var(--ease-soft);
+}
+
+.garden-label {
+  color: var(--color-card);
+  font-weight: 600;
+  text-shadow:
+    0 1px 2px color-mix(in srgb, var(--color-ink) 85%, transparent),
+    0 0 10px color-mix(in srgb, var(--color-ink) 55%, transparent);
+}
+
+[data-slot='stone'],
+[data-slot='candle'],
+[data-slot='vase'],
+[data-slot='incense'] {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition:
+    transform 360ms var(--ease-soft),
+    filter 360ms var(--ease-soft);
+}
+
+[data-slot='stone'] {
+  --lift-scale: 1.025;
+}
+
+[data-slot='candle'],
+[data-slot='vase'],
+[data-slot='incense'] {
+  --lift-scale: 1.07;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-garden]:has([data-overlay='stone'] button:hover) [data-slot='stone'],
+  [data-garden]:has([data-overlay='candle'] button:hover) [data-slot='candle'],
+  [data-garden]:has([data-overlay='flower'] button:hover) [data-slot='vase'],
+  [data-garden]:has([data-overlay='incense'] button:hover) [data-slot='incense'] {
+    transform: translateY(-3px) scale(var(--lift-scale));
+    filter: drop-shadow(0 6px 6px color-mix(in srgb, var(--color-ink) 35%, transparent));
+  }
+}
+
+[data-garden]:has([data-overlay='stone'] button:focus-visible) [data-slot='stone'],
+[data-garden]:has([data-overlay='candle'] button:focus-visible) [data-slot='candle'],
+[data-garden]:has([data-overlay='flower'] button:focus-visible) [data-slot='vase'],
+[data-garden]:has([data-overlay='incense'] button:focus-visible) [data-slot='incense'] {
+  transform: translateY(-3px) scale(var(--lift-scale));
+  filter: drop-shadow(0 6px 6px color-mix(in srgb, var(--color-ink) 35%, transparent));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-garden] [data-slot] {
+    transform: none !important;
+  }
+
+  [data-garden]:has([data-overlay] button:hover) [data-slot],
+  [data-garden]:has([data-overlay] button:focus-visible) [data-slot] {
+    filter: brightness(1.1);
+  }
+}
+
+@keyframes keepsake-follow {
+  from {
+    opacity: 0;
+    transform: translateX(var(--follow-from, -48px));
+  }
+}
+
+.keepsake-follow {
+  animation: keepsake-follow 650ms var(--ease-pull) both;
+}
+
+@media (min-width: 48rem) {
+  .keepsake-follow {
+    animation-duration: 800ms;
   }
 }

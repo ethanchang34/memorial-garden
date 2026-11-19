@@ -15,7 +15,9 @@ import { NoteCard, NoteForm } from './NoteCard';
 import { useNoteActions } from './useNotes';
 
 const slipFocus =
-  'focus-visible:outline-ring block w-full rounded-sm text-left focus-visible:outline-3 focus-visible:outline-offset-4';
+  'group/slip focus-visible:outline-ring block w-full cursor-pointer rounded-sm text-left focus-visible:outline-3 focus-visible:outline-offset-4';
+const slipLift =
+  'transition-transform duration-300 ease-out can-hover:group-hover/slip:-translate-y-1.5 can-hover:group-hover/slip:scale-[1.03] group-focus-visible/slip:-translate-y-1.5 group-focus-visible/slip:scale-[1.03] motion-reduce:transform-none';
 
 type NotesStringProps = {
   memorial: Memorial;
@@ -91,7 +93,7 @@ export function NotesString({
           data-note={note.id}
           data-mine={mine || undefined}
         >
-          <PaperSlip className={cn(hidden && 'opacity-75')}>
+          <PaperSlip className={cn(slipLift, hidden && 'opacity-75')}>
             {mine ? (
               <span
                 aria-hidden="true"

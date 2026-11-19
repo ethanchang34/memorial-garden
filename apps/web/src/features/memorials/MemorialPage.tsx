@@ -26,7 +26,7 @@ import { LightIncense } from './incense/LightIncense';
 import { useIncense, useLightIncense } from './incense/useIncense';
 import { useNotes } from './notes/useNotes';
 import { ShareMemorial } from './ShareMemorial';
-import { CleanStone, SHOW_HINT_AT } from './stone/CleanStone';
+import { CleanStone } from './stone/CleanStone';
 import { useCleanStone, useStone } from './stone/useStone';
 import { MemorialObjects } from './objects/MemorialObjects';
 import { useMemorial, usePublishMemorial } from './useMemorials';
@@ -160,7 +160,6 @@ function MemorialView({ memorial }: { memorial: Memorial }) {
           state={candleState}
           pending={light.isPending}
           onLight={() => light.mutateAsync()}
-          quietHint={canClean && !stoneState.cleanedToday && grime >= SHOW_HINT_AT}
         />
       ),
     });

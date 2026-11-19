@@ -34,6 +34,7 @@ import { useSession } from '@/features/auth/session';
 import { useAuthActions } from '@/features/auth/useAuthActions';
 import { Bloom } from '@/features/garden/FlowerVases';
 import { cn } from '@/lib/utils';
+import { GardenHint } from '../GardenHint';
 import {
   useFlowerCredits,
   useSetFlowerMessageHidden,
@@ -129,28 +130,23 @@ export function PlaceFlower({
           onClick={(event) => {
             if (pending) event.preventDefault();
           }}
-          className="group focus-visible:outline-ring min-w-touch can-hover:hover:bg-card/10 absolute inset-y-0 left-1/2 w-full -translate-x-1/2 cursor-pointer rounded-2xl focus-visible:outline-3 focus-visible:outline-offset-2"
-        >
-          <span
-            className={cn(
-              'bg-card/85 text-foreground pointer-events-none absolute top-[72%] left-1/2 -translate-x-1/2 rounded-full px-3 py-0.5 text-sm whitespace-nowrap shadow-sm transition-opacity',
-              done
-                ? 'can-hover:group-hover:opacity-100 opacity-0 group-focus-visible:opacity-100'
-                : 'opacity-100',
-            )}
-          >
-            {done ? t('memorial.flowers.placedToday') : t('memorial.flowers.place')}
-          </span>
-          {summary ? (
-            <span
-              data-flower-summary=""
-              className="bg-card/85 text-foreground can-hover:group-hover:opacity-100 pointer-events-none absolute top-[calc(72%+1.9rem)] left-1/2 -translate-x-1/2 rounded-full px-3 py-0.5 text-xs whitespace-nowrap opacity-0 shadow-sm transition-opacity"
-            >
-              {summary}
-            </span>
-          ) : null}
-        </button>
+          className="peer focus-visible:outline-ring min-w-touch absolute inset-y-0 left-1/2 w-full -translate-x-1/2 cursor-pointer rounded-2xl focus-visible:outline-3 focus-visible:outline-offset-2"
+        ></button>
       </DialogTrigger>
+      <GardenHint
+        flash={null}
+        text={done ? t('memorial.flowers.placedToday') : t('memorial.flowers.place')}
+        className="top-[72%] left-1/2 -translate-x-1/2"
+      />
+      {summary ? (
+        <span
+          aria-hidden="true"
+          data-flower-summary=""
+          className="garden-hint can-hover:peer-hover:opacity-100 absolute top-[calc(72%+1.4rem)] left-1/2 -translate-x-1/2 text-xs opacity-0"
+        >
+          {summary}
+        </span>
+      ) : null}
       <span role="status" className="sr-only">
         {state.types.length > 0
           ? t('memorial.flowers.inBloom', { count: state.types.length, name })

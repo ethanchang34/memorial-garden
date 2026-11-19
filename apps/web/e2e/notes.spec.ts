@@ -271,15 +271,18 @@ test.describe('notes', () => {
 
     if (testInfo.project.name === 'mobile') {
       const first = (await string.locator('li').first().boundingBox())!;
-      expect(Math.round(first.width)).toBe(viewport.width);
-      await expect(string.getByText('Page 1 of 8')).toBeVisible();
+      const trackBox = (await track.boundingBox())!;
+      expect(Math.round(first.width)).toBe(Math.round(trackBox.width));
+      expect(trackBox.width).toBeGreaterThan(viewport.width * 0.88);
+      expect(trackBox.width).toBeLessThan(viewport.width * 0.95);
+      await expect(string.getByText('1 of 8', { exact: true })).toBeVisible();
       await expect(string.locator('[data-note]').first()).toBeInViewport({ ratio: 0.9 });
       await string.getByRole('button', { name: 'Next page' }).click();
-      await expect(string.getByText('Page 2 of 8')).toBeVisible();
+      await expect(string.getByText('2 of 8', { exact: true })).toBeVisible();
       await expect(string.locator('[data-note]').nth(1)).toBeInViewport({ ratio: 0.9 });
       await string.getByRole('button', { name: 'Previous page' }).click();
     } else {
-      await expect(string.getByText('Page 1 of 2')).toBeVisible();
+      await expect(string.getByText(/^1–\d of 8$/)).toBeVisible();
     }
 
     const long = string.locator('[data-note]').filter({ hasText: 'A long memory.' });
@@ -316,7 +319,7 @@ test.describe('notes', () => {
     const string = await openNotes(page);
     await expect(string.locator('[data-string-track] li:not([aria-hidden])')).toHaveCount(1);
     await expect(string.locator('[data-note]')).toBeInViewport({ ratio: 0.9 });
-    await expect(string.getByText('Page 1 of 1')).toBeVisible();
+    await expect(string.getByText('1 of 1', { exact: true })).toBeVisible();
     await expect(string.getByText('No notes yet', { exact: false })).toHaveCount(0);
     const write = string.getByRole('button', { name: 'Write a note' });
     const title = (await string.getByRole('heading', { name: 'Notes' }).boundingBox())!;
@@ -333,7 +336,7 @@ test.describe('notes', () => {
     await page.goto(`/m/${SLUG}`);
     const string = await openNotes(page);
     await expect(string.getByText('No notes yet. Be the first.')).toBeVisible();
-    await expect(string.getByText(/^Page \d+ of \d+$/)).toHaveCount(0);
+    await expect(string.getByText(/^\d+(–\d+)? of \d+$/)).toHaveCount(0);
     await expect(string.getByRole('button', { name: 'Write a note' })).toBeVisible();
   });
 
@@ -348,7 +351,9 @@ test.describe('notes', () => {
     const string = await openNotes(page);
     const track = string.locator('[data-string-track]');
     await track.evaluate((el) => el.scrollTo({ left: el.clientWidth }));
-    await expect(string.getByText(/^Page 2 of \d+$/)).toBeVisible();
+    await expect(
+      string.getByText(/^(2|\d+–\d+) of 12$/).filter({ hasNotText: /^1–/ }),
+    ).toBeVisible();
   });
 
   test('the notes string fits every screen', async ({ page, supabase }) => {

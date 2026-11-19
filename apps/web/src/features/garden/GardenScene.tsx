@@ -96,19 +96,32 @@ const HEDGES = {
   front: buildHedgeRow({ ...HEDGE_SPAN, base: 360, radius: [24, 36], gap: [330, 470], seed: 22 }),
 };
 
+const HEDGE_FEET = {
+  back: [[HEDGE_SPAN.from + 30, HEDGE_SPAN.to - 30, 340]],
+  front: [
+    [HEDGE_SPAN.from + 24, 318, 362],
+    [482, HEDGE_SPAN.to - 24, 362],
+  ],
+} as const;
+
 function Hedge({
   lobes,
   color,
   shade,
   light,
+  feet,
 }: {
   lobes: HedgeLobe[];
   color: string;
   shade: string;
   light: string;
+  feet: readonly (readonly [from: number, to: number, top: number])[];
 }) {
   return (
     <g aria-hidden="true">
+      {feet.map(([from, to, top]) => (
+        <rect key={from} x={from} y={top} width={to - from} height={GROUND_Y - top} fill={shade} />
+      ))}
       {lobes.map((lobe, index) => (
         <g key={index}>
           <path d={lobe.shade} fill={shade} />
@@ -285,12 +298,14 @@ export function GardenScene({
         <rect x={SPAN_LEFT} y="220" width={SPAN_WIDTH} height="120" fill={url('haze')} />
         <Hedge
           lobes={HEDGES.back}
+          feet={HEDGE_FEET.back}
           color={mixHex(p.hedge, p.haze, 0.35)}
           shade={mixHex(p.hedgeShade, p.haze, 0.3)}
           light={mixHex(mixHex(p.hedge, p.sun, rim), p.haze, 0.35)}
         />
         <Hedge
           lobes={HEDGES.front}
+          feet={HEDGE_FEET.front}
           color={p.hedge}
           shade={p.hedgeShade}
           light={mixHex(p.hedge, p.sun, rim)}
@@ -298,51 +313,53 @@ export function GardenScene({
         <path d={BACKDROP.ground} fill={url('ground')} />
         <path d={PATH} fill={p.path} opacity="0.75" />
 
-        <ellipse
-          cx="400"
-          cy="406"
-          rx="86"
-          ry="11"
-          fill={p.shadow}
-          opacity="0.18"
-          filter={url('soft')}
-        />
-        <path
-          d="M332 404 L332 246 Q332 188 400 188 Q468 188 468 246 L468 404Z"
-          fill={url('stone')}
-        />
-        <path d="M384 226 Q400 210 416 226 Q400 240 384 226Z" fill={p.engraving} opacity="0.45" />
-        <text
-          textAnchor="middle"
-          fontFamily="Fraunces, Georgia, serif"
-          fontSize={size}
-          fill={p.engraving}
-        >
-          {lines.map((line, index) => (
-            <tspan key={index} x="400" y={nameTop + index * lineHeight}>
-              {line}
-            </tspan>
-          ))}
-        </text>
-        <text
-          x="400"
-          y={nameTop + (lines.length - 1) * lineHeight + 26}
-          textAnchor="middle"
-          fontFamily="Fraunces, Georgia, serif"
-          fontSize="13"
-          fill={p.engraving}
-        >
-          {dates}
-        </text>
+        <g data-slot="stone">
+          <ellipse
+            cx="400"
+            cy="406"
+            rx="86"
+            ry="11"
+            fill={p.shadow}
+            opacity="0.18"
+            filter={url('soft')}
+          />
+          <path
+            d="M332 404 L332 246 Q332 188 400 188 Q468 188 468 246 L468 404Z"
+            fill={url('stone')}
+          />
+          <path d="M384 226 Q400 210 416 226 Q400 240 384 226Z" fill={p.engraving} opacity="0.45" />
+          <text
+            textAnchor="middle"
+            fontFamily="Fraunces, Georgia, serif"
+            fontSize={size}
+            fill={p.engraving}
+          >
+            {lines.map((line, index) => (
+              <tspan key={index} x="400" y={nameTop + index * lineHeight}>
+                {line}
+              </tspan>
+            ))}
+          </text>
+          <text
+            x="400"
+            y={nameTop + (lines.length - 1) * lineHeight + 26}
+            textAnchor="middle"
+            fontFamily="Fraunces, Georgia, serif"
+            fontSize="13"
+            fill={p.engraving}
+          >
+            {dates}
+          </text>
 
-        <StoneWeathering
-          level={grime}
-          seed={seed}
-          wiping={wiping}
-          stonePath={STONE_PATH}
-          p={p}
-          id={id}
-        />
+          <StoneWeathering
+            level={grime}
+            seed={seed}
+            wiping={wiping}
+            stonePath={STONE_PATH}
+            p={p}
+            id={id}
+          />
+        </g>
 
         <FlowerVases types={flowers} justPlaced={justPlaced} p={p} id={id} />
 

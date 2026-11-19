@@ -80,9 +80,7 @@ export function MemorialObjects({ memorial, counts, notes, notesLoading }: Memor
               )}
             >
               <ObjectArt kind={key} className="h-[min(5.5rem,14dvh)] w-auto drop-shadow-sm" />
-              <span className="bg-card/85 text-foreground rounded-full px-3 py-0.5 text-sm shadow-sm">
-                {label(key)}
-              </span>
+              <span className="garden-label text-sm">{label(key)}</span>
             </button>
           ))}
         </div>
