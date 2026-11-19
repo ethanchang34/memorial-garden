@@ -11,6 +11,6 @@
     "@memorial-garden/shared": "workspace:*"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20261109.1"
+    "@cloudflare/workers-types": "^5.20261116.1"
   }
 }
