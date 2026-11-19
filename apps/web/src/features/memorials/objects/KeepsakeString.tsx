@@ -85,12 +85,14 @@ export function KeepsakeString({
   const { t } = useTranslation();
   const [track, setTrack] = useState<HTMLUListElement | null>(null);
   const [perView, setPerView] = useState(1);
-  const [page, setPage] = useState(0);
+  const [position, setPosition] = useState(0);
   const pageCount = Math.max(1, Math.ceil(items.length / perView));
-  const fillers = (perView - (items.length % perView)) % perView;
-  const shownPage = Math.min(page, pageCount - 1);
-  const first = shownPage * perView + 1;
-  const last = Math.min(items.length, first + perView - 1);
+  const fillers = Math.max(0, perView - items.length);
+  const lastStart = Math.max(0, items.length - perView);
+  const start = Math.min(position, lastStart);
+  const shownPage = start >= lastStart ? pageCount - 1 : Math.floor(start / perView);
+  const first = start + 1;
+  const last = Math.min(items.length, start + perView);
   const positionLabel =
     first === last
       ? t('pager.item', { index: first, total: items.length })
@@ -117,7 +119,7 @@ export function KeepsakeString({
 
   function sync() {
     if (!track || track.clientWidth === 0) return;
-    setPage(Math.round(track.scrollLeft / track.clientWidth));
+    setPosition(Math.round((track.scrollLeft * perView) / track.clientWidth));
   }
 
   function step(direction: 1 | -1) {
@@ -139,8 +141,13 @@ export function KeepsakeString({
       if (event.deltaY === 0) return;
       event.preventDefault();
       const now = performance.now();
+      if (now < lockedUntil) {
+        pending = 0;
+        return;
+      }
+      if (Math.sign(event.deltaY) !== Math.sign(pending)) pending = 0;
       pending += event.deltaY;
-      if (now < lockedUntil || Math.abs(pending) < 30) return;
+      if (Math.abs(pending) < 30) return;
       track.scrollBy({
         left: (Math.sign(pending) * track.clientWidth) / Math.max(1, perView),
         behavior: prefersReducedMotion() ? 'auto' : 'smooth',
@@ -154,18 +161,19 @@ export function KeepsakeString({
 
   function goTo(next: number) {
     if (!track) return;
+    const target = Math.min(next * perView, lastStart);
     track.scrollTo({
-      left: next * track.clientWidth,
+      left: (target * track.clientWidth) / perView,
       behavior: prefersReducedMotion() ? 'auto' : 'smooth',
     });
-    setPage(next);
+    setPosition(target);
   }
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
-          className="bg-ink/40 data-[state=open]:animate-fade-in fixed inset-0 z-50"
+          className="bg-ink/40 data-[state=open]:animate-fade-in data-[state=closed]:animate-string-fade-out fixed inset-0 z-50"
           data-string-backdrop=""
         />
         <DialogPrimitive.Content
@@ -185,15 +193,15 @@ export function KeepsakeString({
             event.preventDefault();
             step(event.key === 'ArrowRight' ? 1 : -1);
           }}
-          className="group pointer-events-none fixed inset-0 z-50 flex flex-col justify-center overflow-y-auto outline-none"
+          className="group data-[state=closed]:animate-string-hold pointer-events-none fixed inset-0 z-50 flex flex-col justify-center overflow-y-auto outline-none"
           data-string={kind}
         >
           <div
             className={cn(
-              'pointer-events-auto relative flex w-full flex-col gap-3 py-4',
+              'pointer-events-auto relative flex w-full flex-col gap-3 py-4 group-data-[state=closed]:pointer-events-none',
               side === 'left'
-                ? 'group-data-[state=open]:animate-string-left'
-                : 'group-data-[state=open]:animate-string-right',
+                ? 'group-data-[state=open]:animate-string-left group-data-[state=closed]:animate-string-left-out'
+                : 'group-data-[state=open]:animate-string-right group-data-[state=closed]:animate-string-right-out',
             )}
           >
             <div className="px-safe flex items-center justify-between gap-3">
@@ -255,7 +263,7 @@ export function KeepsakeString({
                 <Pager
                   data-keep-open=""
                   className="bg-card/90 w-full max-w-xs rounded-full px-1 shadow-sm"
-                  page={Math.min(page, pageCount - 1)}
+                  page={shownPage}
                   pageCount={pageCount}
                   onPage={goTo}
                   label={positionLabel}
