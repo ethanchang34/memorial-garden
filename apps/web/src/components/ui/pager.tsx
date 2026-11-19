@@ -7,6 +7,7 @@ type PagerProps = {
   onPage: (page: number) => void;
   className?: string;
   label?: string;
+  'data-keep-open'?: string;
 };
 
 function Chevron({ direction }: { direction: 'left' | 'right' }) {
@@ -27,13 +28,14 @@ function Chevron({ direction }: { direction: 'left' | 'right' }) {
 const arrowClass =
   'size-touch text-foreground focus-visible:outline-ring can-hover:hover:bg-accent grid place-items-center rounded-full transition-colors focus-visible:outline-3 focus-visible:outline-offset-3 disabled:opacity-30';
 
-export function Pager({ page, pageCount, onPage, className, label }: PagerProps) {
+export function Pager({ page, pageCount, onPage, className, label, ...rest }: PagerProps) {
   const { t } = useTranslation();
   if (pageCount < 1) return null;
 
   return (
     <nav
       aria-label={t('pager.label')}
+      {...rest}
       className={cn('flex items-center justify-between', className)}
     >
       <button

@@ -34,7 +34,7 @@ export function LightIncense({ name, state, pending, onLight }: LightIncenseProp
     <>
       <HoldButton
         className={cn(
-          'peer focus-visible:outline-ring absolute top-0 left-0 grid size-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full focus-visible:outline-3 focus-visible:outline-offset-2',
+          'peer focus-visible:outline-ring min-h-touch min-w-touch absolute top-1/2 left-1/2 grid size-full -translate-x-1/2 -translate-y-1/2 place-items-center rounded-2xl focus-visible:outline-3 focus-visible:outline-offset-2',
           'cursor-pointer',
         )}
         aria-label={t('memorial.incense.light')}
@@ -46,7 +46,7 @@ export function LightIncense({ name, state, pending, onLight }: LightIncenseProp
         }
         data-incense-button=""
       >
-        <svg viewBox="0 0 64 64" className="size-full -rotate-90" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="size-14 -rotate-90" aria-hidden="true">
           <circle
             cx="32"
             cy="32"
@@ -62,7 +62,7 @@ export function LightIncense({ name, state, pending, onLight }: LightIncenseProp
         id={hintId}
         flash={flash}
         text={done ? t('memorial.incense.litToday') : t('memorial.incense.hold')}
-        className="bottom-9 left-0 -translate-x-1/2"
+        className="bottom-full left-1/2 mb-1 -translate-x-1/2"
       />
       <span role="status" className="sr-only">
         {state.lit > 0 ? t('memorial.incense.burning', { count: state.lit, name }) : ''}
