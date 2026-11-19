@@ -367,6 +367,32 @@ test.describe('notes', () => {
     await expect(string).toBeVisible();
   });
 
+  test('turning the mouse wheel around moves back right away', async ({ page, supabase }) => {
+    const memorial = seed(supabase);
+    supabase.notes.push(
+      ...Array.from({ length: 12 }, (_, index) =>
+        noteRow({ memorial_id: memorial.id, author_id: OTHER, body: `Note ${index + 1}` }),
+      ),
+    );
+    await page.goto(`/m/${SLUG}`);
+    const string = await openNotes(page);
+    const track = string.locator('[data-string-track]');
+    const cell = await track.evaluate((el) => el.firstElementChild!.getBoundingClientRect().width);
+    const left = () => track.evaluate((el) => Math.round(el.scrollLeft));
+    const box = (await track.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+
+    await track.evaluate((el) => {
+      for (let i = 0; i < 4; i += 1) {
+        el.dispatchEvent(new WheelEvent('wheel', { deltaY: 120, bubbles: true, cancelable: true }));
+      }
+    });
+    await expect.poll(left).toBe(Math.round(cell));
+    await page.waitForTimeout(400);
+    await page.mouse.wheel(0, -120);
+    await expect.poll(left).toBe(0);
+  });
+
   test('clicking outside the notes pulls the string back in', async ({ page, supabase }) => {
     const memorial = seed(supabase);
     supabase.notes.push(noteRow({ memorial_id: memorial.id, author_id: OTHER, body: 'Hello.' }));
@@ -403,6 +429,53 @@ test.describe('notes', () => {
     await expect(
       string.getByText(/^(2|\d+–\d+) of 12$/).filter({ hasNotText: /^1–/ }),
     ).toBeVisible();
+  });
+
+  test('the string ends with the last note at the edge, not empty twine', async ({
+    page,
+    supabase,
+  }) => {
+    const memorial = seed(supabase);
+    supabase.notes.push(
+      ...Array.from({ length: 6 }, (_, index) =>
+        noteRow({ memorial_id: memorial.id, author_id: OTHER, body: `Note ${index + 1}` }),
+      ),
+    );
+    await page.goto(`/m/${SLUG}`);
+    const string = await openNotes(page);
+    const track = string.locator('[data-string-track]');
+    await expect(track.locator('li')).toHaveCount(6);
+    const perView = await track.evaluate((el) =>
+      Math.round(el.clientWidth / el.firstElementChild!.getBoundingClientRect().width),
+    );
+    await track.evaluate((el) => el.scrollTo({ left: el.scrollWidth }));
+    const lastNote = (await track.locator('li').last().boundingBox())!;
+    const trackBox = (await track.boundingBox())!;
+    expect(Math.abs(lastNote.x + lastNote.width - (trackBox.x + trackBox.width))).toBeLessThan(2);
+    const label = perView === 1 ? '6 of 6' : `${7 - perView}–6 of 6`;
+    await expect(string.getByText(label, { exact: true })).toBeVisible();
+    await expect(string.getByRole('button', { name: 'Next page' })).toBeDisabled();
+
+    await string.getByRole('button', { name: 'Previous page' }).click();
+    const pageCount = Math.ceil(6 / perView);
+    const previousStart = Math.min((pageCount - 2) * perView, 6 - perView);
+    await expect
+      .poll(() => track.evaluate((el) => Math.round(el.scrollLeft)))
+      .toBe(Math.round((previousStart * trackBox.width) / perView));
+  });
+
+  test('a short string still stretches its twine across the garden', async ({ page, supabase }) => {
+    const memorial = seed(supabase);
+    supabase.notes.push(noteRow({ memorial_id: memorial.id, author_id: OTHER, body: 'Hello.' }));
+    await page.goto(`/m/${SLUG}`);
+    const string = await openNotes(page);
+    const track = string.locator('[data-string-track]');
+    const scrollable = await track.evaluate((el) => el.scrollWidth - el.clientWidth);
+    expect(scrollable).toBeLessThanOrEqual(0);
+    const cells = await track.locator('li').all();
+    const lastCell = (await cells[cells.length - 1]!.boundingBox())!;
+    const trackBox = (await track.boundingBox())!;
+    expect(Math.abs(lastCell.x + lastCell.width - (trackBox.x + trackBox.width))).toBeLessThan(2);
   });
 
   test('the notes string fits every screen', async ({ page, supabase }) => {
@@ -453,4 +526,22 @@ test('notes sway gently on the string, and hold still with reduced motion', asyn
   await expect(sway).toHaveCSS('animation-name', 'keepsake-sway');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(sway).toHaveCSS('animation-name', 'none');
+});
+
+test('closing pulls the string back in toward its keepsake', async ({ page, supabase }) => {
+  const memorial = seed(supabase);
+  supabase.notes.push(noteRow({ memorial_id: memorial.id, author_id: OTHER, body: 'Hello.' }));
+  await page.goto(`/m/${SLUG}`);
+  const string = await openNotes(page);
+  const row = string.locator(':scope > div').first();
+  await expect(row).toHaveCSS('animation-name', 'drawer-right');
+
+  await string.getByRole('button', { name: 'Close' }).click();
+  await expect(string).toHaveAttribute('data-state', 'closed');
+  await expect(row).toHaveCSS('animation-name', 'drawer-right-out');
+  await expect(page.locator('[data-string-backdrop]')).toHaveCSS('animation-name', 'fade-out');
+  await expect(string).toBeHidden();
+  await expect(
+    page.getByRole('button', { name: /^Notes( \(\d+\))?$/ }).filter({ visible: true }),
+  ).toBeFocused();
 });
